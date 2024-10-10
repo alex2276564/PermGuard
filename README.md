@@ -22,7 +22,7 @@
 * **Logging:** Logs all permission revocation events to both the console and a file for auditing.
 * **Reload Command:** Allows reloading the configuration without restarting the server.
 * **Lightweight and Efficient:** Designed to have minimal impact on server performance.
-* **Shutdown Protection:** If the plugin is disabled (e.g., through PluginManager), the server will automatically shut down to ensure no security gaps are left open.
+* **Shutdown Protection:** If the plugin is disabled (e.g., through Plugman), the server will automatically shut down to ensure no security gaps are left open.
 
 ## 🛡️ Security Benefits
 
