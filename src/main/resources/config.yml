@@ -1,0 +1,24 @@
+# PermGuard Configuration
+
+# List of restricted permissions
+restrictedPermissions:
+  # Wildcard permission
+  - permission: "*"
+    # Command to execute when detected (use %player% and %permission% as placeholders)
+    cmd: "lp user %player% permission unset %permission%"
+    # Whether to log this violation
+    log: true
+    # Message to show player when kicked (use %permission% as placeholder)
+    kickMessage: "Your %permission% permissions have been revoked. Please rejoin and restore them via console."
+
+  # Admin group permission
+  - permission: "group.admin"
+    cmd: "lp user %player% permission unset %permission%"
+    log: true
+    kickMessage: "Your admin permissions have been revoked. Please rejoin and restore them via console."
+
+  # Example if you use op instead of * in LuckPerms
+  #- permission: "*"
+  #  cmd: "deop %player%"
+  #  log: true
+  #  kickMessage: "Your op permissions have been revoked. Please rejoin and restore them via console."
