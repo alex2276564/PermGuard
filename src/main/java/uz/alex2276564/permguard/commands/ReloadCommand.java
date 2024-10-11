@@ -17,7 +17,7 @@ public class ReloadCommand implements CommandExecutor {
         }
 
         ConfigManager.reload();
-        commandSender.sendMessage("PermGuard configuration reloaded.");
+        commandSender.sendMessage("§aPermGuard configuration successfully reloaded.");
         return true;
     }
 }
