@@ -23,6 +23,13 @@ public class JoinListener implements Listener {
         Player player = event.getPlayer();
         for (Map<String, Object> entry: ConfigManager.getRestrictedPermissions()) {
             String permission = (String) entry.get("permission");
+
+            if (!permission.equals("*") && player.hasPermission("*")) {
+                String kickMessage = "You already have all permissions (*). Please delete this permission before revoking others.";
+                player.kickPlayer(kickMessage);
+                return;
+            }
+
             if (player.hasPermission(permission)) {
                 String cmd = ((String) entry.get("cmd")).replace("%player%", player.getName()).replace("%permission%", permission);
                 boolean log = (boolean) entry.get("log");
