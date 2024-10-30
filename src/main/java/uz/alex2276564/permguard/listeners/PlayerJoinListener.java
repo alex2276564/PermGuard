@@ -7,13 +7,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import uz.alex2276564.permguard.PermGuard;
+import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.ConfigManager;
 
 import java.io.*;
 import java.util.Date;
 import java.util.Map;
 
-public class JoinListener implements Listener {
+public class PlayerJoinListener implements Listener {
 
     @EventHandler(
             priority = EventPriority.LOWEST,
@@ -25,27 +26,41 @@ public class JoinListener implements Listener {
             String permission = (String) entry.get("permission");
 
             if (!permission.equals("*") && player.hasPermission("*")) {
-                String kickMessage = "You already have all permissions (*). Please delete this permission before revoking others.";
+                String kickMessage = "[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
                 player.kickPlayer(kickMessage);
                 return;
             }
 
             if (player.hasPermission(permission)) {
-                String cmd = ((String) entry.get("cmd")).replace("%player%", player.getName()).replace("%permission%", permission);
+                String cmd = (String) entry.get("cmd");
                 boolean log = (boolean) entry.get("log");
-                String kickMessage = ((String) entry.get("kickMessage")).replace("%permission%", permission);
-
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-                if (log) {
-                    logViolation(player, permission);
+                String kickMessage = (String) entry.get("kickMessage");
+                final PlayerHasRestrictedPermissionEvent e = new PlayerHasRestrictedPermissionEvent(player, permission, cmd, log, kickMessage);
+                Bukkit.getPluginManager().callEvent(e);
+                if(e.isCancelled()) {
+                    break;
                 }
-
-                player.kickPlayer(kickMessage);
-                break;
             }
         }
-
     }
+
+    @EventHandler
+    public void on(PlayerHasRestrictedPermissionEvent event) {
+        Player player = event.getPlayer();
+        String cmd = event.getCmd().replace("%player%", player.getName()).replace("%permission%", event.getPermission());
+        boolean log = event.isLog();
+        String kickMessage = event.getKickMessage().replace("%permission%", event.getPermission());
+
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        if (log) {
+            logViolation(player, event.getPermission());
+        }
+
+        player.kickPlayer(kickMessage);
+
+        event.setCancelled(true);
+    }
+
     private void logViolation(Player player, String permission) {
         String logMessage = String.format("[%s] Player %s tried to join with restricted permission %s from IP %s",
                 new Date(), player.getName(), permission, player.getAddress().getAddress().getHostAddress());
