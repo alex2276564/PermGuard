@@ -2,7 +2,7 @@ package uz.alex2276564.permguard;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import uz.alex2276564.permguard.commands.ReloadCommand;
+import uz.alex2276564.permguard.commands.reloadcommand.ReloadCommand;
 import uz.alex2276564.permguard.listeners.JoinListener;
 import uz.alex2276564.permguard.utils.ConfigManager;
 
@@ -23,7 +23,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getCommand("permguardreload").setExecutor(new ReloadCommand());
+        getCommand("permguard").setExecutor(new ReloadCommand());
     }
 
     private void loadUtils() {

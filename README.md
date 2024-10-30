@@ -95,7 +95,7 @@ restrictedPermissions:
 
 ## 📜 Commands
 
-- `/permguardreload` - Reloads the plugin configuration (requires `permguard.reload` permission)
+- `/permguard reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
 
 ## 🛠️ Compatibility
 
