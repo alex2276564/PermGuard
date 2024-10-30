@@ -71,7 +71,7 @@ Edit the `config.yml` file in the plugin's folder to customize settings:
 
 # List of restricted permissions
 restrictedPermissions:
-  # Wildcard permission
+  # Wildcard permission (Should always be first in the list if used)
   - permission: "*"
     # Command to execute when detected (use %player% and %permission% as placeholders)
     cmd: "lp user %player% permission unset %permission%"
