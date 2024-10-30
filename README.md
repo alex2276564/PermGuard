@@ -5,8 +5,6 @@
 [![GitHub Release](https://img.shields.io/github/v/release/alex2276564/PermGuard?color=blue)](https://github.com/alex2276564/PermGuard/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/isoiec-27001.html)
-[![PCI DSS](https://img.shields.io/badge/PCI%20DSS-Compliant-brightgreen)](https://www.pcisecuritystandards.org/)
-[![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen)](https://gdpr.eu/)
 [![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 [![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
@@ -36,25 +34,15 @@
 6. **Port Exploitation / BungeeCord Hacks:** By revoking admin permissions on entry, PermGuard minimizes the potential for attackers to exploit server ports or use BungeeCord-related hacks to gain elevated privileges.
 7. **AuthMe Bypass:** Even if an attacker finds a way to bypass AuthMe authentication, they won't gain immediate access to admin permissions as PermGuard will revoke them upon entry.
 8. **Zero-Day Exploits:** Provides a safety net against zero-day exploits by ensuring that even if a vulnerability is exploited, the attacker will not have sustained access to admin permissions.
-9. **Shutdown Protection:** Ensures that if the plugin is disabled, the server shuts down to prevent any security gaps from being exploited.
+9. **Shutdown Protection:** Ensures that if the plugin is disabled , the server shuts down to prevent any security gaps from being exploited.
 
 ### Compliance with Security Standards:
 
 - **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to perform their tasks, reducing the risk of privilege abuse.
 - **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating compliance audits and forensic analysis.
 - **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by enforcing strict permission controls and audit logging.
-- **PCI DSS Compliance:** By limiting and logging access to sensitive data and functions, PermGuard aids in compliance with the Payment Card Industry Data Security Standard. (PermGuard helps ensure that only authorized personnel can access sensitive data and functions, which is a key requirement for PCI DSS.)
-- **GDPR Compliance:** Helps protect personal data by ensuring that only authorized personnel can access sensitive information.
 - **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by implementing strong access control measures.
 - **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only authorized personnel can grant elevated privileges.
-
-### Enhanced Server Security Posture:
-
-- **Proactive Defense:** PermGuard acts as a proactive defense mechanism, reducing the attack surface and limiting the impact of potential breaches.
-- **Comprehensive Protection:** Combines permission revocation, logging, and customizable messages to provide comprehensive protection against a wide range of threats.
-- **Unparalleled Account Security:** With PermGuard, it becomes significantly harder for attackers to compromise admin accounts and abuse their privileges, providing unparalleled security for your server.
-- **Defense in Depth:** Implements multiple layers of security controls to protect against various attack vectors, ensuring that even if one layer is bypassed, others remain in place.
-- **Minimized Insider Threats:** By enforcing strict permission controls and audit logging, PermGuard minimizes the risk of malicious actions by insiders. (PermGuard ensures that users have only the minimum permissions necessary and logs all permission-related activities, helping to detect and respond to suspicious behavior by insiders.)
 
 ## 📥 Installation
 
