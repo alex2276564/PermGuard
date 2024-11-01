@@ -1,0 +1,33 @@
+name: Question
+description: Ask a question about PermGuard
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for your interest in PermGuard!"
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know about PermGuard?
+      placeholder: Please be specific about your security-related question
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What is your question about?
+      options:
+        - "Installation"
+        - "Configuration"
+        - "Permissions Setup"
+        - "Security Best Practices"
+        - "Compliance Requirements"
+        - "Integration with Other Plugins"
+        - "Other"
+    validations:
+      required: true

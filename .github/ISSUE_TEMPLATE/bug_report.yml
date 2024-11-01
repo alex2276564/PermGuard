@@ -1,0 +1,86 @@
+name: Bug Report
+description: Report a security issue or bug in PermGuard
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        ⚠️ If you're reporting a security vulnerability, please ensure you're not disclosing sensitive information.
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you running?
+      placeholder: "e.g., 1.16.5"
+    validations:
+      required: true
+
+  - type: input
+    id: server-software
+    attributes:
+      label: Server Software
+      description: What server software are you using?
+      placeholder: "e.g., Paper"
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: PermGuard Version
+      description: What version of PermGuard are you using?
+      placeholder: "e.g., 1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: permission-plugin
+    attributes:
+      label: Permission Plugin
+      description: What permission plugin are you using? (LuckPerms, etc.)
+      placeholder: "e.g., LuckPerms"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Issue Description
+      description: Describe the bug and how to reproduce it
+      placeholder: |
+        1. Set up permissions...
+        2. Admin joins...
+        3. Observe issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Please provide your config.yml content (remove sensitive information)
+      render: yaml
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please provide relevant logs (remove sensitive information)
+      render: shell
+
+  - type: dropdown
+    id: security-impact
+    attributes:
+      label: Security Impact
+      description: How would you rate the security impact of this issue?
+      options:
+        - "No security impact"
+        - "Low - Minor security concerns"
+        - "Medium - Potential security risk"
+        - "High - Significant security risk"
+        - "Critical - Immediate attention required"
+    validations:
+      required: true

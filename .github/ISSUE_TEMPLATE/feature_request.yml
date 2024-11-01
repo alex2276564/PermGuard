@@ -1,0 +1,46 @@
+name: Feature Request
+description: Suggest a security enhancement or feature for PermGuard
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for helping improve PermGuard's security features!"
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Describe the security feature or enhancement you'd like to see
+      placeholder: A clear description of the security feature you want
+    validations:
+      required: true
+
+  - type: textarea
+    id: security-benefit
+    attributes:
+      label: Security Benefits
+      description: Describe how this feature would enhance security
+      placeholder: "This feature would protect against..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: compliance
+    attributes:
+      label: Security Standards
+      description: Does this feature align with specific security standards?
+      options:
+        - "ISO/IEC 27001"
+        - "CIS Controls"
+        - "Least Privilege Principle"
+        - "Other"
+        - "None"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions you've considered
