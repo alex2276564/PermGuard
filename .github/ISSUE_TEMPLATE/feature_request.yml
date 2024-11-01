@@ -34,8 +34,8 @@ body:
         - "ISO/IEC 27001"
         - "CIS Controls"
         - "Least Privilege Principle"
-        - "Other"
-        - "None"
+        - "Other security standards"
+        - "Not related to specific standards"
     validations:
       required: true
 
