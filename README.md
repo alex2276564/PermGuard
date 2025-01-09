@@ -21,6 +21,7 @@
 * **Reload Command:** Allows reloading the configuration without restarting the server.
 * **Lightweight and Efficient:** Designed to have minimal impact on server performance.
 * **Shutdown Protection:** If the plugin is disabled (e.g., through Plugman), the server will automatically shut down to ensure no security gaps are left open.
+* **Auto-Update Check:** On server start, the plugin checks for updates. If a new version is available, a notification is displayed in the console.
 
 ## 🛡️ Security Benefits
 
@@ -89,6 +90,16 @@ restrictedPermissions:
 
 - **Minecraft Versions:** 1.16.5 to the latest release
 - **Server Software:** [Paper](https://papermc.io/) (1.16.5 and newer)
+
+## 📦 Other Plugins
+
+Also check out my other plugins for protecting your Minecraft server:
+
+- [**LeverLock**](https://github.com/alex2276564/LeverLock)  
+  *LeverLock* - a plugin to prevent rapid lever interactions, which can cause lag or be exploited for unintended game mechanics. Works in conjunction with **AntiRedstoneClock-Remastered**, providing comprehensive protection from redstone-based lag and exploits.
+
+- [**NoMoreTNTChainCrash**](https://github.com/alex2276564/NoMoreTNTChainCrash)  
+  *NoMoreTNTChainCrash* is a Minecraft plugin designed to prevent server crashes and lag caused by excessive TNT explosions. It achieves this by removing TNT before automated chain explosions can occur, while still allowing players to manually detonate TNT as desired.
 
 ## 🆘 Support
 
