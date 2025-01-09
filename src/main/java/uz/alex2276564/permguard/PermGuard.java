@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import uz.alex2276564.permguard.commands.reloadcommand.ReloadCommand;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
 import uz.alex2276564.permguard.utils.ConfigManager;
+import uz.alex2276564.permguard.utils.UpdateChecker;
 
 public final class PermGuard extends JavaPlugin {
     @Getter
@@ -16,6 +17,7 @@ public final class PermGuard extends JavaPlugin {
         registerListeners();
         registerCommands();
         loadUtils();
+        checkUpdates();
     }
 
     private void registerListeners() {
@@ -28,6 +30,11 @@ public final class PermGuard extends JavaPlugin {
 
     private void loadUtils() {
         ConfigManager.reload();
+    }
+
+    private void checkUpdates() {
+        UpdateChecker updateChecker = new UpdateChecker(this, "alex2276564/PermGuard");
+        updateChecker.checkForUpdates();
     }
 
     @Override
