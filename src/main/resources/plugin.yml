@@ -3,7 +3,7 @@ version: '${version}'
 main: uz.alex2276564.permguard.PermGuard
 api-version: '1.16'
 authors: [alex2276564]
-description: A Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining. It helps prevent unauthorized access and potential security breaches, ensuring that only authorized personnel can grant elevated privileges.
+description: A Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining and sending security alerts to Telegram. It helps prevent unauthorized access and potential security breaches, ensuring that only authorized personnel can grant elevated privileges.
 commands:
   permguard:
     description: Reload PermGuard configuration
