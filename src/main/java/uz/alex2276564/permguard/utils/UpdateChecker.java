@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import uz.alex2276564.permguard.task.Runner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,14 +15,16 @@ import java.net.URL;
 public class UpdateChecker {
     private final JavaPlugin plugin;
     private final String githubRepo;
+    private final Runner runner;
 
-    public UpdateChecker(JavaPlugin plugin, String githubRepo) {
+    public UpdateChecker(JavaPlugin plugin, String githubRepo, Runner runner) {
         this.plugin = plugin;
         this.githubRepo = githubRepo;
+        this.runner = runner;
     }
 
     public void checkForUpdates() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        runner.runAsync(() -> {
             try {
                 String latestVersion = getLatestVersion();
                 if (latestVersion != null && !latestVersion.equals(plugin.getDescription().getVersion())) {
