@@ -10,7 +10,7 @@
 [![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
 [![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
 
-**PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining the server and sending security alerts to Telegram. This helps to prevent unauthorized access and potential security breaches. When an admin with elevated permissions joins the server, their permissions are removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re-grants them via the console using commands like `lp user playernick permission set *`.
+**PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining the server and sending security alerts to Telegram. Unlike traditional admin password plugins, which can often be bypassed through various exploits, PermGuard implements a fundamentally more secure approach by completely removing elevated permissions on join. This helps to prevent unauthorized access and potential security breaches, even if other security measures are compromised. When an admin with elevated permissions joins the server, their permissions are removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re-grants them via the console using commands like `lp user playernick permission set *`.
 
 ## ✨ Features
 
