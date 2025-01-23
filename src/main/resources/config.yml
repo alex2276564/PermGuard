@@ -55,5 +55,5 @@ telegram:
   # %permission% - restricted permission
   # %ip% - player's IP address
   # %country% - player's country (based on IP)
-  # %date% - date and time of the incident
-  message: "⚠️ Security Alert!\n\nPlayer %player% tried to join with restricted permission %permission% and was kicked\n\n📍 Details:\n👤 Player: %player%\n🔒 Permission: %permission%\n🌐 IP: %ip%\n🗺️ Country: %country%\n⏰ Time: %date%\n\n❗If this wasn't authorized by you, please take immediate action to secure your server."
+  # %date% - date and time of the incident (Server time)
+  message: "⚠️ Security Alert!\n\nPlayer %player% tried to join with restricted permission %permission% and was kicked\n\n📍 Details:\n👤 Player: %player%\n🔒 Permission: %permission%\n🌐 IP: %ip%\n🗺️ Country: %country%\n⏰ Time: %date% (Server time)\n\n❗If this wasn't authorized by you, please take immediate action to secure your server."

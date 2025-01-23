@@ -58,7 +58,7 @@ public class ConfigManager {
             telegramRetryDelay = config.getLong("telegram.retry-delay", 1100);
 
             telegramMessage = config.getString("telegram.message",
-                    "⚠️ Security Alert!\\n\\nPlayer %player% tried to join with restricted permission %permission% and was kicked\\n\\n\uD83D\uDCCD Details:\\n\uD83D\uDC64 Player: %player%\\n\uD83D\uDD12 Permission: %permission%\\n\uD83C\uDF10 IP: %ip%\\n\uD83D\uDDFA️ Country: %country%\\n⏰ Time: %date%\\n\\n❗If this wasn't authorized by you, please take immediate action to secure your server.");
+                    "⚠️ Security Alert!\\n\\nPlayer %player% tried to join with restricted permission %permission% and was kicked\\n\\n\uD83D\uDCCD Details:\\n\uD83D\uDC64 Player: %player%\\n\uD83D\uDD12 Permission: %permission%\\n\uD83C\uDF10 IP: %ip%\\n\uD83D\uDDFA️ Country: %country%\\n⏰ Time: %date% (Server time)\\n\\n❗If this wasn't authorized by you, please take immediate action to secure your server.");
         }
     }
 
