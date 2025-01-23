@@ -8,13 +8,15 @@
 [![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 [![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
+[![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
 
-**PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining the server. This helps to prevent unauthorized access and potential security breaches. When an admin with elevated permissions joins the server, their permissions are removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re-grants them via the console using commands like `lp user playernick permission set *`.
+**PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining the server and sending security alerts to Telegram. This helps to prevent unauthorized access and potential security breaches. When an admin with elevated permissions joins the server, their permissions are removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re-grants them via the console using commands like `lp user playernick permission set *`.
 
 ## ✨ Features
 
 * **Automatic Permission Revoke:** Revokes specified permissions when an admin joins.
 * **Kick on Elevated Permissions:** Kicks the admin and logs the event if elevated permissions are detected.
+* **Telegram Alerts:** Sends detailed security notifications to Telegram, including information about the player, their IP address, and country.
 * **Manual Permission Restoration:** Admins must rejoin without elevated permissions and restore them manually via console commands.
 * **Customizable Kick Messages:** You can personalize the message shown to admins when they are kicked.
 * **Logging:** Logs all permission revocation events to both the console and a file for auditing.
@@ -35,7 +37,8 @@
 6. **Port Exploitation / BungeeCord Hacks:** By revoking admin permissions on entry, PermGuard minimizes the potential for attackers to exploit server ports or use BungeeCord-related hacks to gain elevated privileges.
 7. **AuthMe Bypass:** Even if an attacker finds a way to bypass AuthMe authentication, they won't gain immediate access to admin permissions as PermGuard will revoke them upon entry.
 8. **Zero-Day Exploits:** Provides a safety net against zero-day exploits by ensuring that even if a vulnerability is exploited, the attacker will not have sustained access to admin permissions.
-9. **Shutdown Protection:** Ensures that if the plugin is disabled , the server shuts down to prevent any security gaps from being exploited.
+9. **Telegram Alerts:** If a suspicious activity is detected, detailed notifications are sent to Telegram, including the player's IP and country, so you can take immediate action.
+10. **Shutdown Protection:** Ensures that if the plugin is disabled , the server shuts down to prevent any security gaps from being exploited.
 
 ### Compliance with Security Standards:
 
@@ -80,6 +83,41 @@ restrictedPermissions:
   #  cmd: "deop %player%"
   #  log: true
   #  kickMessage: "Your op permissions have been revoked. Please rejoin and restore them via console."
+
+# Telegram notification settings
+telegram:
+  # Enable or disable Telegram notifications
+  enabled: false
+
+  # Your Telegram bot token (get it from @BotFather)
+  bot-token: "your_bot_token_here"
+
+  # Chat IDs where notifications will be sent (separate multiple IDs with commas)
+  # How to get chat ID:
+  # 1. Send a message to your bot
+  # 2. Visit https://api.telegram.org/bot<YourBOTToken>/getUpdates
+  # 3. Find your chat ID in the response
+  chat-ids: "123456789,987654321"
+
+  # Number of retry attempts if sending fails
+  # Set to 0 for dedicated hosting with stable network (recommended)
+  # Increase this value (1-3) for shared hosting or unstable network
+  # Note: Telegram API can sometimes return incorrect responses,
+  # so it's better to keep this at 0 on stable connections
+  max-retries: 0
+
+  # Delay between retry attempts in milliseconds
+  # Only used if max-retries > 0
+  retry-delay: 1100
+
+  # Notification message template
+  # Available placeholders:
+  # %player% - player name
+  # %permission% - restricted permission
+  # %ip% - player's IP address
+  # %country% - player's country (based on IP)
+  # %date% - date and time of the incident
+  message: "⚠️ Security Alert!\n\nPlayer %player% tried to join with restricted permission %permission% and was kicked\n\n📍 Details:\n👤 Player: %player%\n🔒 Permission: %permission%\n🌐 IP: %ip%\n🗺️ Country: %country%\n⏰ Time: %date%\n\n❗If this wasn't authorized by you, please take immediate action to secure your server."
 ```
 
 ## 📜 Commands

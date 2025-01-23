@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.ConfigManager;
+import uz.alex2276564.permguard.utils.TelegramNotifier;
 
 import java.io.*;
 import java.util.Date;
@@ -57,6 +58,8 @@ public class PlayerJoinListener implements Listener {
         }
 
         player.kickPlayer(kickMessage);
+
+        PermGuard.getInstance().getRunner().runAsync(() -> TelegramNotifier.sendNotification(player, event.getPermission()));
 
         event.setCancelled(true);
     }

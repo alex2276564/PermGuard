@@ -22,3 +22,38 @@ restrictedPermissions:
   #  cmd: "deop %player%"
   #  log: true
   #  kickMessage: "Your op permissions have been revoked. Please rejoin and restore them via console."
+
+# Telegram notification settings
+telegram:
+  # Enable or disable Telegram notifications
+  enabled: false
+
+  # Your Telegram bot token (get it from @BotFather)
+  bot-token: "your_bot_token_here"
+
+  # Chat IDs where notifications will be sent (separate multiple IDs with commas)
+  # How to get chat ID:
+  # 1. Send a message to your bot
+  # 2. Visit https://api.telegram.org/bot<YourBOTToken>/getUpdates
+  # 3. Find your chat ID in the response
+  chat-ids: "123456789,987654321"
+
+  # Number of retry attempts if sending fails
+  # Set to 0 for dedicated hosting with stable network (recommended)
+  # Increase this value (1-3) for shared hosting or unstable network
+  # Note: Telegram API can sometimes return incorrect responses,
+  # so it's better to keep this at 0 on stable connections
+  max-retries: 0
+
+  # Delay between retry attempts in milliseconds
+  # Only used if max-retries > 0
+  retry-delay: 1100
+
+  # Notification message template
+  # Available placeholders:
+  # %player% - player name
+  # %permission% - restricted permission
+  # %ip% - player's IP address
+  # %country% - player's country (based on IP)
+  # %date% - date and time of the incident
+  message: "⚠️ Security Alert!\n\nPlayer %player% tried to join with restricted permission %permission% and was kicked\n\n📍 Details:\n👤 Player: %player%\n🔒 Permission: %permission%\n🌐 IP: %ip%\n🗺️ Country: %country%\n⏰ Time: %date%\n\n❗If this wasn't authorized by you, please take immediate action to secure your server."
