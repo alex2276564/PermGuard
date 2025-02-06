@@ -1,15 +1,10 @@
 package uz.alex2276564.permguard.utils;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.plugin.java.JavaPlugin;
 import uz.alex2276564.permguard.task.Runner;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class UpdateChecker {
     private final JavaPlugin plugin;
@@ -35,35 +30,21 @@ public class UpdateChecker {
                 } else {
                     plugin.getLogger().info("You are running the latest version of " + plugin.getDescription().getName());
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 plugin.getLogger().warning("Failed to check for updates: " + e.getMessage());
             }
         });
     }
 
-    private String getLatestVersion() throws IOException {
-        HttpURLConnection connection = null;
-        try {
-            String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
-            URL url = new URL(apiUrl);
-            connection = (HttpURLConnection) url.openConnection();
+    private String getLatestVersion() throws Exception {
+        String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
+        HttpUtils.HttpResponse response = HttpUtils.getResponse(apiUrl, "MinecraftPlugin");
 
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "MinecraftPlugin");
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("Failed to check for updates: HTTP " + responseCode);
-            }
-
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-                return jsonObject.get("tag_name").getAsString();
-            }
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            JsonObject jsonObject = response.getJsonBody();
+            return jsonObject.get("tag_name").getAsString();
+        } else {
+            throw new Exception("GitHub API returned HTTP " + response.getResponseCode());
         }
     }
 }

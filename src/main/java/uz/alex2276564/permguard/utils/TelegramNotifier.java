@@ -1,14 +1,10 @@
 package uz.alex2276564.permguard.utils;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.entity.Player;
 import uz.alex2276564.permguard.PermGuard;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -55,30 +51,30 @@ public class TelegramNotifier {
         int maxRetries = ConfigManager.getTelegramMaxRetries();
         long retryDelay = ConfigManager.getTelegramRetryDelay();
 
-        for (int attempt = 0; attempt <= maxRetries; attempt++) {
-            HttpURLConnection connection = null;
+        String urlString = String.format(TELEGRAM_API_URL,
+                botToken,
+                chatId,
+                URLEncoder.encode(message, StandardCharsets.UTF_8));
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                String urlString = String.format(TELEGRAM_API_URL,
-                        botToken,
-                        chatId,
-                        URLEncoder.encode(message, StandardCharsets.UTF_8));
+                HttpUtils.HttpResponse response = HttpUtils.getResponse(urlString, null);
 
-                URL url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
+                if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     return; // Successful send
-                }
-
-                if (responseCode == 429 && attempt < maxRetries) { // Too Many Requests
-                    Thread.sleep(retryDelay);
+                } else if (response.getResponseCode() == 429) { // Too Many Requests
+                    if (attempt < maxRetries) {
+                        Thread.sleep(retryDelay);
+                    } else {
+                        throw new Exception("Failed to send Telegram message: Too Many Requests (429) after max retries.");
+                    }
+                } else {
+                    throw new Exception("Failed to send Telegram message: HTTP " + response.getResponseCode());
                 }
             } catch (Exception e) {
                 PermGuard.getInstance().getLogger().warning(
                         String.format("Failed to send Telegram notification (attempt %d/%d): %s",
-                                attempt + 1, maxRetries, e.getMessage())
+                                attempt, maxRetries, e.getMessage())
                 );
 
                 if (attempt < maxRetries) {
@@ -88,38 +84,20 @@ public class TelegramNotifier {
                         Thread.currentThread().interrupt();
                     }
                 }
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
             }
         }
     }
 
     private static String getCountryByIp(String ip) {
-        HttpURLConnection connection = null;
+        String urlString = String.format(IP_API_URL, ip);
         try {
-            URL url = new URL(String.format(IP_API_URL, ip));
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                JsonObject response = JsonParser.parseReader(reader).getAsJsonObject();
-
-                if (response.has("country")) {
-                    return response.get("country").getAsString();
-                }
+            HttpUtils.HttpResponse response = HttpUtils.getResponse(urlString, null);
+            if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                JsonObject json = response.getJsonBody();
+                return json.has("country") ? json.get("country").getAsString() : "Unknown";
             }
         } catch (Exception e) {
-            PermGuard.getInstance().getLogger().warning(
-                    String.format("Failed to get country for IP %s: %s", ip, e.getMessage())
-            );
-            return "Unknown";
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+            PermGuard.getInstance().getLogger().warning("Failed to get country for IP " + ip + ": " + e.getMessage());
         }
         return "Unknown";
     }
