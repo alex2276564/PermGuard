@@ -26,7 +26,7 @@ public class UpdateChecker {
         runner.runAsync(() -> {
             try {
                 String latestVersion = getLatestVersion();
-                if (latestVersion != null && !latestVersion.equals(plugin.getDescription().getVersion())) {
+                if (!latestVersion.equals(plugin.getDescription().getVersion())) {
                     plugin.getLogger().info("");
                     plugin.getLogger().info("New version available: " + latestVersion);
                     plugin.getLogger().info("You are running version: " + plugin.getDescription().getVersion());
@@ -42,20 +42,28 @@ public class UpdateChecker {
     }
 
     private String getLatestVersion() throws IOException {
-        String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = null;
+        try {
+            String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
+            URL url = new URL(apiUrl);
+            connection = (HttpURLConnection) url.openConnection();
 
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "MinecraftPlugin");
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", "MinecraftPlugin");
 
-        if (connection.getResponseCode() != 200) {
-            throw new IOException("Failed to check for updates: HTTP " + connection.getResponseCode());
-        }
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new IOException("Failed to check for updates: HTTP " + responseCode);
+            }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            return jsonObject.get("tag_name").getAsString();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+                return jsonObject.get("tag_name").getAsString();
+            }
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 }

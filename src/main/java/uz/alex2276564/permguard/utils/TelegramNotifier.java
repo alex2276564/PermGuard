@@ -52,7 +52,7 @@ public class TelegramNotifier {
         long retryDelay = ConfigManager.getTelegramRetryDelay();
 
         for (int attempt = 0; attempt <= maxRetries; attempt++) {
-            HttpURLConnection conn = null;
+            HttpURLConnection connection = null;
             try {
                 String urlString = String.format(TELEGRAM_API_URL,
                         botToken,
@@ -60,10 +60,10 @@ public class TelegramNotifier {
                         URLEncoder.encode(message, StandardCharsets.UTF_8));
 
                 URL url = new URL(urlString);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
 
-                int responseCode = conn.getResponseCode();
+                int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     return; // Successful send
                 }
@@ -85,22 +85,22 @@ public class TelegramNotifier {
                     }
                 }
             } finally {
-                if (conn != null) {
-                    conn.disconnect();
+                if (connection != null) {
+                    connection.disconnect();
                 }
             }
         }
     }
 
     private static String getCountryByIp(String ip) {
-        HttpURLConnection conn = null;
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(String.format(IP_API_URL, ip));
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 JsonObject response = JsonParser.parseReader(reader).getAsJsonObject();
 
                 if (response.has("country")) {
@@ -113,8 +113,8 @@ public class TelegramNotifier {
             );
             return "Unknown";
         } finally {
-            if (conn != null) {
-                conn.disconnect();
+            if (connection != null) {
+                connection.disconnect();
             }
         }
         return "Unknown";
