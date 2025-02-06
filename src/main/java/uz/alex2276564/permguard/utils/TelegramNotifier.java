@@ -30,18 +30,22 @@ public class TelegramNotifier {
         String[] chatIds = ConfigManager.getTelegramChatIds();
         String messageTemplate = ConfigManager.getTelegramMessage();
         String ip = player.getAddress().getAddress().getHostAddress();
-        String country = getCountryByIp(ip);
+        String country = messageTemplate.contains("%country%") ? getCountryByIp(ip) : null;
 
         String message = messageTemplate
                 .replace("%player%", player.getName())
                 .replace("%permission%", permission)
                 .replace("%ip%", ip)
-                .replace("%country%", country)
                 .replace("%date%", DATE_FORMAT.format(new Date()));
 
+        if (country != null) {
+            message = message.replace("%country%", country);
+        }
+
+        String finalMessage = message;
         CompletableFuture<?>[] futures = Arrays.stream(chatIds)
                 .map(chatId -> CompletableFuture.runAsync(() ->
-                        sendMessage(botToken, chatId.trim(), message)))
+                        sendMessage(botToken, chatId.trim(), finalMessage)))
                 .toArray(CompletableFuture[]::new);
 
         CompletableFuture.allOf(futures).join();
