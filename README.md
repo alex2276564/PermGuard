@@ -93,10 +93,33 @@ telegram:
   bot-token: "your_bot_token_here"
 
   # Chat IDs where notifications will be sent (separate multiple IDs with commas)
-  # How to get chat ID:
-  # 1. Send a message to your bot
-  # 2. Visit https://api.telegram.org/bot<YourBOTToken>/getUpdates
-  # 3. Find your chat ID in the response
+  #
+  # How to get your Chat ID:
+  # 1. Send a message to your bot.
+  # 2. Open the following link in your browser (replace <YourBOTToken> with your bot token):  
+  #    https://api.telegram.org/bot<YourBOTToken>/getUpdates
+  # 3. In the JSON response, look for "chat": {"id": ...} — this is your Chat ID.
+  # 4. Add this Chat ID to the configuration below (example: 123456789).
+  #
+  # How to add the bot to a group:
+  # 1. Add the bot to the group.
+  # 2. Send a message in the group.
+  # 3. Visit https://api.telegram.org/bot<YourBOTToken>/getUpdates
+  # 4. Find the group Chat ID (it will start with a "-", e.g., -987654321).
+  # 5. Add this ID to the configuration below.
+  #
+  # How to add the bot to a channel:
+  # 1. Add the bot as an administrator of the channel.
+  # 2. Open Web Telegram (https://web.telegram.org/a/) and go to the channel.
+  # 3. Look at the URL in your browser; it will be something like:
+  #    https://web.telegram.org/a/#-1001234567890
+  # 4. Channel Chat IDs always start with "-100" (e.g., -1001234567890).
+  # 5. Add this Chat ID to the configuration below.
+  #
+  # Telegram API Limit:
+  # You can enter up to 30 Chat IDs in total (Telegram API restriction).
+  #
+  # You can add multiple Chat IDs separated by commas (e.g., 123456789, -987654321, -1001234567890).
   chat-ids: "123456789,987654321"
 
   # Number of retry attempts if sending fails
