@@ -152,6 +152,10 @@ telegram:
 - **Minecraft Versions:** 1.16.5 to the latest release
 - **Server Software:** [Paper](https://papermc.io/) (1.16.5 and newer)
 
+## 📝 Note
+
+**AxiomPaper Compatibility:** This plugin may interfere with the AxiomPaper plugin's functionality. AxiomPaper only checks permissions when a player joins the server, so if you remove all permissions and then restore them while in-game, the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*` permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
+
 ## 📦 Other Plugins
 
 Also check out my other plugins for protecting your Minecraft server:
