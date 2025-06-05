@@ -17,14 +17,22 @@ public class TelegramNotifier {
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-    public static void sendNotification(Player player, String permission) {
-        if (!ConfigManager.isTelegramEnabled()) {
+    private final PermGuard plugin;
+    private final HttpUtils httpUtils;
+
+    public TelegramNotifier(PermGuard plugin) {
+        this.plugin = plugin;
+        this.httpUtils = new HttpUtils();
+    }
+
+    public void sendNotification(Player player, String permission) {
+        if (!plugin.getConfigManager().isTelegramEnabled()) {
             return;
         }
 
-        String botToken = ConfigManager.getTelegramBotToken();
-        String[] chatIds = ConfigManager.getTelegramChatIds();
-        String messageTemplate = ConfigManager.getTelegramMessage();
+        String botToken = plugin.getConfigManager().getTelegramBotToken();
+        String[] chatIds = plugin.getConfigManager().getTelegramChatIds();
+        String messageTemplate = plugin.getConfigManager().getTelegramMessage();
         String ip = player.getAddress().getAddress().getHostAddress();
         String country = messageTemplate.contains("%country%") ? getCountryByIp(ip) : null;
 
@@ -47,23 +55,23 @@ public class TelegramNotifier {
         CompletableFuture.allOf(futures).join();
     }
 
-    private static void sendMessage(String botToken, String chatId, String message) {
-        int maxRetries = ConfigManager.getTelegramMaxRetries();
-        long retryDelay = ConfigManager.getTelegramRetryDelay();
+    private void sendMessage(String botToken, String chatId, String message) {
+        int maxRetries = plugin.getConfigManager().getTelegramMaxRetries();
+        long retryDelay = plugin.getConfigManager().getTelegramRetryDelay();
 
         String urlString = String.format(TELEGRAM_API_URL,
                 botToken,
                 chatId,
                 URLEncoder.encode(message, StandardCharsets.UTF_8));
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+        for (int attempt = 1; attempt <= maxRetries + 1; attempt++) {
             try {
-                HttpUtils.HttpResponse response = HttpUtils.getResponse(urlString, null);
+                HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
 
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     return; // Successful send
                 } else if (response.getResponseCode() == 429) { // Too Many Requests
-                    if (attempt < maxRetries) {
+                    if (attempt < maxRetries + 1) {
                         Thread.sleep(retryDelay);
                     } else {
                         throw new Exception("Failed to send Telegram message: Too Many Requests (429) after max retries.");
@@ -72,12 +80,12 @@ public class TelegramNotifier {
                     throw new Exception("Failed to send Telegram message: HTTP " + response.getResponseCode());
                 }
             } catch (Exception e) {
-                PermGuard.getInstance().getLogger().warning(
+                plugin.getLogger().warning(
                         String.format("Failed to send Telegram notification (attempt %d/%d): %s",
-                                attempt, maxRetries, e.getMessage())
+                                attempt, maxRetries + 1, e.getMessage())
                 );
 
-                if (attempt < maxRetries) {
+                if (attempt < maxRetries + 1) {
                     try {
                         Thread.sleep(retryDelay);
                     } catch (InterruptedException ie) {
@@ -88,16 +96,16 @@ public class TelegramNotifier {
         }
     }
 
-    private static String getCountryByIp(String ip) {
+    private String getCountryByIp(String ip) {
         String urlString = String.format(IP_API_URL, ip);
         try {
-            HttpUtils.HttpResponse response = HttpUtils.getResponse(urlString, null);
+            HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
             if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 JsonObject json = response.getJsonBody();
                 return json.has("country") ? json.get("country").getAsString() : "Unknown";
             }
         } catch (Exception e) {
-            PermGuard.getInstance().getLogger().warning("Failed to get country for IP " + ip + ": " + e.getMessage());
+            plugin.getLogger().warning("Failed to get country for IP " + ip + ": " + e.getMessage());
         }
         return "Unknown";
     }

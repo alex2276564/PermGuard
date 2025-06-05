@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
-import uz.alex2276564.permguard.utils.ConfigManager;
 import uz.alex2276564.permguard.utils.TelegramNotifier;
 
 import java.io.*;
@@ -16,6 +15,13 @@ import java.util.Date;
 import java.util.Map;
 
 public class PlayerJoinListener implements Listener {
+    private final PermGuard plugin;
+    private final TelegramNotifier telegramNotifier;
+
+    public PlayerJoinListener(PermGuard plugin) {
+        this.plugin = plugin;
+        this.telegramNotifier = new TelegramNotifier(plugin);
+    }
 
     @EventHandler(
             priority = EventPriority.LOWEST,
@@ -23,7 +29,7 @@ public class PlayerJoinListener implements Listener {
     )
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        for (Map<String, Object> entry: ConfigManager.getRestrictedPermissions()) {
+        for (Map<String, Object> entry : plugin.getConfigManager().getRestrictedPermissions()) {
             String permission = (String) entry.get("permission");
 
             if (!permission.equals("*") && player.hasPermission("*")) {
@@ -59,7 +65,7 @@ public class PlayerJoinListener implements Listener {
 
         player.kickPlayer(kickMessage);
 
-        PermGuard.getInstance().getRunner().runAsync(() -> TelegramNotifier.sendNotification(player, event.getPermission()));
+        plugin.getRunner().runAsync(() -> telegramNotifier.sendNotification(player, event.getPermission()));
 
         event.setCancelled(true);
     }
@@ -68,15 +74,15 @@ public class PlayerJoinListener implements Listener {
         String logMessage = String.format("[%s] Player %s tried to join with restricted permission %s from IP %s",
                 new Date(), player.getName(), permission, player.getAddress().getAddress().getHostAddress());
 
-        PermGuard.getInstance().getLogger().info(logMessage);
+        plugin.getLogger().info(logMessage);
 
-        File logFile = new File(PermGuard.getInstance().getDataFolder(), "violations.log");
+        File logFile = new File(plugin.getDataFolder(), "violations.log");
         try (FileWriter fw = new FileWriter(logFile, true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
             out.println(logMessage);
         } catch (IOException e) {
-            PermGuard.getInstance().getLogger().severe("Could not write to log file: " + e.getMessage());
+            plugin.getLogger().severe("Could not write to log file: " + e.getMessage());
         }
     }
 }

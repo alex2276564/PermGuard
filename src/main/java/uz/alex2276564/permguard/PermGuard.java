@@ -2,11 +2,11 @@ package uz.alex2276564.permguard;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import uz.alex2276564.permguard.commands.reloadcommand.ReloadCommand;
+import uz.alex2276564.permguard.commands.MainCommandExecutor;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
-import uz.alex2276564.permguard.task.BukkitRunner;
-import uz.alex2276564.permguard.task.Runner;
-import uz.alex2276564.permguard.utils.ConfigManager;
+import uz.alex2276564.permguard.runner.BukkitRunner;
+import uz.alex2276564.permguard.runner.Runner;
+import uz.alex2276564.permguard.config.ConfigManager;
 import uz.alex2276564.permguard.utils.UpdateChecker;
 
 public final class PermGuard extends JavaPlugin {
@@ -16,30 +16,36 @@ public final class PermGuard extends JavaPlugin {
     @Getter
     private Runner runner;
 
+    @Getter
+    private ConfigManager configManager;
+
     @Override
     public void onEnable() {
         instance = this;
+
         setupRunner();
+
+        configManager = new ConfigManager(this);
+        configManager.reload();
+
         registerListeners();
         registerCommands();
-        loadUtils();
         checkUpdates();
+
+        getLogger().info("PermGuard has been enabled!");
     }
+
 
     private void setupRunner() {
         runner = new BukkitRunner(this);
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
     }
 
     private void registerCommands() {
-        getCommand("permguard").setExecutor(new ReloadCommand());
-    }
-
-    private void loadUtils() {
-        ConfigManager.reload();
+        getCommand("permguard").setExecutor(new MainCommandExecutor(this));
     }
 
     private void checkUpdates() {
@@ -49,7 +55,16 @@ public final class PermGuard extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        runner.cancelTasks();
+        if (runner != null) {
+            runner.cancelTasks();
+        }
+
+        shutdown();
+
+        getLogger().info("PermGuard has been disabled!");
+    }
+
+    private void shutdown() {
         getLogger().info("The server is shutting down because PermGuard was disabled.");
         getServer().shutdown();
     }
