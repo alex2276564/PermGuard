@@ -45,6 +45,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void registerCommands() {
+        // Register main command executor that handles all subcommands
         getCommand("permguard").setExecutor(new MainCommandExecutor(this));
     }
 
@@ -60,8 +61,6 @@ public final class PermGuard extends JavaPlugin {
         }
 
         shutdown();
-
-        getLogger().info("PermGuard has been disabled!");
     }
 
     private void shutdown() {
