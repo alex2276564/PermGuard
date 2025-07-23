@@ -6,26 +6,24 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import uz.alex2276564.permguard.PermGuard;
-import uz.alex2276564.permguard.commands.reloadcommand.ReloadCommand;
+import uz.alex2276564.permguard.commands.subcommands.reloadcommand.ReloadCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MainCommandExecutor implements TabExecutor {
-    private final PermGuard plugin;
     private final ReloadCommand reloadCommand;
 
-    public MainCommandExecutor(PermGuard plugin) {
-        this.plugin = plugin;
+    public MainCommandExecutor() {
         this.reloadCommand = new ReloadCommand();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§6=== PermGuard Help ===");
-            sender.sendMessage("§e/permguard reload §7- Reload the plugin configuration");
+            PermGuard.getInstance().getMessageManager().sendMessage(sender, "<gold>=== PermGuard Help ===");
+            PermGuard.getInstance().getMessageManager().sendMessage(sender, "<yellow>/permguard reload <gray>- Reload the plugin configuration");
             return true;
         }
 
@@ -37,7 +35,7 @@ public class MainCommandExecutor implements TabExecutor {
         }
 
         // Unknown command
-        sender.sendMessage("§cUnknown command. Use /permguard for help.");
+        PermGuard.getInstance().getMessageManager().sendMessage(sender, "<red>Unknown command. Use /permguard for help.");
         return true;
     }
 

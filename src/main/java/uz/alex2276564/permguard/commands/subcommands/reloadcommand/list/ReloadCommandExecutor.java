@@ -1,27 +1,20 @@
-package uz.alex2276564.permguard.commands.reloadcommand.list;
+package uz.alex2276564.permguard.commands.subcommands.reloadcommand.list;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import uz.alex2276564.permguard.PermGuard;
-import uz.alex2276564.permguard.commands.SubCommand;
+import uz.alex2276564.permguard.commands.framework.BaseSubCommand;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ReloadCommandExecutor implements SubCommand {
+public class ReloadCommandExecutor extends BaseSubCommand {
 
     @Override
     public void onExecute(@NotNull CommandSender sender, @NotNull String[] args) {
-        String permission = "permguard.reload";
-
-        if (!sender.hasPermission(permission)) {
-            sender.sendMessage("§cYou do not have permission to use this command. Missing permission: §e" + permission);
-            return;
-        }
-
         PermGuard.getInstance().getConfigManager().reload();
-        sender.sendMessage("§aPermGuard configuration successfully reloaded.");
+        sendSuccessMessage(sender, "PermGuard configuration successfully reloaded.");
     }
 
     @Override

@@ -42,6 +42,8 @@
 
 ### Compliance with Security Standards:
 
+**Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall security compliance depends on your complete infrastructure setup, proper configuration of all components, and following security best practices across your entire system.
+
 - **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to perform their tasks, reducing the risk of privilege abuse.
 - **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating compliance audits and forensic analysis.
 - **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by enforcing strict permission controls and audit logging.
@@ -56,94 +58,13 @@
 
 ## 🛠️ Configuration
 
-Edit the `config.yml` file in the plugin's folder to customize settings:
+PermGuard offers extensive configuration options to protect permissions on your server.
 
-```yaml
-# PermGuard Configuration
-
-# List of restricted permissions
-restrictedPermissions:
-  # Wildcard permission (Should always be first in the list if used)
-  - permission: "*"
-    # Command to execute when detected (use %player% and %permission% as placeholders)
-    cmd: "lp user %player% permission unset %permission%"
-    # Whether to log this violation
-    log: true
-    # Message to show player when kicked (use %permission% as placeholder)
-    kickMessage: "Your %permission% permissions have been revoked. Please rejoin and restore them via console."
-
-  # Admin group permission
-  - permission: "group.admin"
-    cmd: "lp user %player% permission unset %permission%"
-    log: true
-    kickMessage: "Your admin permissions have been revoked. Please rejoin and restore them via console."
-
-  # Example if you use op instead of * in LuckPerms
-  #- permission: "*"
-  #  cmd: "deop %player%"
-  #  log: true
-  #  kickMessage: "Your op permissions have been revoked. Please rejoin and restore them via console."
-
-# Telegram notification settings
-telegram:
-  # Enable or disable Telegram notifications
-  enabled: false
-
-  # Your Telegram bot token (get it from @BotFather)
-  bot-token: "your_bot_token_here"
-
-  # Chat IDs where notifications will be sent (separate multiple IDs with commas)
-  #
-  # How to get your Chat ID:
-  # 1. Send a message to your bot.
-  # 2. Open the following link in your browser (replace <YourBOTToken> with your bot token):  
-  #    https://api.telegram.org/bot<YourBOTToken>/getUpdates
-  # 3. In the JSON response, look for "chat": {"id": ...} — this is your Chat ID.
-  # 4. Add this Chat ID to the configuration below (example: 123456789).
-  #
-  # How to add the bot to a group:
-  # 1. Add the bot to the group.
-  # 2. Send a message in the group.
-  # 3. Visit https://api.telegram.org/bot<YourBOTToken>/getUpdates
-  # 4. Find the group Chat ID (it will start with a "-", e.g., -987654321).
-  # 5. Add this ID to the configuration below.
-  #
-  # How to add the bot to a channel:
-  # 1. Add the bot as an administrator of the channel.
-  # 2. Open Web Telegram (https://web.telegram.org/a/) and go to the channel.
-  # 3. Look at the URL in your browser; it will be something like:
-  #    https://web.telegram.org/a/#-1001234567890
-  # 4. Channel Chat IDs always start with "-100" (e.g., -1001234567890).
-  # 5. Add this Chat ID to the configuration below.
-  #
-  # Telegram API Limit:
-  # You can enter up to 30 Chat IDs in total (Telegram API restriction).
-  #
-  # You can add multiple Chat IDs separated by commas (e.g., 123456789, -987654321, -1001234567890).
-  chat-ids: "123456789,987654321"
-
-  # Number of retry attempts if sending fails
-  # Set to 0 for dedicated hosting with stable network (recommended)
-  # Increase this value (1-3) for shared hosting or unstable network
-  # Note: Telegram API can sometimes return incorrect responses,
-  # so it's better to keep this at 0 on stable connections
-  max-retries: 0
-
-  # Delay between retry attempts in milliseconds
-  # Only used if max-retries > 0
-  retry-delay: 1100
-
-  # Notification message template
-  # Available placeholders:
-  # %player% - player name
-  # %permission% - restricted permission
-  # %ip% - player's IP address
-  # %country% - player's country (based on IP)
-  # %date% - date and time of the incident (Server time)
-  message: "⚠️ Security Alert!\n\nPlayer %player% tried to join with restricted permission %permission% and was kicked\n\n📍 Details:\n👤 Player: %player%\n🔒 Permission: %permission%\n🌐 IP: %ip%\n🗺️ Country: %country%\n⏰ Time: %date% (Server time)\n\n❗If this wasn't authorized by you, please take immediate action to secure your server."
-```
+[Click to view the default configuration](https://github.com/alex2276564/PermGuard/blob/master/src/main/resources/config.yml)
 
 ## 📜 Commands
+
+PermGuard supports both the full command `/permguard` and the shorter alias `/pg` for all commands (requires `permguard.command` permission).
 
 - `/permguard reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
 
@@ -155,6 +76,8 @@ telegram:
 ## 📝 Note
 
 **AxiomPaper Compatibility:** This plugin may interfere with the AxiomPaper plugin's functionality. AxiomPaper only checks permissions when a player joins the server, so if you remove all permissions and then restore them while in-game, the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*` permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
+
+**Performance Optimization:** PermGuard checks permissions synchronously during the player join event. For optimal performance, avoid adding unnecessary permissions to the configuration file. Remove any permissions that you don't actually need to monitor. For most admin accounts, you can simply use the wildcard permission `*` instead of listing multiple individual permissions, as this provides comprehensive protection while maintaining efficiency.
 
 ## 📦 Other Plugins
 

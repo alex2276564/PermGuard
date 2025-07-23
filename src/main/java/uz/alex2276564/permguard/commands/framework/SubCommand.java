@@ -1,4 +1,4 @@
-package uz.alex2276564.permguard.commands;
+package uz.alex2276564.permguard.commands.framework;
 
 import org.bukkit.command.CommandSender;
 

@@ -1,27 +1,42 @@
 # PermGuard Configuration
 
+# General settings
+settings:
+  # Whether to shutdown the server when PermGuard is disabled
+  # This provides additional security by ensuring no security gaps are left open
+  # Set to false if you want to disable the plugin without shutting down the server
+  shutdown-on-disable: true
+
+  # Whether to show detailed configuration debug messages
+  # Enable this if you're having config issues and need troubleshooting info
+  config-debug: false
+
 # List of restricted permissions
 restrictedPermissions:
   # Wildcard permission (Should always be first in the list if used)
   - permission: "*"
-    # Command to execute when detected (use %player% and %permission% as placeholders)
     cmd: "lp user %player% permission unset %permission%"
-    # Whether to log this violation
     log: true
-    # Message to show player when kicked (use %permission% as placeholder)
-    kickMessage: "Your %permission% permissions have been revoked. Please rejoin and restore them via console."
+    # MiniMessage formatting supported! Examples:
+    # <red>Your permissions have been revoked</red>
+    # <gradient:red:yellow>Warning!</gradient> Your <bold>%permission%</bold> permissions...
+    # <hover:show_text:'Contact admin'>Your permissions have been revoked</hover>
+    #
+    # Use the online MiniMessage editor for testing: https://webui.advntr.dev/
+    # This editor helps you create and preview MiniMessage formatting in real-time!
+    kickMessage: "<red><bold>⚠ SECURITY ALERT ⚠</bold></red>\n\n<yellow>Your <red>%permission%</red> permissions have been revoked.</yellow>\n<gray>Please rejoin and restore them via console.</gray>"
 
   # Admin group permission
   - permission: "group.admin"
     cmd: "lp user %player% permission unset %permission%"
     log: true
-    kickMessage: "Your admin permissions have been revoked. Please rejoin and restore them via console."
+    kickMessage: "<red><bold>⚠ ADMIN ACCESS REVOKED ⚠</bold></red>\n\n<yellow>Your <red>%permission%</red> permissions have been revoked.</yellow>\n<gray>Please rejoin and restore them via console.</gray>"
 
   # Example if you use op instead of * in LuckPerms
   #- permission: "*"
   #  cmd: "deop %player%"
   #  log: true
-  #  kickMessage: "Your op permissions have been revoked. Please rejoin and restore them via console."
+  #  kickMessage: "<red><bold>⚠ OP REVOKED ⚠</bold></red>\n\n<yellow>Your <red>OP</red> permissions have been removed.</yellow>\n<gray>Please contact an administrator to restore access.</gray>"
 
 # Telegram notification settings
 telegram:

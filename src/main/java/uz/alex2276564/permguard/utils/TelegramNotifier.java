@@ -3,6 +3,7 @@ package uz.alex2276564.permguard.utils;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import uz.alex2276564.permguard.PermGuard;
+import uz.alex2276564.permguard.config.data.TelegramConfig;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -26,82 +27,84 @@ public class TelegramNotifier {
     }
 
     public void sendNotification(Player player, String permission) {
-        if (!plugin.getConfigManager().isTelegramEnabled()) {
+        TelegramConfig telegram = plugin.getConfigManager().telegram();
+
+        if (!telegram.enabled() || !telegram.isConfigured()) {
             return;
         }
 
-        String botToken = plugin.getConfigManager().getTelegramBotToken();
-        String[] chatIds = plugin.getConfigManager().getTelegramChatIds();
-        String messageTemplate = plugin.getConfigManager().getTelegramMessage();
-        String ip = player.getAddress().getAddress().getHostAddress();
-        String country = messageTemplate.contains("%country%") ? getCountryByIp(ip) : null;
+        try {
+            String ip = player.getAddress().getAddress().getHostAddress();
+            String country = getCountryByIp(ip);
 
-        String message = messageTemplate
-                .replace("%player%", player.getName())
-                .replace("%permission%", permission)
-                .replace("%ip%", ip)
-                .replace("%date%", DATE_FORMAT.format(new Date()));
+            String message = telegram.message()
+                    .replace("%player%", player.getName())
+                    .replace("%permission%", permission)
+                    .replace("%ip%", ip)
+                    .replace("%country%", country)
+                    .replace("%date%", DATE_FORMAT.format(new Date()));
 
-        if (country != null) {
-            message = message.replace("%country%", country);
+            String finalMessage = message;
+            CompletableFuture<?>[] futures = Arrays.stream(telegram.chatIds())
+                    .map(chatId -> CompletableFuture.runAsync(() ->
+                            sendMessage(telegram, chatId.trim(), finalMessage)))
+                    .toArray(CompletableFuture[]::new);
+
+            CompletableFuture.allOf(futures).join();
+
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to send telegram notification: " + e.getMessage());
         }
-
-        String finalMessage = message;
-        CompletableFuture<?>[] futures = Arrays.stream(chatIds)
-                .map(chatId -> CompletableFuture.runAsync(() ->
-                        sendMessage(botToken, chatId.trim(), finalMessage)))
-                .toArray(CompletableFuture[]::new);
-
-        CompletableFuture.allOf(futures).join();
     }
 
-    private void sendMessage(String botToken, String chatId, String message) {
-        int maxRetries = plugin.getConfigManager().getTelegramMaxRetries();
-        long retryDelay = plugin.getConfigManager().getTelegramRetryDelay();
-
+    private void sendMessage(TelegramConfig config, String chatId, String message) {
         String urlString = String.format(TELEGRAM_API_URL,
-                botToken,
+                config.botToken(),
                 chatId,
                 URLEncoder.encode(message, StandardCharsets.UTF_8));
 
-        for (int attempt = 1; attempt <= maxRetries + 1; attempt++) {
+        for (int attempt = 1; attempt <= config.maxRetries() + 1; attempt++) {
             try {
                 HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
 
-                if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    return; // Successful send
-                } else if (response.getResponseCode() == 429) { // Too Many Requests
-                    if (attempt < maxRetries + 1) {
-                        Thread.sleep(retryDelay);
+                if (response.responseCode() == HttpURLConnection.HTTP_OK) {
+                    return;
+                } else if (response.responseCode() == 429) {
+                    if (attempt < config.maxRetries() + 1) {
+                        Thread.sleep(config.retryDelay());
                     } else {
-                        throw new Exception("Failed to send Telegram message: Too Many Requests (429) after max retries.");
+                        throw new Exception("Too Many Requests (429) after max retries");
                     }
                 } else {
-                    throw new Exception("Failed to send Telegram message: HTTP " + response.getResponseCode());
+                    throw new Exception("HTTP " + response.responseCode());
                 }
             } catch (Exception e) {
                 plugin.getLogger().warning(
                         String.format("Failed to send Telegram notification (attempt %d/%d): %s",
-                                attempt, maxRetries + 1, e.getMessage())
+                                attempt, config.maxRetries() + 1, e.getMessage())
                 );
 
-                if (attempt < maxRetries + 1) {
+                if (attempt < config.maxRetries() + 1) {
                     try {
-                        Thread.sleep(retryDelay);
+                        Thread.sleep(config.retryDelay());
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
+                        return;
                     }
+                } else {
+                    return; // Give up after max retries
                 }
             }
         }
     }
 
     private String getCountryByIp(String ip) {
-        String urlString = String.format(IP_API_URL, ip);
         try {
+            String urlString = String.format(IP_API_URL, ip);
             HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
-            if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                JsonObject json = response.getJsonBody();
+
+            if (response.responseCode() == HttpURLConnection.HTTP_OK) {
+                JsonObject json = response.jsonBody();
                 return json.has("country") ? json.get("country").getAsString() : "Unknown";
             }
         } catch (Exception e) {

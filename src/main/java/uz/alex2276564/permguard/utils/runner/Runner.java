@@ -1,4 +1,4 @@
-package uz.alex2276564.permguard.runner;
+package uz.alex2276564.permguard.utils.runner;
 
 import org.jetbrains.annotations.NotNull;
 

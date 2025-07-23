@@ -1,5 +1,6 @@
 package uz.alex2276564.permguard.listeners;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,44 +8,42 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import uz.alex2276564.permguard.PermGuard;
+import uz.alex2276564.permguard.config.data.PermissionConfig;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.TelegramNotifier;
+import uz.alex2276564.permguard.utils.adventure.MessageManager;
 
 import java.io.*;
 import java.util.Date;
-import java.util.Map;
 
 public class PlayerJoinListener implements Listener {
     private final PermGuard plugin;
     private final TelegramNotifier telegramNotifier;
+    private final MessageManager messageManager;
 
     public PlayerJoinListener(PermGuard plugin) {
         this.plugin = plugin;
         this.telegramNotifier = new TelegramNotifier(plugin);
+        this.messageManager = plugin.getMessageManager();
     }
 
-    @EventHandler(
-            priority = EventPriority.LOWEST,
-            ignoreCancelled = true
-    )
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        for (Map<String, Object> entry : plugin.getConfigManager().getRestrictedPermissions()) {
-            String permission = (String) entry.get("permission");
 
-            if (!permission.equals("*") && player.hasPermission("*")) {
-                String kickMessage = "[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
-                player.kickPlayer(kickMessage);
+        for (PermissionConfig.PermissionEntry entry : plugin.getConfigManager().permissions().restrictedPermissions()) {
+            if (!entry.permission().equals("*") && player.hasPermission("*")) {
+                String kickMessageText = "[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
+                Component kickComponent = messageManager.parse("<red>" + kickMessageText);
+                player.kick(kickComponent);
                 return;
             }
 
-            if (player.hasPermission(permission)) {
-                String cmd = (String) entry.get("cmd");
-                boolean log = (boolean) entry.get("log");
-                String kickMessage = (String) entry.get("kickMessage");
-                final PlayerHasRestrictedPermissionEvent e = new PlayerHasRestrictedPermissionEvent(player, permission, cmd, log, kickMessage);
-                Bukkit.getPluginManager().callEvent(e);
-                if(e.isCancelled()) {
+            if (player.hasPermission(entry.permission())) {
+                final PlayerHasRestrictedPermissionEvent restrictedPermissionEvent =
+                        new PlayerHasRestrictedPermissionEvent(player, entry.permission(), entry.command(), entry.log(), entry.kickMessage());
+                Bukkit.getPluginManager().callEvent(restrictedPermissionEvent);
+                if(restrictedPermissionEvent.isCancelled()) {
                     break;
                 }
             }
@@ -63,10 +62,10 @@ public class PlayerJoinListener implements Listener {
             logViolation(player, event.getPermission());
         }
 
-        player.kickPlayer(kickMessage);
+        Component kickComponent = messageManager.parse(kickMessage);
+        player.kick(kickComponent);
 
         plugin.getRunner().runAsync(() -> telegramNotifier.sendNotification(player, event.getPermission()));
-
         event.setCancelled(true);
     }
 
