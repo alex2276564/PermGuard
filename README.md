@@ -9,6 +9,7 @@
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 [![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
 [![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
+[![Text Formatting](https://img.shields.io/badge/Text%20Formatting-🌈%20MiniMessage-ff69b4)](https://docs.advntr.dev/minimessage/)
 
 **PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon joining the server and sending security alerts to Telegram. Unlike traditional admin password plugins, which can often be bypassed through various exploits, PermGuard implements a fundamentally more secure approach by completely removing elevated permissions on join. This helps to prevent unauthorized access and potential security breaches, even if other security measures are compromised. When an admin with elevated permissions joins the server, their permissions are removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re-grants them via the console using commands like `lp user playernick permission set *`.
 
@@ -24,6 +25,7 @@
 * **Lightweight and Efficient:** Designed to have minimal impact on server performance.
 * **Shutdown Protection:** If the plugin is disabled (e.g., through Plugman), the server will automatically shut down to ensure no security gaps are left open.
 * **Auto-Update Check:** On server start, the plugin checks for updates. If a new version is available, a notification is displayed in the console.
+* **Modern Text Rendering:** Uses Adventure MiniMessage for sleek formatting on supported servers (Paper 1.18+), with automatic fallback on older versions.
 
 ## 🛡️ Security Benefits
 
@@ -78,6 +80,13 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 **AxiomPaper Compatibility:** This plugin may interfere with the AxiomPaper plugin's functionality. AxiomPaper only checks permissions when a player joins the server, so if you remove all permissions and then restore them while in-game, the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*` permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
 
 **Performance Optimization:** PermGuard checks permissions synchronously during the player join event. For optimal performance, avoid adding unnecessary permissions to the configuration file. Remove any permissions that you don't actually need to monitor. For most admin accounts, you can simply use the wildcard permission `*` instead of listing multiple individual permissions, as this provides comprehensive protection while maintaining efficiency.
+
+**Native MiniMessage Support:** PermGuard uses only native Kyori Adventure MiniMessage implementation without any backporting or compatibility layers:
+
+- **Paper 1.18+:** Full native MiniMessage support with all features including gradients, hover effects, click events, and advanced formatting
+- **Paper 1.16-1.17:** Partial support with automatic conversion to legacy ChatColor codes. Supported features include basic colors (`<red>`, `<blue>`, etc.), text styles (`<bold>`, `<italic>`, `<underlined>`, `<strikethrough>`, `<obfuscated>`), and reset tags (`<reset>`). Advanced features like gradients and hover effects are automatically stripped without causing errors.
+
+You can use the [MiniMessage Web Editor](https://webui.advntr.dev/) to test and preview your formatting. The plugin will automatically adapt the formatting to your server's capabilities, so you can use the same configuration across different server versions.
 
 ## 📦 Other Plugins
 

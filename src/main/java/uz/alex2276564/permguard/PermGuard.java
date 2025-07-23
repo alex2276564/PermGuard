@@ -2,7 +2,9 @@ package uz.alex2276564.permguard;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import uz.alex2276564.permguard.commands.MainCommandExecutor;
+import uz.alex2276564.permguard.commands.PermGuardCommands;
+import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
+import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
 import uz.alex2276564.permguard.config.ConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
 import uz.alex2276564.permguard.utils.runner.BukkitRunner;
@@ -89,7 +91,10 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getCommand("permguard").setExecutor(new MainCommandExecutor());
+        MultiCommandManager multiManager = new MultiCommandManager(this);
+
+        BuiltCommand permGuardCommand = PermGuardCommands.createPermGuardCommand();
+        multiManager.registerCommand(permGuardCommand);
     }
 
     private void checkUpdates() {

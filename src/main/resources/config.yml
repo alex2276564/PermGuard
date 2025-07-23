@@ -1,4 +1,13 @@
-# PermGuard Configuration
+# ================================================================
+# 📝 PermGuard Configuration
+#
+# 💬 Text messages in this config file support MiniMessage formatting!
+#     → Works best with Paper 1.18+
+#     → Older versions automatically fallback to legacy color formatting
+#     → Examples: <red>Alert!</red>, <bold><yellow>Warning</yellow></bold>,
+#                  <gradient:red:yellow>Hello</gradient>
+#     → Use the web editor: https://webui.advntr.dev/
+# ================================================================
 
 # General settings
 settings:
@@ -17,13 +26,6 @@ restrictedPermissions:
   - permission: "*"
     cmd: "lp user %player% permission unset %permission%"
     log: true
-    # MiniMessage formatting supported! Examples:
-    # <red>Your permissions have been revoked</red>
-    # <gradient:red:yellow>Warning!</gradient> Your <bold>%permission%</bold> permissions...
-    # <hover:show_text:'Contact admin'>Your permissions have been revoked</hover>
-    #
-    # Use the online MiniMessage editor for testing: https://webui.advntr.dev/
-    # This editor helps you create and preview MiniMessage formatting in real-time!
     kickMessage: "<red><bold>⚠ SECURITY ALERT ⚠</bold></red>\n\n<yellow>Your <red>%permission%</red> permissions have been revoked.</yellow>\n<gray>Please rejoin and restore them via console.</gray>"
 
   # Admin group permission
