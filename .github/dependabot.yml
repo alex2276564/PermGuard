@@ -6,8 +6,6 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "[Gradle]"
-    allow:
-      - dependency-type: "direct"
 
   - package-ecosystem: "github-actions"
     directory: "/"
