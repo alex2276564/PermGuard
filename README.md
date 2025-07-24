@@ -62,7 +62,7 @@
 
 PermGuard offers extensive configuration options to protect permissions on your server.
 
-[Click to view the default configuration](https://github.com/alex2276564/PermGuard/blob/master/src/main/resources/config.yml)
+[Click to view the default configuration](https://github.com/alex2276564/PermGuard/blob/main/src/main/resources/config.yml)
 
 ## 📜 Commands
 
@@ -97,6 +97,9 @@ Also check out my other plugins for protecting your Minecraft server:
 
 - [**NoMoreTNTChainCrash**](https://github.com/alex2276564/NoMoreTNTChainCrash)  
   *NoMoreTNTChainCrash* is a Minecraft plugin designed to prevent server crashes and lag caused by excessive TNT explosions. It achieves this by removing TNT before automated chain explosions can occur, while still allowing players to manually detonate TNT as desired.
+
+> 🔍 **You can find more of my Minecraft plugins here:**  
+> [https://github.com/alex2276564?tab=repositories](https://github.com/alex2276564?tab=repositories)
 
 ## 🆘 Support
 
