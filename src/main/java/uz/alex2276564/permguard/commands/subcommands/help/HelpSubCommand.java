@@ -14,7 +14,7 @@ public class HelpSubCommand implements SubCommandProvider {
                     PermGuard.getInstance().getMessageManager().sendMessage(sender,
                             "<gold>=== PermGuard Help ===");
                     PermGuard.getInstance().getMessageManager().sendMessage(sender,
-                            "<yellow>/permguard reload <gray>- Reload the plugin configuration");
+                            "<yellow>/permguard reload [type] <gray>- Reload the plugin configuration");
                     PermGuard.getInstance().getMessageManager().sendMessage(sender,
                             "<yellow>/permguard help <gray>- Show this help message");
                 });

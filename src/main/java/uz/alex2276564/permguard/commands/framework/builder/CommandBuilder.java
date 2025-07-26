@@ -15,7 +15,10 @@ public class CommandBuilder {
     private final List<ArgumentBuilder<?>> arguments = new ArrayList<>();
 
     public CommandBuilder(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Command name cannot be null or empty");
+        }
+        this.name = name.toLowerCase();
     }
 
     public CommandBuilder permission(String permission) {
@@ -34,12 +37,23 @@ public class CommandBuilder {
     }
 
     public SubCommandBuilder subcommand(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Subcommand name cannot be null or empty");
+        }
+        String lowerName = name.toLowerCase();
+        if (subCommands.containsKey(lowerName)) {
+            throw new IllegalArgumentException("Subcommand '" + name + "' already exists");
+        }
+
         SubCommandBuilder sub = new SubCommandBuilder(name, this);
-        subCommands.put(name.toLowerCase(), sub);
+        subCommands.put(lowerName, sub);
         return sub;
     }
 
     public <T> CommandBuilder argument(ArgumentBuilder<T> argument) {
+        if (argument == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
         this.arguments.add(argument);
         return this;
     }

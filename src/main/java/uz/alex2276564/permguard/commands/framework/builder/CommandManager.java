@@ -61,7 +61,7 @@ public class CommandManager implements TabExecutor {
             }
         }
 
-        // Execute main command
+        // Execute main command if it has executor
         if (cmd.executor() != null) {
             if (cmd.permission() != null && !sender.hasPermission(cmd.permission())) {
                 PermGuard.getInstance().getMessageManager().sendMessage(sender,
@@ -74,7 +74,20 @@ public class CommandManager implements TabExecutor {
             return;
         }
 
-        // Show help if no executor found
+        // Fallback: try to find and execute 'help' subcommand
+        if (cmd.subCommands().containsKey("help")) {
+            BuiltSubCommand helpCmd = cmd.subCommands().get("help");
+
+            // Check permission for help command
+            if ((helpCmd.permission() == null || sender.hasPermission(helpCmd.permission())) && helpCmd.executor() != null) {
+                    CommandContext context = parseArguments(helpCmd.arguments(), new String[0], 0);
+                    helpCmd.executor().accept(sender, context);
+                    return;
+                }
+
+        }
+
+        // Final fallback: show built-in help
         showHelp(sender, cmd);
     }
 
@@ -137,8 +150,8 @@ public class CommandManager implements TabExecutor {
                 }
             }
 
-            // Suggest main command arguments
-            if (!cmd.arguments().isEmpty()) {
+            // Suggest main command arguments (only if main command has executor)
+            if (cmd.executor() != null && !cmd.arguments().isEmpty()) {
                 ArgumentBuilder<?> arg = cmd.arguments().get(0);
                 addArgumentCompletions(completions, arg, args[0]);
             }
@@ -161,22 +174,28 @@ public class CommandManager implements TabExecutor {
     }
 
     private void addArgumentCompletions(List<String> completions, ArgumentBuilder<?> arg, String partial) {
+        if (partial == null) partial = "";
+
         if (arg.getSuggestions() != null) {
             for (String suggestion : arg.getSuggestions()) {
-                if (suggestion.toLowerCase().startsWith(partial.toLowerCase())) {
+                if (suggestion != null && suggestion.toLowerCase().startsWith(partial.toLowerCase())) {
                     completions.add(suggestion);
                 }
             }
         }
 
         if (arg.getDynamicSuggestions() != null) {
-            List<String> dynamic = arg.getDynamicSuggestions().apply(partial);
-            if (dynamic != null) {
-                for (String suggestion : dynamic) {
-                    if (suggestion.toLowerCase().startsWith(partial.toLowerCase())) {
-                        completions.add(suggestion);
+            try {
+                List<String> dynamic = arg.getDynamicSuggestions().apply(partial);
+                if (dynamic != null) {
+                    for (String suggestion : dynamic) {
+                        if (suggestion != null && suggestion.toLowerCase().startsWith(partial.toLowerCase())) {
+                            completions.add(suggestion);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                // Ignore dynamic suggestion errors to prevent crashes
             }
         }
     }
