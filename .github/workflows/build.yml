@@ -55,6 +55,11 @@ jobs:
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle-jdk16@main
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: TruffleHog Secrets Scan (full)
         if: github.event_name != 'pull_request'
         uses: trufflesecurity/trufflehog@main
