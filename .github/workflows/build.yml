@@ -76,6 +76,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           JAVA_HOME: /opt/java/openjdk # Enforce directory expected by the Snyk container
+        with:
+          args: --severity-threshold=high
 
   secrets-scan:
     name: 🔑 Secrets Scan
