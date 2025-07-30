@@ -2,6 +2,7 @@ package uz.alex2276564.permguard.commands.subcommands.reload;
 
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.commands.framework.builder.*;
+import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 
 public class ReloadSubCommand implements SubCommandProvider {
 
@@ -16,10 +17,20 @@ public class ReloadSubCommand implements SubCommandProvider {
                 .executor((sender, context) -> {
                     String type = context.getArgument("type");
 
-                    PermGuard.getInstance().getConfigManager().reload();
+                    try {
+                        PermGuard.getInstance().getConfigManager().reload();
 
-                    PermGuard.getInstance().getMessageManager().sendMessage(sender,
-                            "<green>PermGuard configuration successfully reloaded (" + type + ").");
+                        MessagesConfig msg = PermGuard.getInstance().getConfigManager().getMessagesConfig();
+                        String successMessage = msg.commands.reload.success.replace("{type}", type);
+
+                        PermGuard.getInstance().getMessageManager().sendMessage(sender, successMessage);
+
+                    } catch (Exception e) {
+                        MessagesConfig msg = PermGuard.getInstance().getConfigManager().getMessagesConfig();
+                        String errorMessage = msg.commands.reload.error.replace("{error}", e.getMessage());
+
+                        PermGuard.getInstance().getMessageManager().sendMessage(sender, errorMessage);
+                    }
                 });
     }
 }

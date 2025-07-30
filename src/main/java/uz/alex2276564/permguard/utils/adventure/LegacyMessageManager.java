@@ -17,6 +17,10 @@ public class LegacyMessageManager implements MessageManager {
     private static final Pattern RESET_PATTERN = Pattern.compile("<reset>");
     private static final Pattern CLOSING_TAG_PATTERN = Pattern.compile("</(red|blue|green|yellow|aqua|light_purple|gold|gray|dark_red|dark_blue|dark_green|dark_aqua|dark_purple|dark_gray|black|white|bold|italic|underlined|strikethrough|obfuscated)>");
 
+    // Patterns for new line
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("<(newline|br)>");
+    private static final Pattern ESCAPE_NEWLINE_PATTERN = Pattern.compile("\\\\n");
+
     // Complex tags (gradients, hover, etc.) - just remove them
     private static final Pattern COMPLEX_TAG_PATTERN = Pattern.compile("<(gradient:[^>]+|hover:[^>]+|click:[^>]+|font:[^>]+|insertion:[^>]+|key:[^>]+|lang:[^>]+|selector:[^>]+|score:[^>]+|nbt:[^>]+)>");
     private static final Pattern CLOSING_COMPLEX_TAG_PATTERN = Pattern.compile("</(gradient|hover|click|font|insertion|key|lang|selector|score|nbt)>");
@@ -44,6 +48,8 @@ public class LegacyMessageManager implements MessageManager {
     @Override
     public @NotNull String stripTags(@NotNull String message) {
         String result = message;
+        result = NEWLINE_PATTERN.matcher(result).replaceAll(" ");
+        result = ESCAPE_NEWLINE_PATTERN.matcher(result).replaceAll(" ");
         result = COLOR_PATTERN.matcher(result).replaceAll("");
         result = STYLE_PATTERN.matcher(result).replaceAll("");
         result = RESET_PATTERN.matcher(result).replaceAll("");
@@ -81,6 +87,10 @@ public class LegacyMessageManager implements MessageManager {
 
     private String convertMiniMessageToLegacy(String message) {
         String result = message;
+
+        // Remove new line
+        result = NEWLINE_PATTERN.matcher(result).replaceAll(" ");
+        result = ESCAPE_NEWLINE_PATTERN.matcher(result).replaceAll(" ");
 
         // Convert colors
         result = COLOR_PATTERN.matcher(result).replaceAll(matchResult -> {

@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import uz.alex2276564.permguard.commands.PermGuardCommands;
 import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
 import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
-import uz.alex2276564.permguard.config.ConfigManager;
+import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
 import uz.alex2276564.permguard.utils.runner.BukkitRunner;
 import uz.alex2276564.permguard.utils.runner.Runner;
@@ -22,7 +22,7 @@ public final class PermGuard extends JavaPlugin {
     private Runner runner;
 
     @Getter
-    private ConfigManager configManager;
+    private PermGuardConfigManager configManager;
 
     @Getter
     private MessageManager messageManager;
@@ -82,7 +82,7 @@ public final class PermGuard extends JavaPlugin {
 
 
     private void setupConfig() {
-        configManager = new ConfigManager(this);
+        configManager = new PermGuardConfigManager(this);
         configManager.reload();
     }
 
@@ -112,7 +112,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void shutdown() {
-        if (configManager != null && configManager.general().shutdownOnDisable()) {
+        if (configManager != null && configManager.getMainConfig().settings.shutdownOnDisable) {
             getLogger().info("The server is shutting down because PermGuard was disabled and shutdown-on-disable is enabled.");
             getServer().shutdown();
         } else {

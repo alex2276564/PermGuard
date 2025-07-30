@@ -1,7 +1,7 @@
 # PermGuard 🔒
 
 [![Minecraft Version](https://img.shields.io/badge/Minecraft-1.16.5+-brightgreen)](https://papermc.io/software/paper)
-[![Java Version](https://img.shields.io/badge/java-16+-orange)](https://adoptium.net/installation/linux/)
+[![Java Version](https://img.shields.io/badge/java-17+-orange)](https://adoptium.net/installation/linux/)
 [![GitHub Release](https://img.shields.io/github/v/release/alex2276564/PermGuard?color=blue)](https://github.com/alex2276564/PermGuard/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/isoiec-27001.html)
@@ -58,12 +58,6 @@
 2. **Install:** Place the `.jar` file into your server's `plugins` folder.
 3. **Restart:** Restart your server to load the plugin.
 
-## 🛠️ Configuration
-
-PermGuard offers extensive configuration options to protect permissions on your server.
-
-[Click to view the default configuration](https://github.com/alex2276564/PermGuard/blob/main/src/main/resources/config.yml)
-
 ## 📜 Commands
 
 PermGuard supports both the full command `/permguard` and the shorter alias `/pg` for all commands (requires `permguard.command` permission).
@@ -81,10 +75,12 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 
 **Performance Optimization:** PermGuard checks permissions synchronously during the player join event. For optimal performance, avoid adding unnecessary permissions to the configuration file. Remove any permissions that you don't actually need to monitor. For most admin accounts, you can simply use the wildcard permission `*` instead of listing multiple individual permissions, as this provides comprehensive protection while maintaining efficiency.
 
-**Native MiniMessage Support:** PermGuard uses only native Kyori Adventure MiniMessage implementation without any backporting or compatibility layers:
+**Native MiniMessage Support:** Plugin uses only native Kyori Adventure MiniMessage implementation without any backporting or compatibility layers:
 
 - **Paper 1.18+:** Full native MiniMessage support with all features including gradients, hover effects, click events, and advanced formatting
 - **Paper 1.16-1.17:** Partial support with automatic conversion to legacy ChatColor codes. Supported features include basic colors (`<red>`, `<blue>`, etc.), text styles (`<bold>`, `<italic>`, `<underlined>`, `<strikethrough>`, `<obfuscated>`), and reset tags (`<reset>`). Advanced features like gradients and hover effects are automatically stripped without causing errors.
+
+⚠️ However, on supported forks that update Adventure libraries (such as ShieldSpigot or similar actively maintained 1.16.x–1.17.x forks), full MiniMessage support may be available even on legacy versions, if the net.kyori.adventure.text.minimessage.MiniMessage class is present and compatible. In such cases, the plugin will automatically detect and enable native formatting features as it does on modern servers.
 
 You can use the [MiniMessage Web Editor](https://webui.advntr.dev/) to test and preview your formatting. The plugin will automatically adapt the formatting to your server's capabilities, so you can use the same configuration across different server versions.
 

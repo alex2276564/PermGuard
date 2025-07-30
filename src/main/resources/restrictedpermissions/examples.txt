@@ -1,0 +1,83 @@
+# ================================================================
+# 📝 Restricted Permissions Configuration Examples
+#
+# 💬 Kick messages support MiniMessage formatting!
+#     → Examples: <red>Error!</red>, <green>Success!</green>
+#     → Web editor: https://webui.advntr.dev/
+#
+# 🌍 LOCALIZATION NOTE:
+#     Direct localization is not supported in this plugin.
+#     If you need multi-language support, use Triton plugin:
+#     → https://www.spigotmc.org/resources/triton.30331/
+# ================================================================
+
+HOW TO USE:
+1. Create .yml files in this directory (e.g., permissions.yml, admin-perms.yml, etc.)
+2. Each .yml file can contain multiple permission entries
+3. You can have as many .yml files as you want - they will all be loaded
+4. This examples.txt file is ignored by the plugin and gets regenerated on each reload
+5. ➕ Loading order matters!
+   - `.yml` files are loaded alphabetically, so permissions in files named earlier (e.g., `0-wildcard.yml`, `aaa-defaults.yml`) will be processed first.
+   - ✅ If you use the wildcard permission (`*`), make sure it’s placed in a `.yml` file that loads first.
+   - 🔒 This ensures high-risk permissions are revoked before anything else loads.
+6. 🚀 Performance Optimization:
+   - PermGuard checks permissions **synchronously** during the player join event.
+   - ✅ For best performance, avoid bloating the configuration with unnecessary entries.
+   - ➖ Remove permissions you don’t actually need to monitor.
+   - 🎯 For admin accounts, you can use the wildcard permission `*` instead of listing all permissions individually — this improves **efficiency** and provides full protection.
+
+EXAMPLE FILE STRUCTURE:
+
+restrictedPermissions:
+  # Wildcard permission (Should always be first in the list if used)
+  - permission: "*"
+    # Command to execute when detected (use %player% and %permission% as placeholders)
+    cmd: "lp user %player% permission unset %permission%"
+    # Whether to log this violation
+    log: true
+    # Message to show player when kicked (use %permission% as placeholder)
+    kickMessage: "<red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your <red>%permission%</red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
+
+  # Admin group permission
+  - permission: "group.admin"
+    cmd: "lp user %player% permission unset %permission%"
+    log: true
+    kickMessage: "<red><bold>⚠ ADMIN ACCESS REVOKED ⚠</bold></red><newline><newline><yellow>Your <red>%permission%</red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
+
+  # Example if you use op instead of * in LuckPerms
+  - permission: "*"
+    cmd: "deop %player%"
+    log: true
+    kickMessage: "<red><bold>⚠ OP REVOKED ⚠</bold></red><newline><newline><yellow>Your <red>OP</red> permissions have been removed.</yellow><newline><gray>Please contact an administrator to restore access.</gray>"
+
+COMMON PERMISSION EXAMPLES:
+- "*"                    # All permissions (wildcard)
+- "group.admin"          # LuckPerms admin group
+- "group.owner"          # LuckPerms owner group
+- "essentials.*"         # All Essentials permissions
+- "worldedit.*"          # All WorldEdit permissions
+- "minecraft.command.op" # OP command permission
+
+COMMAND EXAMPLES:
+- "lp user %player% permission unset %permission%"  # LuckPerms remove permission
+- "deop %player%"                                    # Remove OP
+- "pex user %player% remove %permission%"           # PermissionsEx remove
+- "manudelp %player% %permission%"                  # GroupManager remove
+
+PLACEHOLDERS:
+%player%     - Player name
+%permission% - The detected permission
+
+PLUGIN INTEGRATION EXAMPLES:
+- LuckPerms: "lp user %player% permission unset %permission%"
+- PermissionsEx: "pex user %player% remove %permission%"
+- GroupManager: "manudelp %player% %permission%"
+- Essentials: "essentials:demote %player%"
+- PowerRanks: "pr setrank %player% default"
+
+SECURITY TIPS:
+1. Always test commands on a test server first
+2. Use wildcard permission (*) with caution
+3. Monitor logs to ensure commands execute properly
+4. Keep backups of working configurations
+5. Consider using multiple .yml files to organize different permission types

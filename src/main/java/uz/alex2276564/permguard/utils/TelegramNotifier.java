@@ -3,7 +3,7 @@ package uz.alex2276564.permguard.utils;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import uz.alex2276564.permguard.PermGuard;
-import uz.alex2276564.permguard.config.data.TelegramConfig;
+import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -27,9 +27,9 @@ public class TelegramNotifier {
     }
 
     public void sendNotification(Player player, String permission) {
-        TelegramConfig telegram = plugin.getConfigManager().telegram();
+        MainConfig.TelegramSection telegram = plugin.getConfigManager().getMainConfig().telegram;
 
-        if (!telegram.enabled() || !telegram.isConfigured()) {
+        if (!telegram.enabled || !telegram.isConfigured()) {
             return;
         }
 
@@ -37,7 +37,7 @@ public class TelegramNotifier {
             String ip = player.getAddress().getAddress().getHostAddress();
             String country = getCountryByIp(ip);
 
-            String message = telegram.message()
+            String message = telegram.message
                     .replace("%player%", player.getName())
                     .replace("%permission%", permission)
                     .replace("%ip%", ip)
@@ -45,7 +45,7 @@ public class TelegramNotifier {
                     .replace("%date%", DATE_FORMAT.format(new Date()));
 
             String finalMessage = message;
-            CompletableFuture<?>[] futures = Arrays.stream(telegram.chatIds())
+            CompletableFuture<?>[] futures = Arrays.stream(telegram.getChatIdsArray())
                     .map(chatId -> CompletableFuture.runAsync(() ->
                             sendMessage(telegram, chatId.trim(), finalMessage)))
                     .toArray(CompletableFuture[]::new);
@@ -57,21 +57,21 @@ public class TelegramNotifier {
         }
     }
 
-    private void sendMessage(TelegramConfig config, String chatId, String message) {
+    private void sendMessage(MainConfig.TelegramSection config, String chatId, String message) {
         String urlString = String.format(TELEGRAM_API_URL,
-                config.botToken(),
+                config.botToken,
                 chatId,
                 URLEncoder.encode(message, StandardCharsets.UTF_8));
 
-        for (int attempt = 1; attempt <= config.maxRetries() + 1; attempt++) {
+        for (int attempt = 1; attempt <= config.maxRetries + 1; attempt++) {
             try {
                 HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
 
                 if (response.responseCode() == HttpURLConnection.HTTP_OK) {
                     return;
                 } else if (response.responseCode() == 429) {
-                    if (attempt < config.maxRetries() + 1) {
-                        Thread.sleep(config.retryDelay());
+                    if (attempt < config.maxRetries + 1) {
+                        Thread.sleep(config.retryDelay);
                     } else {
                         throw new Exception("Too Many Requests (429) after max retries");
                     }
@@ -81,12 +81,12 @@ public class TelegramNotifier {
             } catch (Exception e) {
                 plugin.getLogger().warning(
                         String.format("Failed to send Telegram notification (attempt %d/%d): %s",
-                                attempt, config.maxRetries() + 1, e.getMessage())
+                                attempt, config.maxRetries + 1, e.getMessage())
                 );
 
-                if (attempt < config.maxRetries() + 1) {
+                if (attempt < config.maxRetries + 1) {
                     try {
-                        Thread.sleep(config.retryDelay());
+                        Thread.sleep(config.retryDelay);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         return;
