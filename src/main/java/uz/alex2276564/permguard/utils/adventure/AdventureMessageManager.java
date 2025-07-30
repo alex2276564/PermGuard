@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import uz.alex2276564.permguard.utils.StringUtils;
 
 import java.util.Map;
 
@@ -18,7 +19,10 @@ public class AdventureMessageManager implements MessageManager {
 
     @Override
     public @NotNull Component parse(@NotNull String message) {
-        return miniMessage.deserialize(message);
+
+        String processedMessage = StringUtils.processEscapeSequences(message);
+
+        return miniMessage.deserialize(processedMessage);
     }
 
     @Override

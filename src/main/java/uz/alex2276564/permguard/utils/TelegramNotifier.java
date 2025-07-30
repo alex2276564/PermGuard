@@ -37,7 +37,7 @@ public class TelegramNotifier {
             String ip = player.getAddress().getAddress().getHostAddress();
             String country = getCountryByIp(ip);
 
-            String message = telegram.message
+            String message = StringUtils.processEscapeSequences(telegram.message)
                     .replace("%player%", player.getName())
                     .replace("%permission%", permission)
                     .replace("%ip%", ip)
