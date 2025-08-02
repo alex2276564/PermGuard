@@ -26,7 +26,7 @@ public class MainConfigValidator {
             // Chat IDs validation
             Validators.notBlank(result, "telegram.chatIds", telegram.chatIds, "Chat IDs cannot be empty");
             Validators.pattern(result, "telegram.chatIds", telegram.chatIds,
-                    "^-?\\d+(,-?\\d+)*$", "Chat IDs must be comma-separated numbers (e.g., 123456789,-987654321)");
+                    "^\\s*-?\\d+(\\s*,\\s*-?\\d+)*\\s*$", "Chat IDs must be comma-separated numbers (e.g., 123456789,-987654321)");
 
             // Max retries validation
             Validators.min(result, "telegram.maxRetries", telegram.maxRetries, 0, "Max retries cannot be negative");

@@ -9,9 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 public class TelegramNotifier {
     private static final String TELEGRAM_API_URL = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
@@ -44,13 +44,22 @@ public class TelegramNotifier {
                     .replace("%country%", country)
                     .replace("%date%", DATE_FORMAT.format(new Date()));
 
-            String finalMessage = message;
-            CompletableFuture<?>[] futures = Arrays.stream(telegram.getChatIdsArray())
-                    .map(chatId -> CompletableFuture.runAsync(() ->
-                            sendMessage(telegram, chatId.trim(), finalMessage)))
-                    .toArray(CompletableFuture[]::new);
+            List<Thread> threads = new ArrayList<>();
 
-            CompletableFuture.allOf(futures).join();
+            for (String chatId : telegram.getChatIdsArray()) {
+                Thread thread = new Thread(() -> sendMessage(telegram, chatId.trim(), message));
+                thread.start();
+                threads.add(thread);
+            }
+
+            for (Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send telegram notification: " + e.getMessage());
