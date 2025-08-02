@@ -57,7 +57,6 @@ public class MessagesConfig extends OkaeriConfig {
     }
 
     public static class GeneralSection extends OkaeriConfig {
-        @Comment("")
         @Comment("Message when player has wildcard permission and needs to remove it first")
         public String wildcardPermissionConflict = "<red>[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
     }
