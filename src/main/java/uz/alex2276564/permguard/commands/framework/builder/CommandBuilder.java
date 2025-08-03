@@ -2,7 +2,11 @@ package uz.alex2276564.permguard.commands.framework.builder;
 
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 @Getter
@@ -62,16 +66,9 @@ public class CommandBuilder {
         Map<String, BuiltSubCommand> builtSubCommands = new HashMap<>();
         for (Map.Entry<String, SubCommandBuilder> entry : subCommands.entrySet()) {
             SubCommandBuilder sub = entry.getValue();
-            builtSubCommands.put(entry.getKey(), new BuiltSubCommand(
-                    sub.getName(),
-                    sub.getPermission(),
-                    sub.getDescription(),
-                    sub.getExecutor(),
-                    sub.getArguments()
-            ));
+            builtSubCommands.put(entry.getKey(), sub.buildSubCommand());
         }
 
         return new BuiltCommand(name, permission, description, executor, builtSubCommands, arguments);
     }
-
 }
