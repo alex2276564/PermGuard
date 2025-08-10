@@ -41,23 +41,26 @@ public class MessagesConfig extends OkaeriConfig {
             public String header = "<gold>=== PermGuard Help ===";
 
             @Comment("Reload command help line")
-            public String reloadLine = "<yellow>/permguard reload [type] <gray>- Reload the plugin configuration";
+            public String reloadLine = "<yellow>/permguard reload <type> <gray>- Reload the plugin configuration";
 
             @Comment("Help command help line")
             public String helpLine = "<yellow>/permguard help <gray>- Show this help message";
         }
 
         public static class ReloadSection extends OkaeriConfig {
-            @Comment("Reload success message. {type} = config type")
-            public String success = "<green>PermGuard configuration successfully reloaded ({type}).";
+            @Comment("Reload success message. <type> = config type")
+            public String success = "<green>PermGuard configuration successfully reloaded (<type>).";
 
-            @Comment("Reload error message. {error} = error details")
-            public String error = "<red>Failed to reload configuration: {error}";
+            @Comment("Reload error message. <error> = error details")
+            public String error = "<red>Failed to reload configuration: <error>";
         }
     }
 
     public static class GeneralSection extends OkaeriConfig {
         @Comment("Message when player has wildcard permission and needs to remove it first")
         public String wildcardPermissionConflict = "<red>[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
+
+        @Comment("Message when player already in processing")
+        public String alreadyInProcessing = "<yellow>[PermGuard] You are already in processing. Please rejoin now.";
     }
 }

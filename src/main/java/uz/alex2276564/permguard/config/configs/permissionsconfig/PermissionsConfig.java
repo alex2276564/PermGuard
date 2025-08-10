@@ -12,9 +12,9 @@ public class PermissionsConfig extends OkaeriConfig {
     public List<PermissionEntry> restrictedPermissions = Arrays.asList(
             new PermissionEntry(
                     "*",
-                    "lp user %player% permission unset %permission%",
+                    "lp user <player> permission unset <permission>",
                     true,
-                    "<red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your <red>%permission%</red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
+                    "<red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your <red><permission></red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
             )
     );
 
@@ -32,9 +32,5 @@ public class PermissionsConfig extends OkaeriConfig {
             this.log = log;
             this.kickMessage = kickMessage;
         }
-    }
-
-    public boolean hasWildcardPermission() {
-        return restrictedPermissions.stream().anyMatch(entry -> "*".equals(entry.permission));
     }
 }

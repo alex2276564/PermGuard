@@ -28,12 +28,13 @@ public class MessagesConfigValidator {
 
         // Check for required placeholders
         Validators.pattern(result, "commands.reload.success", commands.reload.success,
-                ".*\\{type\\}.*", "Reload success message must contain {type} placeholder");
+                ".*\\<type\\>.*", "Reload success message must contain <type> placeholder");
         Validators.pattern(result, "commands.reload.error", commands.reload.error,
-                ".*\\{error\\}.*", "Reload error message must contain {error} placeholder");
+                ".*\\<error\\>.*", "Reload error message must contain <error> placeholder");
     }
 
     private static void validateGeneralSection(ValidationResult result, MessagesConfig.GeneralSection general) {
         Validators.notBlank(result, "general.wildcardPermissionConflict", general.wildcardPermissionConflict, "Wildcard permission conflict message cannot be empty");
+        Validators.notBlank(result, "general.alreadyInProcessing", general.alreadyInProcessing, "Wildcard permission conflict message cannot be empty");
     }
 }

@@ -17,19 +17,14 @@ public class ReloadSubCommand implements SubCommandProvider {
                 .executor((sender, context) -> {
                     String type = context.getArgument("type");
 
+                    MessagesConfig msg = PermGuard.getInstance().getConfigManager().getMessagesConfig();
                     try {
                         PermGuard.getInstance().getConfigManager().reload();
 
-                        MessagesConfig msg = PermGuard.getInstance().getConfigManager().getMessagesConfig();
-                        String successMessage = msg.commands.reload.success.replace("{type}", type);
-
-                        PermGuard.getInstance().getMessageManager().sendMessage(sender, successMessage);
+                        PermGuard.getInstance().getMessageManager().sendMessage(sender, msg.commands.reload.success, "type", type);
 
                     } catch (Exception e) {
-                        MessagesConfig msg = PermGuard.getInstance().getConfigManager().getMessagesConfig();
-                        String errorMessage = msg.commands.reload.error.replace("{error}", e.getMessage());
-
-                        PermGuard.getInstance().getMessageManager().sendMessage(sender, errorMessage);
+                        PermGuard.getInstance().getMessageManager().sendMessage(sender, msg.commands.reload.error, "error", e.getMessage());
                     }
                 });
     }

@@ -1,22 +1,17 @@
 package uz.alex2276564.permguard.utils;
 
 import com.google.gson.JsonObject;
-import org.bukkit.entity.Player;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class TelegramNotifier {
     private static final String TELEGRAM_API_URL = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+    @SuppressWarnings("HttpUrlsUsage")
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private final PermGuard plugin;
     private final HttpUtils httpUtils;
@@ -26,7 +21,7 @@ public class TelegramNotifier {
         this.httpUtils = new HttpUtils();
     }
 
-    public void sendNotification(Player player, String permission) {
+    public void sendNotification(String name, String permission, String ip, String date) {
         MainConfig.TelegramSection telegram = plugin.getConfigManager().getMainConfig().telegram;
 
         if (!telegram.enabled || !telegram.isConfigured()) {
@@ -34,32 +29,24 @@ public class TelegramNotifier {
         }
 
         try {
-            String ip = player.getAddress().getAddress().getHostAddress();
             String country = getCountryByIp(ip);
 
             String message = StringUtils.processEscapeSequences(telegram.message)
-                    .replace("%player%", player.getName())
+                    .replace("%player%", name)
                     .replace("%permission%", permission)
                     .replace("%ip%", ip)
                     .replace("%country%", country)
-                    .replace("%date%", DATE_FORMAT.format(new Date()));
+                    .replace("%date%", date);
 
-            List<Thread> threads = new ArrayList<>();
 
             for (String chatId : telegram.getChatIdsArray()) {
-                Thread thread = new Thread(() -> sendMessage(telegram, chatId.trim(), message));
-                thread.start();
-                threads.add(thread);
-            }
-
-            for (Thread thread : threads) {
                 try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
+                    sendMessage(telegram, chatId.trim(), message);
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Telegram send failed: " + e.getMessage());
                 }
             }
+
 
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send telegram notification: " + e.getMessage());

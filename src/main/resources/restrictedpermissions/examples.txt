@@ -31,22 +31,22 @@ EXAMPLE FILE STRUCTURE:
 restrictedPermissions:
   # Wildcard permission (Should always be first in the list if used)
   - permission: "*"
-    # Command to execute when detected (use %player% and %permission% as placeholders)
-    cmd: "lp user %player% permission unset %permission%"
+    # Command to execute when detected (use <player> and <permission> as placeholders)
+    cmd: "lp user <player> permission unset <permission>"
     # Whether to log this violation
     log: true
-    # Message to show player when kicked (use %permission% as placeholder)
-    kickMessage: "<red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your <red>%permission%</red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
+    # Message to show player when kicked (use <permission> as placeholder)
+    kickMessage: "<red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your <red><permission></red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
 
   # Admin group permission
   - permission: "group.admin"
-    cmd: "lp user %player% permission unset %permission%"
+    cmd: "lp user <player> permission unset <permission>"
     log: true
-    kickMessage: "<red><bold>⚠ ADMIN ACCESS REVOKED ⚠</bold></red><newline><newline><yellow>Your <red>%permission%</red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
+    kickMessage: "<red><bold>⚠ ADMIN ACCESS REVOKED ⚠</bold></red><newline><newline><yellow>Your <red><permission></red> permissions have been revoked.</yellow><newline><gray>Please rejoin and restore them via console.</gray>"
 
   # Example if you use op instead of * in LuckPerms
   - permission: "*"
-    cmd: "deop %player%"
+    cmd: "deop <player>"
     log: true
     kickMessage: "<red><bold>⚠ OP REVOKED ⚠</bold></red><newline><newline><yellow>Your <red>OP</red> permissions have been removed.</yellow><newline><gray>Please contact an administrator to restore access.</gray>"
 
@@ -59,21 +59,21 @@ COMMON PERMISSION EXAMPLES:
 - "minecraft.command.op" # OP command permission
 
 COMMAND EXAMPLES:
-- "lp user %player% permission unset %permission%"  # LuckPerms remove permission
-- "deop %player%"                                    # Remove OP
-- "pex user %player% remove %permission%"           # PermissionsEx remove
-- "manudelp %player% %permission%"                  # GroupManager remove
+- "lp user <player> permission unset <permission>"  # LuckPerms remove permission
+- "deop <player>"                                   # Remove OP
+- "pex user <player> remove <permission>"           # PermissionsEx remove
+- "manudelp <player> <permission>"                  # GroupManager remove
 
 PLACEHOLDERS:
-%player%     - Player name
-%permission% - The detected permission
+<player>     - Player name
+<permission> - The detected permission
 
 PLUGIN INTEGRATION EXAMPLES:
-- LuckPerms: "lp user %player% permission unset %permission%"
-- PermissionsEx: "pex user %player% remove %permission%"
-- GroupManager: "manudelp %player% %permission%"
-- Essentials: "essentials:demote %player%"
-- PowerRanks: "pr setrank %player% default"
+- LuckPerms: "lp user <player> permission unset <permission>"
+- PermissionsEx: "pex user <player> remove <permission>"
+- GroupManager: "manudelp <player> <permission>"
+- Essentials: "essentials:demote <player>"
+- PowerRanks: "pr setrank <player> default"
 
 SECURITY TIPS:
 1. Always test commands on a test server first

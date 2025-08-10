@@ -35,14 +35,14 @@ public class PermissionsConfigValidator {
 
         // Command validation
         Validators.notBlank(result, prefix + ".cmd", entry.cmd, "Command cannot be empty");
-        if (entry.cmd != null && !entry.cmd.contains("%player%")) {
-            result.addError(prefix + ".cmd", "Command must contain %player% placeholder");
+        if (entry.cmd != null && !entry.cmd.contains("<player>")) {
+            result.addError(prefix + ".cmd", "Command must contain <player> placeholder");
         }
 
         // Kick message validation
         Validators.notBlank(result, prefix + ".kickMessage", entry.kickMessage, "Kick message cannot be empty");
-        if (entry.kickMessage != null && !entry.kickMessage.contains("%permission%")) {
-            result.addError(prefix + ".kickMessage", "Kick message must contain %permission% placeholder");
+        if (entry.kickMessage != null && !entry.kickMessage.contains("<permission>")) {
+            result.addError(prefix + ".kickMessage", "Kick message must contain <permission> placeholder");
         }
 
         // Additional validations
