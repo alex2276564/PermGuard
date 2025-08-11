@@ -8,7 +8,7 @@ website: https://github.com/alex2276564/PermGuard
 commands:
   permguard:
     description: Main command for PermGuard plugin
-    usage: /permguard <reload>
+    usage: /permguard <reload|help>
     aliases: [pg]
     permission: permguard.command
 permissions:

@@ -7,6 +7,7 @@ import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
 import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
 import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
+import uz.alex2276564.permguard.utils.backup.BackupManager;
 import uz.alex2276564.permguard.utils.runner.BukkitRunner;
 import uz.alex2276564.permguard.utils.runner.Runner;
 import uz.alex2276564.permguard.utils.UpdateChecker;
@@ -25,6 +26,9 @@ public final class PermGuard extends JavaPlugin {
     private PermGuardConfigManager configManager;
 
     @Getter
+    private BackupManager backupManager;
+
+    @Getter
     private MessageManager messageManager;
 
     @Override
@@ -35,6 +39,7 @@ public final class PermGuard extends JavaPlugin {
             setupRunner();
             setupMessageManager();
             setupConfig();
+            setupBackupManager();
             registerListeners();
             registerCommands();
             checkUpdates();
@@ -85,6 +90,19 @@ public final class PermGuard extends JavaPlugin {
     private void setupConfig() {
         configManager = new PermGuardConfigManager(this);
         configManager.reload();
+    }
+
+    private void setupBackupManager() {
+        backupManager = new BackupManager(this);
+
+        // Check for backup need on startup
+        backupManager.checkAndBackupAsync();
+
+        // Schedule periodic checks
+        runner.runPeriodicalAsync(() -> {
+                    backupManager.checkAndBackupAsync();
+                }, 20L * 60 * 60 * 24, // Check daily
+                20L * 60 * 60 * 24); // Every 24 hours
     }
 
     private void registerListeners() {
