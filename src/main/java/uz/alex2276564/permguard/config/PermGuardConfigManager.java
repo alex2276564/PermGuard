@@ -48,7 +48,7 @@ public class PermGuardConfigManager {
 
     private void loadMainConfig() {
         mainConfig = ConfigManager.create(MainConfig.class, it -> {
-            it.withConfigurer(new YamlSnakeYamlConfigurer()); // Убираем OkaeriValidator
+            it.withConfigurer(new YamlSnakeYamlConfigurer());
             it.withBindFile(new File(plugin.getDataFolder(), "config.yml"));
             it.withRemoveOrphans(true);
             it.saveDefaults();
@@ -98,47 +98,35 @@ public class PermGuardConfigManager {
         // Create directory if it doesn't exist
         if (!permissionsDir.exists()) {
             permissionsDir.mkdirs();
-            createExampleFiles();
-        } else {
-            // Always update examples.txt from resources
-            File examplesFile = new File(permissionsDir, "examples.txt");
-            ResourceUtils.updateFromResource(plugin, "restrictedpermissions/examples.txt", examplesFile);
         }
 
-        // Look for existing .yml files
-        File[] files = permissionsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+        // Always update examples.txt from resources (to keep it up-to-date)
+        File examplesFile = new File(permissionsDir, "examples.txt");
+        ResourceUtils.updateFromResource(plugin, "restrictedpermissions/examples.txt", examplesFile);
 
-        if (files == null || files.length == 0) {
-            // No files found, create default permissions.yml
-            createDefaultPermissionConfig();
-        } else {
-            // Load existing files
-            for (File file : files) {
-                loadPermissionConfig(file);
+        // Check if we need to create default permissions.yml
+        File[] existingFiles = permissionsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+
+        if (existingFiles == null || existingFiles.length == 0) {
+            // No yml files found - create default permissions.yml from resources
+            File defaultPermFile = new File(permissionsDir, "permissions.yml");
+            if (ResourceUtils.copyResourceIfNotExists(plugin, "restrictedpermissions/permissions.yml", defaultPermFile)) {
+                plugin.getLogger().info("Created default permission configuration: permissions.yml");
             }
         }
 
+        // Load all .yml files
+        File[] files = permissionsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                loadPermissionConfig(file);
+            }
+        } else {
+            plugin.getLogger().warning("No permission configuration files found!");
+        }
+
         plugin.getLogger().info("Loaded " + permissionConfigs.size() + " permission configuration(s)");
-    }
-
-    private void createDefaultPermissionConfig() {
-        PermissionsConfig defaultConfig = ConfigManager.create(PermissionsConfig.class, it -> {
-            it.withConfigurer(new YamlSnakeYamlConfigurer());
-            it.withBindFile(new File(plugin.getDataFolder(), "restrictedpermissions/permissions.yml"));
-            it.withRemoveOrphans(true);
-            it.saveDefaults();
-            it.load(true);
-        });
-
-        permissionConfigs.add(defaultConfig);
-        plugin.getLogger().info("Created default permission configuration: permissions.yml");
-    }
-
-    private void createExampleFiles() {
-        File examplesFile = new File(plugin.getDataFolder(), "restrictedpermissions/examples.txt");
-        ResourceUtils.updateFromResource(plugin, "restrictedpermissions/examples.txt", examplesFile);
-
-        createDefaultPermissionConfig();
     }
 
     // Convenience methods

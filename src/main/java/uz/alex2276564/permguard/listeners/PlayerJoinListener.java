@@ -19,9 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerJoinListener implements Listener {
     private final PermGuard plugin;
@@ -34,28 +31,10 @@ public class PlayerJoinListener implements Listener {
         this.messageManager = plugin.getMessageManager();
     }
 
-    private final Set<UUID> processing = ConcurrentHashMap.newKeySet();
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
 
-        if (!processing.add(uuid)) {
-            MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
-            Component kickComponent = messageManager.parse(msg.general.alreadyInProcessing);
-            player.kick(kickComponent);
-            return;
-        }
-
-        try {
-            handleJoin(player);
-        } finally {
-            processing.remove(uuid);
-        }
-    }
-
-    private void handleJoin(Player player) {
         for (PermissionsConfig.PermissionEntry entry : plugin.getConfigManager().getAllPermissions()) {
             if (!entry.permission.equals("*") && player.hasPermission("*")) {
                 MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
@@ -119,26 +98,37 @@ public class PlayerJoinListener implements Listener {
 
             // Blocking dangerous characters for commands
             if (";&|`$()[]{}\"'\\<>\n\r§".indexOf(c) >= 0) {
-                plugin.getLogger().warning("Blocked dangerous char '" + c + "' in: " + input);
+                String msg = plugin.getConfigManager().getMessagesConfig()
+                        .logging.dangerousCharBlocked
+                        .replace("<char>", String.valueOf(c))
+                        .replace("<input>", input);
+                plugin.getLogger().warning(msg);
                 continue;
             }
-
             out.append(c);
         }
         return out.toString();
     }
 
     private void logViolation(String name, String permission, String ip, String date) {
-        String logMessage = String.format("[%s] Player %s tried to join with restricted permission %s from IP %s",
-                date, name, permission, ip);
+        // Build message from template
+        String logMessage = plugin.getConfigManager().getMessagesConfig()
+                .logging.violationEntry
+                .replace("<date>", date)
+                .replace("<player>", name)
+                .replace("<permission>", permission)
+                .replace("<ip>", ip);
 
         plugin.getLogger().info(logMessage);
 
+        // Ensure folder exists
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdirs();
         }
 
-        Path logPath = plugin.getDataFolder().toPath().resolve("violations.log");
+        // Use file name from main config
+        String fileName = plugin.getConfigManager().getMainConfig().logging.violationsFile;
+        Path logPath = plugin.getDataFolder().toPath().resolve(fileName);
 
         try {
             Files.writeString(
@@ -149,7 +139,10 @@ public class PlayerJoinListener implements Listener {
                     StandardOpenOption.APPEND
             );
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not write to log file: " + e.getMessage());
+            String msg = plugin.getConfigManager().getMessagesConfig()
+                    .logging.fileWriteError
+                    .replace("<error>", e.getMessage());
+            plugin.getLogger().severe(msg);
         }
     }
 }

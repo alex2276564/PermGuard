@@ -1,0 +1,14 @@
+# List of restricted permissions
+restrictedPermissions:
+  - permission: '*'
+    cmd: lp user <player> permission unset <permission>
+    log: true
+    kickMessage: <red><bold>⚠ SECURITY ALERT ⚠</bold></red><newline><newline><yellow>Your
+      <red><permission></red> permissions have been revoked.</yellow><newline><gray>Please
+      rejoin and restore them via console.</gray>
+  - permission: group.admin
+    cmd: lp user <player> permission unset <permission>
+    log: true
+    kickMessage: <red><bold>⚠ ADMIN ACCESS REVOKED ⚠</bold></red><newline><newline><yellow>Your
+      <red><permission></red> permissions have been revoked.</yellow><newline><gray>Please
+      rejoin and restore them via console.</gray>

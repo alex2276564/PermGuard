@@ -71,6 +71,8 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 
 ## 📝 Note
 
+**Security Implementation Design:** PermGuard uses `PlayerJoinEvent` instead of `PlayerLoginEvent` by design. This ensures that no other plugin can accidentally or intentionally override our security checks. With `PlayerJoinEvent`, once we detect restricted permissions and kick the player, the action cannot be cancelled or overridden by other plugins, providing maximum security guarantee. Why not PlayerLoginEvent? Although `PlayerLoginEvent` would prevent the player from appearing in the tab list, other plugins with higher priority could potentially `allow()` the connection after our `disallow()`, creating a security vulnerability.
+
 **AxiomPaper Compatibility:** This plugin may interfere with the AxiomPaper plugin's functionality. AxiomPaper only checks permissions when a player joins the server, so if you remove all permissions and then restore them while in-game, the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*` permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
 
 **Performance Optimization:** PermGuard checks permissions synchronously during the player join event. For optimal performance, avoid adding unnecessary permissions to the configuration file. Remove any permissions that you don't actually need to monitor. For most admin accounts, you can simply use the wildcard permission `*` instead of listing multiple individual permissions, as this provides comprehensive protection while maintaining efficiency.

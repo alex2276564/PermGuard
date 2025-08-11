@@ -10,9 +10,16 @@ public class MainConfigValidator {
     public static void validate(MainConfig config) {
         ValidationResult result = new ValidationResult();
 
+        validateLoggingSection(result, config.logging);
         validateTelegramSection(result, config.telegram);
 
         result.throwIfInvalid("Main configuration");
+    }
+
+    private static void validateLoggingSection(ValidationResult result, MainConfig.LoggingSection logging) {
+        Validators.notBlank(result, "logging.violationsFile", logging.violationsFile, "Violations log file name cannot be empty");
+        Validators.pattern(result, "logging.violationsFile", logging.violationsFile,
+                "^[A-Za-z0-9._-]+\\.log$", "Violations log file must be a simple file name ending with .log");
     }
 
     private static void validateTelegramSection(ValidationResult result, MainConfig.TelegramSection telegram) {

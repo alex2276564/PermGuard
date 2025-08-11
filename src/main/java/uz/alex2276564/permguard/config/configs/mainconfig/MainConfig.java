@@ -13,6 +13,10 @@ public class MainConfig extends OkaeriConfig {
     public SettingsSection settings = new SettingsSection();
 
     @Comment("")
+    @Comment("Logging settings")
+    public LoggingSection logging = new LoggingSection();
+
+    @Comment("")
     @Comment("Telegram notification settings")
     public TelegramSection telegram = new TelegramSection();
 
@@ -21,6 +25,12 @@ public class MainConfig extends OkaeriConfig {
         @Comment("This provides additional security by ensuring no security gaps are left open")
         @Comment("Set to false if you want to disable the plugin without shutting down the server")
         public boolean shutdownOnDisable = true;
+    }
+
+    public static class LoggingSection extends OkaeriConfig {
+        @Comment("File name for the violations log (saved under the plugin's data folder)")
+        @Comment("Must be a simple file name ending with .log")
+        public String violationsFile = "violations.log";
     }
 
     public static class TelegramSection extends OkaeriConfig {

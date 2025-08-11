@@ -21,12 +21,21 @@ public class MessagesConfig extends OkaeriConfig {
     @Comment("#     → https://www.spigotmc.org/resources/triton.30331/")
     @Comment("# ================================================================")
     @Comment("")
+    @Comment("")
     @Comment("Command messages")
     public CommandsSection commands = new CommandsSection();
 
     @Comment("")
     @Comment("General messages")
     public GeneralSection general = new GeneralSection();
+
+    @Comment("")
+    @Comment("Logging (server console / file) messages and templates")
+    public LoggingSection logging = new LoggingSection();
+
+    @Comment("")
+    @Comment("Telegram-related log messages")
+    public TelegramMessagesSection telegramMessages = new TelegramMessagesSection();
 
     public static class CommandsSection extends OkaeriConfig {
         @Comment("Help command messages")
@@ -57,10 +66,39 @@ public class MessagesConfig extends OkaeriConfig {
     }
 
     public static class GeneralSection extends OkaeriConfig {
-        @Comment("Message when player has wildcard permission and needs to remove it first")
-        public String wildcardPermissionConflict = "<red>[PermGuard] You already have all permissions (*). Please delete this permission before revoking others.";
+        @Comment("Shown when player has wildcard permission and needs to remove it first")
+        public String wildcardPermissionConflict = "<red>[PermGuard] You currently have the wildcard permission (*). Remove it before revoking other permissions.";
+    }
 
-        @Comment("Message when player already in processing")
-        public String alreadyInProcessing = "<yellow>[PermGuard] You are already in processing. Please rejoin now.";
+    public static class LoggingSection extends OkaeriConfig {
+        @Comment("Template for a violation entry written to the log file and console")
+        @Comment("Placeholders: <date>, <player>, <permission>, <ip>")
+        public String violationEntry = "[<date>] Player <player> tried to join with restricted permission <permission> from IP <ip>";
+
+        @Comment("Error message when writing to the log file fails. <error> = exception message")
+        public String fileWriteError = "Could not write to log file: <error>";
+
+        @Comment("Warning when a dangerous character was blocked in a command input. Placeholders: <char>, <input>")
+        public String dangerousCharBlocked = "Blocked dangerous char '<char>' in: <input>";
+    }
+
+    public static class TelegramMessagesSection extends OkaeriConfig {
+        @Comment("Generic 'send failed' log. <error> = exception message")
+        public String sendFailed = "Telegram send failed: <error>";
+
+        @Comment("Top-level notification failure. <error> = exception message")
+        public String notificationFailed = "Failed to send Telegram notification: <error>";
+
+        @Comment("Per-attempt failure log. Placeholders: <attempt>, <max>, <error>")
+        public String sendFailedAttempt = "Failed to send Telegram notification (attempt <attempt>/<max>): <error>";
+
+        @Comment("Used when rate-limited after all retries")
+        public String tooManyRequests = "Too Many Requests (429) after max retries";
+
+        @Comment("IP geolocation failure. Placeholders: <ip>, <error>")
+        public String countryLookupFailed = "Failed to get country for IP <ip>: <error>";
+
+        @Comment("Fallback country name when unknown")
+        public String unknownCountry = "Unknown";
     }
 }

@@ -12,6 +12,8 @@ public class MessagesConfigValidator {
 
         validateCommandsSection(result, config.commands);
         validateGeneralSection(result, config.general);
+        validateLoggingSection(result, config.logging);
+        validateTelegramSection(result, config.telegramMessages);
 
         result.throwIfInvalid("Messages configuration");
     }
@@ -35,6 +37,42 @@ public class MessagesConfigValidator {
 
     private static void validateGeneralSection(ValidationResult result, MessagesConfig.GeneralSection general) {
         Validators.notBlank(result, "general.wildcardPermissionConflict", general.wildcardPermissionConflict, "Wildcard permission conflict message cannot be empty");
-        Validators.notBlank(result, "general.alreadyInProcessing", general.alreadyInProcessing, "Wildcard permission conflict message cannot be empty");
+    }
+
+    private static void validateLoggingSection(ValidationResult result, MessagesConfig.LoggingSection logging) {
+        Validators.notBlank(result, "logging.violationEntry", logging.violationEntry, "Violation entry template cannot be empty");
+        Validators.pattern(result, "logging.violationEntry", logging.violationEntry,
+                ".*\\<date\\>.*\\<player\\>.*\\<permission\\>.*\\<ip\\>.*",
+                "Violation entry must contain <date>, <player>, <permission>, and <ip> placeholders");
+
+        Validators.notBlank(result, "logging.fileWriteError", logging.fileWriteError, "File write error message cannot be empty");
+        Validators.pattern(result, "logging.fileWriteError", logging.fileWriteError,
+                ".*\\<error\\>.*", "File write error message must contain <error> placeholder");
+
+        Validators.notBlank(result, "logging.dangerousCharBlocked", logging.dangerousCharBlocked, "Dangerous char message cannot be empty");
+        Validators.pattern(result, "logging.dangerousCharBlocked", logging.dangerousCharBlocked,
+                ".*\\<char\\>.*\\<input\\>.*", "Dangerous char message must contain <char> and <input> placeholders");
+    }
+
+    private static void validateTelegramSection(ValidationResult result, MessagesConfig.TelegramMessagesSection t) {
+        Validators.notBlank(result, "telegramMessages.sendFailed", t.sendFailed, "sendFailed cannot be empty");
+        Validators.pattern(result, "telegramMessages.sendFailed", t.sendFailed,
+                ".*\\<error\\>.*", "sendFailed must contain <error>");
+
+        Validators.notBlank(result, "telegramMessages.notificationFailed", t.notificationFailed, "notificationFailed cannot be empty");
+        Validators.pattern(result, "telegramMessages.notificationFailed", t.notificationFailed,
+                ".*\\<error\\>.*", "notificationFailed must contain <error>");
+
+        Validators.notBlank(result, "telegramMessages.sendFailedAttempt", t.sendFailedAttempt, "sendFailedAttempt cannot be empty");
+        Validators.pattern(result, "telegramMessages.sendFailedAttempt", t.sendFailedAttempt,
+                ".*\\<attempt\\>.*\\<max\\>.*\\<error\\>.*", "sendFailedAttempt must contain <attempt>, <max>, <error>");
+
+        Validators.notBlank(result, "telegramMessages.tooManyRequests", t.tooManyRequests, "tooManyRequests cannot be empty");
+
+        Validators.notBlank(result, "telegramMessages.countryLookupFailed", t.countryLookupFailed, "countryLookupFailed cannot be empty");
+        Validators.pattern(result, "telegramMessages.countryLookupFailed", t.countryLookupFailed,
+                ".*\\<ip\\>.*\\<error\\>.*", "countryLookupFailed must contain <ip> and <error>");
+
+        Validators.notBlank(result, "telegramMessages.unknownCountry", t.unknownCountry, "unknownCountry cannot be empty");
     }
 }
