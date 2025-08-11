@@ -99,9 +99,8 @@ public final class PermGuard extends JavaPlugin {
         backupManager.checkAndBackupAsync();
 
         // Schedule periodic checks
-        runner.runPeriodicalAsync(() -> {
-                    backupManager.checkAndBackupAsync();
-                }, 20L * 60 * 60 * 24, // Check daily
+        runner.runPeriodicalAsync(() -> backupManager.checkAndBackupAsync(),
+                20L * 60 * 60 * 24, // Check daily
                 20L * 60 * 60 * 24); // Every 24 hours
     }
 
