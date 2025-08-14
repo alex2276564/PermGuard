@@ -25,7 +25,6 @@ jobs:
 
   lint-links:
     name: 🧹 Lint Links
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     permissions:
@@ -41,6 +40,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
           fail_level: error
+          fail_on_error: true
 
       - name: Lint Links (PR)
         if: github.event_name == 'pull_request'
@@ -49,6 +49,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           fail_level: error
+          fail_on_error: true
 
   lint-markdown:
     name: 🧹 Lint Markdown
