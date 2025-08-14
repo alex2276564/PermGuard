@@ -1,0 +1,36 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dependency-review:
+    name: 🧩 Dependency Review
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@main
+        with:
+          fail-on-severity: high
+
+  check-links:
+    name: 🔗 Check Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_level: any
