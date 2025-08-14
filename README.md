@@ -165,7 +165,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-[Alex] - [<https://github.com/alex2276564>]
+[Alex] - [https://github.com/alex2276564]
 
 We appreciate your contribution to the project! If you like this plugin, please give it a star on GitHub.
 

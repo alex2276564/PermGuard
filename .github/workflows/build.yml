@@ -24,7 +24,7 @@ jobs:
       - uses: devops-actions/actionlint@main
 
   lint-links:
-    name: 🧹 Lint Links (push)
+    name: 🧹 Lint Links
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
