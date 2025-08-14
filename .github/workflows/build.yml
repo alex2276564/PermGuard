@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  lint-actionlint:
+  lint-actions:
+    name: 🧹 Lint Actions
     runs-on: ubuntu-latest
 
     permissions:
