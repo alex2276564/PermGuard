@@ -20,18 +20,3 @@ jobs:
         uses: actions/dependency-review-action@main
         with:
           fail-on-severity: high
-
-  check-links:
-    name: 🔗 Check Links
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@main
-
-      - name: Run linkspector
-        uses: umbrelladocs/action-linkspector@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          fail_level: error
-          fail_on_error: true

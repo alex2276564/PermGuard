@@ -23,6 +23,33 @@ jobs:
 
       - uses: devops-actions/actionlint@main
 
+  lint-links:
+    name: 🧹 Lint Links (push)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      checks: write
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Lint Links (push)
+        if: github.event_name != 'pull_request'
+        uses: umbrelladocs/action-linkspector@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          fail_level: error
+
+      - name: Lint Links (PR)
+        if: github.event_name == 'pull_request'
+        uses: umbrelladocs/action-linkspector@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_level: error
+
   lint-markdown:
     name: 🧹 Lint Markdown
     runs-on: ubuntu-latest
@@ -121,7 +148,7 @@ jobs:
 
   build:
     name: 🏗️ Build Plugin
-    needs: [ lint-actionlint, lint-markdown, security-scan, security-scan-snyk, secrets-scan ]
+    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, secrets-scan ]
     runs-on: ubuntu-latest
 
     steps:
