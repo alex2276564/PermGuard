@@ -60,6 +60,10 @@ jobs:
     name: 🔐 Trivy Security Scan
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: read
+      security-events: write
+
     steps:
       - uses: actions/checkout@main
 

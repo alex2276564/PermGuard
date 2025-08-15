@@ -236,6 +236,7 @@ jobs:
       secrets-scan,
       dependency-review ]
     runs-on: ubuntu-latest
+    if: always() && !cancelled()
 
     steps:
       - uses: actions/checkout@main
