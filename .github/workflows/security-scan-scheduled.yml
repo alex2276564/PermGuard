@@ -75,28 +75,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
-
-  security-scan-osv:
-    name: 🔐️ OSV Security Scan
-    runs-on: ubuntu-latest
-
-    permissions:
-      actions: read
-      security-events: write
-
-    steps:
-      - uses: actions/checkout@main
-
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v2
-        with:
-          scan-args: |-
-            --format=sarif
-            --output=osv-results.sarif
-            --recursive
-            ./
-
-      - name: Upload OSV scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'osv-results.sarif'
