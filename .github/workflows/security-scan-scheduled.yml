@@ -7,15 +7,13 @@ on:
 
 permissions:
   contents: read
+  security-events: write
+  actions: read
 
 jobs:
   security-scan:
     name: 🔐 CodeQL Security Scan
     runs-on: ubuntu-latest
-
-    permissions:
-      security-events: write
-      actions: read
 
     steps:
       - uses: actions/checkout@main
@@ -60,10 +58,6 @@ jobs:
     name: 🔐 Trivy Security Scan
     runs-on: ubuntu-latest
 
-    permissions:
-      actions: read
-      security-events: write
-
     steps:
       - uses: actions/checkout@main
 
@@ -82,11 +76,6 @@ jobs:
 
   security-scan-osv:
     name: 🔐 OSV Security Scan
-
-    permissions:
-      contents: read
-      actions: read
-      security-events: write
 
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
     with:

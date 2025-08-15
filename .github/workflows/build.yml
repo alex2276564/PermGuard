@@ -79,6 +79,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: java-kotlin
+          queries: security-and-quality
 
       - name: Set up JDK 17
         uses: actions/setup-java@main
@@ -140,7 +141,10 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results to GitHub Security tab
-        if: github.event.pull_request.head.repo.fork == false
+        # Fix condition to work for both push and PR (excluding forks)
+        if: |
+          github.event_name == 'push' || 
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
