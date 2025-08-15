@@ -11,6 +11,44 @@ permissions:
   contents: read
 
 jobs:
+  security-scan-osv:
+    name: 🔐️ OSV Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Run OSV Scanner (full)
+        if: github.event_name != 'pull_request'
+        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
+        with:
+          scan-args: |-
+            --skip-git
+            --format=sarif
+            --output=osv-results.sarif
+            --recursive
+            ./
+
+      - name: Run OSV Scanner (PR)
+        if: github.event_name == 'pull_request'
+        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
+        with:
+          scan-args: |-
+            --skip-git
+            --format=sarif
+            --output=osv-results.sarif
+            --recursive
+            ./
+
+      - name: Upload OSV scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'osv-results.sarif'
+
   lint-actions:
     name: 🧹 Lint Actions
     runs-on: ubuntu-latest
@@ -139,44 +177,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
-
-  security-scan-osv:
-    name: 🔐️ OSV Security Scan
-    runs-on: ubuntu-latest
-
-    permissions:
-      actions: read
-      security-events: write
-
-    steps:
-      - uses: actions/checkout@main
-
-      - name: Run OSV Scanner (full)
-        if: github.event_name != 'pull_request'
-        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
-        with:
-          scan-args: |-
-            --skip-git
-            --format=sarif
-            --output=osv-results.sarif
-            --recursive
-            ./
-
-      - name: Run OSV Scanner (PR)
-        if: github.event_name == 'pull_request'
-        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
-        with:
-          scan-args: |-
-            --skip-git
-            --format=sarif
-            --output=osv-results.sarif
-            --recursive
-            ./
-
-      - name: Upload OSV scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'osv-results.sarif'
 
   dependency-review:
     name: 🧩 Dependency Review
