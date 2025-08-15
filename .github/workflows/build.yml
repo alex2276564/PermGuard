@@ -151,10 +151,23 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v2
+      - name: Run OSV Scanner (full)
+        if: github.event_name != 'pull_request'
+        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
         with:
           scan-args: |-
+            --skip-git
+            --format=sarif
+            --output=osv-results.sarif
+            --recursive
+            ./
+
+      - name: Run OSV Scanner (PR)
+        if: github.event_name == 'pull_request'
+        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
+        with:
+          scan-args: |-
+            --skip-git
             --format=sarif
             --output=osv-results.sarif
             --recursive
@@ -210,7 +223,7 @@ jobs:
 
   build:
     name: 🏗️ Build Plugin
-    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, secrets-scan, dependency-review ]
+    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, security-scan-osv, secrets-scan, dependency-review ]
     runs-on: ubuntu-latest
 
     steps:
