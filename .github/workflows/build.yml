@@ -123,10 +123,11 @@ jobs:
   security-scan-trivy:
     name: 🔐 Trivy Security Scan
     runs-on: ubuntu-latest
+
     permissions:
-      contents: read
       actions: read
       security-events: write
+
     steps:
       - uses: actions/checkout@main
 
@@ -144,63 +145,37 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-  security-scan-osv:
-    name: 🛡️ OSV Security Scan
-    runs-on: ubuntu-latest
+  security-scan-osv-pr:
+    name: 🔐 OSV Scan (PR)
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
 
     permissions:
       actions: read
-      contents: read
       security-events: write
 
-    steps:
-      - uses: actions/checkout@main
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
+    with:
+      fail-on-vuln: true
+      scan-args: |-
+        -r
+        --skip-git
+        ./
 
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v2.2.1
+  security-scan-osv-full:
+    name: 🔐 OSV Scan (push)
+    if: github.event_name != 'pull_request'
 
-      - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
+    permissions:
+      actions: read
+      security-events: write
 
-  #  security-scan-osv:
-  #    name: 🔐️ OSV Security Scan
-  #    runs-on: ubuntu-latest
-  #
-  #    permissions:
-  #      actions: read
-  #      security-events: write
-  #
-  #    steps:
-  #      - uses: actions/checkout@main
-  #
-  #      - name: Run OSV Scanner (full)
-  #        if: github.event_name != 'pull_request'
-  #        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
-  #        with:
-  #          scan-args: |-
-  #            --skip-git
-  #            --format=sarif
-  #            --output=osv-results.sarif
-  #            --recursive
-  #            ./
-  #
-  #      - name: Run OSV Scanner (PR)
-  #        if: github.event_name == 'pull_request'
-  #        uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
-  #        with:
-  #          scan-args: |-
-  #            --skip-git
-  #            --format=sarif
-  #            --output=osv-results.sarif
-  #            --recursive
-  #            ./
-  #
-  #      - name: Upload OSV scan results to GitHub Security tab
-  #        uses: github/codeql-action/upload-sarif@v3
-  #        with:
-  #          sarif_file: 'osv-results.sarif'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
+    with:
+      fail-on-vuln: true
+      scan-args: |-
+        -r
+        --skip-git
+        ./
 
   dependency-review:
     name: 🧩 Dependency Review
@@ -247,7 +222,7 @@ jobs:
 
   build:
     name: 🏗️ Build Plugin
-    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, security-scan-osv, secrets-scan, dependency-review ]
+    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, security-scan-osv-pr, security-scan-osv-full, secrets-scan, dependency-review ]
     runs-on: ubuntu-latest
 
     steps:
