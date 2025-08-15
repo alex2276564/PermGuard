@@ -36,7 +36,6 @@ jobs:
       # Example of specifying custom arguments
       scan-args: |-
         -r
-        --skip-git true
         --allow-no-lockfiles
         ./
   scan-pr:
@@ -46,6 +45,5 @@ jobs:
       # Example of specifying custom arguments
       scan-args: |-
         -r
-        --skip-git true
         --allow-no-lockfiles
         ./
