@@ -33,6 +33,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
     with:
+      fail-on-vuln: true
       # Example of specifying custom arguments
       scan-args: |-
         --allow-no-lockfiles

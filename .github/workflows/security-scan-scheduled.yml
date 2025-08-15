@@ -75,3 +75,19 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
+
+  security-scan-osv:
+    name: 🔐 OSV Security Scan
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
+    with:
+      fail-on-vuln: true
+      scan-args: |-
+        --allow-no-lockfiles
+        --recursive
+        ./

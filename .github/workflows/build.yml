@@ -145,6 +145,40 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+  security-scan-osv-pr:
+    name: 🔐 OSV Scan (PR)
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false }}
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.1
+    with:
+      fail-on-vuln: true
+      scan-args: |-
+        --allow-no-lockfiles
+        --recursive
+        ./
+
+  security-scan-osv-push:
+    name: 🔐 OSV Scan (push)
+    if: ${{ github.event_name == 'push' }}
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
+    with:
+      fail-on-vuln: true
+      scan-args: |-
+        --allow-no-lockfiles
+        --recursive
+        ./
+
   dependency-review:
     name: 🧩 Dependency Review
     runs-on: ubuntu-latest
@@ -190,7 +224,17 @@ jobs:
 
   build:
     name: 🏗️ Build Plugin
-    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, secrets-scan, dependency-review ]
+    needs: [
+      lint-actions,
+      lint-links,
+      lint-markdown,
+      security-scan,
+      security-scan-snyk,
+      security-scan-trivy,
+      security-scan-osv-pr,
+      security-scan-osv-push,
+      secrets-scan,
+      dependency-review ]
     runs-on: ubuntu-latest
 
     steps:
