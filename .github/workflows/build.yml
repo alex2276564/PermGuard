@@ -120,6 +120,69 @@ jobs:
         with:
           args: --severity-threshold=high
 
+  security-scan-trivy:
+    name: 🔐 Trivy Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  security-scan-osv:
+    name: 🔐️ OSV Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Run OSV Scanner
+        uses: google/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --format=sarif
+            --output=osv-results.sarif
+            --recursive
+            ./
+
+      - name: Upload OSV scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'osv-results.sarif'
+
+  dependency-review:
+    name: 🧩 Dependency Review
+    runs-on: ubuntu-latest
+
+    # Skip Dependency Review for push
+    if: github.event_name == 'pull_request'
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@main
+        with:
+          fail-on-severity: high
+
   secrets-scan:
     name: 🔑 Secrets Scan
     runs-on: ubuntu-latest
@@ -147,7 +210,7 @@ jobs:
 
   build:
     name: 🏗️ Build Plugin
-    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, secrets-scan ]
+    needs: [ lint-actions, lint-links, lint-markdown, security-scan, security-scan-snyk, security-scan-trivy, secrets-scan, dependency-review ]
     runs-on: ubuntu-latest
 
     steps:
