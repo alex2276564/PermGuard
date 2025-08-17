@@ -11,10 +11,11 @@ import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
+import uz.alex2276564.permguard.utils.SecurityUtils;
 import uz.alex2276564.permguard.utils.TelegramNotifier;
 import uz.alex2276564.permguard.utils.adventure.MessageManager;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +61,7 @@ public class PlayerJoinListener implements Listener {
         String permission = event.getPermission();
         String ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown";
 
-        String safeName = sanitizeForCommand(name);
+        String safeName = SecurityUtils.sanitize(name, SecurityUtils.SanitizeType.PLAYER_NAME);
 
         String cmd = event.getCmd()
                 .replace("<player>", safeName)
@@ -84,30 +85,6 @@ public class PlayerJoinListener implements Listener {
         });
 
         event.setCancelled(true);
-    }
-
-    private String sanitizeForCommand(String input) {
-        if (input == null) return "";
-
-        StringBuilder out = new StringBuilder(input.length());
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            // Blocking control characters
-            if (Character.isISOControl(c)) continue;
-
-            // Blocking dangerous characters for commands
-            if (";&|`$()[]{}\"'\\<>\n\r§".indexOf(c) >= 0) {
-                String msg = plugin.getConfigManager().getMessagesConfig()
-                        .logging.dangerousCharBlocked
-                        .replace("<char>", String.valueOf(c))
-                        .replace("<input>", input);
-                plugin.getLogger().warning(msg);
-                continue;
-            }
-            out.append(c);
-        }
-        return out.toString();
     }
 
     private void logViolation(String name, String permission, String ip, String date) {

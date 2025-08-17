@@ -135,17 +135,21 @@ public class TelegramNotifier {
                 plugin.getConfigManager().getMessagesConfig().telegramMessages;
 
         try {
-            String urlString = String.format(IP_API_URL, ip);
+            String cleanIp = SecurityUtils.sanitize(ip, SecurityUtils.SanitizeType.IP_ADDRESS);
+            String urlString = String.format(IP_API_URL, cleanIp);
             HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
 
             if (response.responseCode() == HttpURLConnection.HTTP_OK) {
                 JsonObject json = response.jsonBody();
-                return json.has("country") ? json.get("country").getAsString() : tmsg.unknownCountry;
+                if (json.has("country")) {
+                    String country = json.get("country").getAsString();
+                    return SecurityUtils.sanitize(country, SecurityUtils.SanitizeType.COUNTRY);
+                }
             }
         } catch (Exception e) {
             String msg = tmsg.countryLookupFailed
-                    .replace("<ip>", ip)
-                    .replace("<error>", e.getMessage());
+                    .replace("<ip>", SecurityUtils.safeLog(ip))
+                    .replace("<error>", SecurityUtils.sanitize(e.getMessage(), SecurityUtils.SanitizeType.ERROR_MESSAGE));
             plugin.getLogger().warning(msg);
         }
         return tmsg.unknownCountry;
