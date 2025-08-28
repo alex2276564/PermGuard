@@ -92,7 +92,8 @@ security best practices across your entire system.
 PermGuard supports both the full command `/permguard` and the shorter alias `/pg` for all commands (requires
 `permguard.command` permission).
 
-- `/permguard reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
+- `/pg help` - Show help information (requires `permguard.command`)
+- `/pg reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
 
 ## 🛠️ Compatibility
 
