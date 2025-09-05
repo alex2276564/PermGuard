@@ -98,7 +98,11 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 ## 🛠️ Compatibility
 
 - **Minecraft Versions:** 1.16.5 to the latest release
-- **Server Software:** [Paper](https://papermc.io/) (1.16.5 and newer)
+- **Server Software:**
+    - ✅ [Paper](https://papermc.io/) (1.16.5 and newer) - **Fully Supported**
+    - ✅ [Folia](https://papermc.io/software/folia) - **Fully Supported** with optimized region-aware scheduling
+    - ❌ Spigot - Not supported
+- **Java Version:** Java 17 or higher
 
 ## 📝 Note
 

@@ -21,6 +21,10 @@ repositories {
         name = "okaeri"
         url = "https://storehouse.okaeri.eu/repository/maven-public/"
     }
+    maven {
+        name = "tcoded-releases"
+        url = "https://repo.tcoded.com/releases"
+    }
 }
 
 dependencies {
@@ -37,6 +41,8 @@ dependencies {
     compileOnly "net.kyori:adventure-text-minimessage:4.24.0"
 
     implementation("eu.okaeri:okaeri-configs-yaml-snakeyaml:5.0.9")
+
+    implementation 'com.tcoded:FoliaLib:0.5.1'
 }
 
 // ⚠️ NOTE: Shading is required for legacy compatibility!
@@ -50,6 +56,8 @@ shadowJar {
     relocate 'eu.okaeri.configs', 'uz.alex2276564.permguard.libs.okaeri.configs'
 
     relocate 'com.google.gson', 'uz.alex2276564.permguard.libs.gson'
+
+    relocate 'com.tcoded.folialib', 'uz.alex2276564.permguard.libs.folialib'
 }
 
 build {

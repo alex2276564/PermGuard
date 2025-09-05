@@ -36,20 +36,45 @@ public class PlayerJoinListener implements Listener {
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        for (PermissionsConfig.PermissionEntry entry : plugin.getConfigManager().getAllPermissions()) {
-            if (!entry.permission.equals("*") && player.hasPermission("*")) {
+        var all = plugin.getConfigManager().getAllPermissions();
+
+        // 1) find '*' entry
+        PermissionsConfig.PermissionEntry starEntry = null;
+        for (PermissionsConfig.PermissionEntry e : all) {
+            if ("*".equals(e.permission)) {
+                starEntry = e;
+                break;
+            }
+        }
+
+        // 2) if player has '*', handle it first
+        if (player.hasPermission("*")) {
+            if (starEntry != null) {
+                PlayerHasRestrictedPermissionEvent e =
+                        new PlayerHasRestrictedPermissionEvent(player, starEntry.permission, starEntry.cmd, starEntry.log, starEntry.kickMessage);
+                Bukkit.getPluginManager().callEvent(e);
+            } else {
+                // fallback conflict message (no '*' entry configured)
                 MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
                 Component kickComponent = messageManager.parse(msg.general.wildcardPermissionConflict);
-                player.kick(kickComponent);
-                return;
-            }
 
-            if (player.hasPermission(entry.permission)) {
-                final PlayerHasRestrictedPermissionEvent restrictedPermissionEvent = new PlayerHasRestrictedPermissionEvent(player, entry.permission, entry.cmd, entry.log, entry.kickMessage);
-                Bukkit.getPluginManager().callEvent(restrictedPermissionEvent);
-                if (restrictedPermissionEvent.isCancelled()) {
-                    break;
+                if (plugin.getRunner().isFolia()) {
+                    plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
+                } else {
+                    player.kick(kickComponent);
                 }
+            }
+            return;
+        }
+
+        // 3) otherwise check all other entries
+        for (PermissionsConfig.PermissionEntry entry : all) {
+            if ("*".equals(entry.permission)) continue;
+            if (player.hasPermission(entry.permission)) {
+                PlayerHasRestrictedPermissionEvent e =
+                        new PlayerHasRestrictedPermissionEvent(player, entry.permission, entry.cmd, entry.log, entry.kickMessage);
+                Bukkit.getPluginManager().callEvent(e);
+                if (e.isCancelled()) break;
             }
         }
     }
@@ -67,10 +92,17 @@ public class PlayerJoinListener implements Listener {
                 .replace("<player>", safeName)
                 .replace("<permission>", permission);
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        plugin.getRunner().runGlobal(() ->
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
+        );
 
         Component kickComponent = messageManager.parse(event.getKickMessage(), "permission", permission);
-        player.kick(kickComponent);
+
+        if (plugin.getRunner().isFolia()) {
+            plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
+        } else {
+            player.kick(kickComponent);
+        }
 
         plugin.getRunner().runAsync(() -> {
             String date = java.time.ZonedDateTime.now()
@@ -79,9 +111,7 @@ public class PlayerJoinListener implements Listener {
             if (event.isLog()) {
                 logViolation(name, permission, ip, date);
             }
-
             telegramNotifier.sendNotification(name, permission, ip, date);
-
         });
 
         event.setCancelled(true);

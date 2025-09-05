@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
+import uz.alex2276564.permguard.utils.runner.Runner;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -116,10 +117,12 @@ public class TelegramNotifier {
                                String message, int attempt, long delayMs) {
         // Convert milliseconds to ticks (20 ticks = 1 second), round up with minimum 1 tick
         // Since retryDelay is minimum 1000ms, this will be at least 20 ticks
-        long delayTicks = Math.max(1L, (delayMs + 49L) / 50L);
+        long delayTicks = Runner.msToTicks(delayMs);
 
-        plugin.getRunner().runDelayedAsync(() -> sendMessageAttempt(config, chatId, message, attempt + 1), delayTicks);
+        plugin.getRunner().runAsyncLater(() ->
+                sendMessageAttempt(config, chatId, message, attempt + 1), delayTicks);
     }
+
 
     private void logRetryAttempt(MessagesConfig.TelegramMessagesSection tmsg,
                                  int attempt, int maxAttempts, String error) {

@@ -18,7 +18,6 @@ HOW TO USE:
 4. This examples.txt file is ignored by the plugin and gets regenerated on each reload
 5. ➕ Loading order matters!
    - `.yml` files are loaded alphabetically, so permissions in files named earlier (e.g., `0-wildcard.yml`, `aaa-defaults.yml`) will be processed first.
-   - ✅ If you use the wildcard permission (`*`), make sure it’s placed in a `.yml` file that loads first.
    - 🔒 This ensures high-risk permissions are revoked before anything else loads.
 6. 🚀 Performance Optimization:
    - PermGuard checks permissions **synchronously** during the player join event.
@@ -29,7 +28,7 @@ HOW TO USE:
 EXAMPLE FILE STRUCTURE:
 
 restrictedPermissions:
-  # Wildcard permission (Should always be first in the list if used)
+  # Wildcard permission
   - permission: "*"
     # Command to execute when detected (use <player> and <permission> as placeholders)
     cmd: "lp user <player> permission unset <permission>"

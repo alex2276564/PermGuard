@@ -7,13 +7,13 @@ import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
 import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
 import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
-import uz.alex2276564.permguard.utils.backup.BackupManager;
-import uz.alex2276564.permguard.utils.runner.BukkitRunner;
-import uz.alex2276564.permguard.utils.runner.Runner;
 import uz.alex2276564.permguard.utils.UpdateChecker;
 import uz.alex2276564.permguard.utils.adventure.AdventureMessageManager;
 import uz.alex2276564.permguard.utils.adventure.LegacyMessageManager;
 import uz.alex2276564.permguard.utils.adventure.MessageManager;
+import uz.alex2276564.permguard.utils.backup.BackupManager;
+import uz.alex2276564.permguard.utils.runner.FoliaRunner;
+import uz.alex2276564.permguard.utils.runner.Runner;
 
 public final class PermGuard extends JavaPlugin {
     @Getter
@@ -53,7 +53,12 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void setupRunner() {
-        runner = new BukkitRunner(this);
+        runner = new FoliaRunner(this);
+        getLogger().info("Initialized " + runner.getPlatformName() + " scheduler support");
+
+        if (runner.isFolia()) {
+            getLogger().info("Folia detected - using RegionScheduler and EntityScheduler for optimal performance");
+        }
     }
 
     private void setupMessageManager() {
@@ -98,10 +103,9 @@ public final class PermGuard extends JavaPlugin {
         // Check for backup need on startup
         backupManager.checkAndBackupAsync();
 
-        // Schedule periodic checks
-        runner.runPeriodicalAsync(() -> backupManager.checkAndBackupAsync(),
-                20L * 60 * 60 * 24, // Check daily
-                20L * 60 * 60 * 24); // Every 24 hours
+        // Schedule periodic checks - daily (24 hours)
+        long dailyTicks = Runner.secondsToTicks(24 * 60 * 60);
+        runner.runAsyncTimer(() -> backupManager.checkAndBackupAsync(), dailyTicks, dailyTicks);
     }
 
     private void registerListeners() {
@@ -123,9 +127,8 @@ public final class PermGuard extends JavaPlugin {
     @Override
     public void onDisable() {
         if (runner != null) {
-            runner.cancelTasks();
+            runner.cancelAllTasks();
         }
-
         shutdown();
     }
 
