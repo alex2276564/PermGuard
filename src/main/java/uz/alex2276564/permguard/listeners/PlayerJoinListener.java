@@ -13,7 +13,6 @@ import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConf
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.SecurityUtils;
 import uz.alex2276564.permguard.utils.TelegramNotifier;
-import uz.alex2276564.permguard.utils.adventure.MessageManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,15 +23,15 @@ import java.nio.file.StandardOpenOption;
 public class PlayerJoinListener implements Listener {
     private final PermGuard plugin;
     private final TelegramNotifier telegramNotifier;
-    private final MessageManager messageManager;
 
     public PlayerJoinListener(PermGuard plugin) {
         this.plugin = plugin;
         this.telegramNotifier = new TelegramNotifier(plugin);
-        this.messageManager = plugin.getMessageManager();
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(
+            priority = EventPriority.LOWEST
+    )
     public void on(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
@@ -56,7 +55,7 @@ public class PlayerJoinListener implements Listener {
             } else {
                 // fallback conflict message (no '*' entry configured)
                 MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
-                Component kickComponent = messageManager.parse(msg.general.wildcardPermissionConflict);
+                Component kickComponent = plugin.getMessageManager().parse(msg.general.wildcardPermissionConflict);
 
                 if (plugin.getRunner().isFolia()) {
                     plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
@@ -79,7 +78,10 @@ public class PlayerJoinListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(
+            priority = EventPriority.MONITOR,
+            ignoreCancelled = true
+    )
     public void on(PlayerHasRestrictedPermissionEvent event) {
         Player player = event.getPlayer();
         String name = player.getName();
@@ -96,7 +98,7 @@ public class PlayerJoinListener implements Listener {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
         );
 
-        Component kickComponent = messageManager.parse(event.getKickMessage(), "permission", permission);
+        Component kickComponent = plugin.getMessageManager().parse(event.getKickMessage(), "permission", permission);
 
         if (plugin.getRunner().isFolia()) {
             plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));

@@ -1,14 +1,14 @@
 # ================================================================
-# 📝 Restricted Permissions Configuration Examples
+# 📝 Configuration Examples
 #
-# 💬 Kick messages support MiniMessage formatting!
+# 🎨 All messages support MiniMessage formatting!
 #     → Examples: <red>Error!</red>, <green>Success!</green>
 #     → Web editor: https://webui.advntr.dev/
 #
-# 🌍 LOCALIZATION NOTE:
-#     Direct localization is not supported in this plugin.
-#     If you need multi-language support, use Triton plugin:
-#     → https://www.spigotmc.org/resources/triton.30331/
+# 🌍 LOCALIZATION:")
+# • This plugin doesn't include built-in multi-language support
+# • For multiple languages, use Triton plugin:
+#   → https://www.spigotmc.org/resources/triton.30331/
 # ================================================================
 
 HOW TO USE:

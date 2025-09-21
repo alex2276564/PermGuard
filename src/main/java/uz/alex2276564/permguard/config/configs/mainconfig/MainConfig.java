@@ -6,7 +6,10 @@ import eu.okaeri.configs.annotation.Comment;
 public class MainConfig extends OkaeriConfig {
 
     @Comment("# ================================================================")
-    @Comment("# 📝 PermGuard Configuration")
+    @Comment("# 🎯 Main Configuration")
+    @Comment("# ================================================================")
+    @Comment("# 📖 Documentation: https://github.com/alex2276564/PermGuard")
+    @Comment("# 💬 Support: https://github.com/alex2276564/PermGuard/issues")
     @Comment("# ================================================================")
     @Comment("")
     @Comment("General settings")

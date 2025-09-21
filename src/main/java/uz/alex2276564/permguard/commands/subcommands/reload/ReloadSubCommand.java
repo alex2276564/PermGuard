@@ -21,10 +21,10 @@ public class ReloadSubCommand implements SubCommandProvider {
                     try {
                         PermGuard.getInstance().getConfigManager().reload();
 
-                        PermGuard.getInstance().getMessageManager().sendMessage(sender, msg.commands.reload.success, "type", type);
+                        PermGuard.getInstance().getMessageManager().sendMessageKeyed(sender, "commands.reload.success", msg.commands.reload.success, "type", type);
 
                     } catch (Exception e) {
-                        PermGuard.getInstance().getMessageManager().sendMessage(sender, msg.commands.reload.error, "error", e.getMessage());
+                        PermGuard.getInstance().getMessageManager().sendMessageKeyed(sender, msg.commands.reload.error, "commands.reload.error", "error", e.getMessage());
                     }
                 });
     }
