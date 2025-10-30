@@ -4,7 +4,7 @@
 [![Java Version](https://img.shields.io/badge/java-17+-orange)](https://adoptium.net/installation/linux/)
 [![GitHub Release](https://img.shields.io/github/v/release/alex2276564/PermGuard?color=blue)](https://github.com/alex2276564/PermGuard/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/isoiec-27001.html)
+[![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/standard/27001)
 [![Zero Trust Architecture](https://img.shields.io/badge/Zero%20Trust-Architecture-blue)](https://www.nist.gov/publications/zero-trust-architecture)
 [![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
