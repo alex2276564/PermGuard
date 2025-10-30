@@ -79,6 +79,39 @@ security best practices across your entire system.
   implementing strong access control measures.
 - **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only
   authorized personnel can grant elevated privileges.
+- **Zero Trust Architecture (NIST SP 800-207):**  Applies a deny-by-default philosophy to administrative privileges.
+  Elevated access is never implicitly trusted and must be explicitly restored via the console after join.
+
+## 🛡️ Zero Trust Security Model
+
+**PermGuard** implements a **Zero Trust Architecture** for Minecraft server security - instead of relying on
+authentication checks, passwords, or trust assumptions, it **unconditionally revokes elevated permissions** upon every
+login.
+
+### Why Zero Trust?
+
+Traditional security plugins rely on **verification mechanisms** (passwords, 2FA, IP checks) which can be:
+
+- 🔓 **Bypassed** through exploits (AuthMe vulnerabilities, session hijacking)
+- 🔓 **Compromised** via social engineering or credential theft
+- 🔓 **Circumvented** by unknown zero-day vulnerabilities
+
+**PermGuard's approach is fundamentally different:**
+
+> **"Never trust, always revoke"** - Permissions are removed *before* any verification, making the security model *
+*attack-method agnostic**. Even if an attacker bypasses all authentication layers, they gain **no elevated privileges**
+> because those privileges simply don't exist until manually restored via console.
+
+This makes PermGuard effective against:
+
+- ✅ **Known attack vectors** (brute force, AuthMe bypass, BungeeCord exploits)
+- ✅ **Unknown future exploits** (zero-day vulnerabilities)
+- ✅ **Advanced persistent threats** (compromised accounts, session hijacking)
+- ✅ **Insider threats** (unauthorized access by trusted users)
+
+### TL;DR
+
+`PermGuard implements the principle of “zero trust” — instead of relying on checks and passwords, it simply revokes permissions upon any login. This makes it effective even against unknown types of attacks, as the basic security principle works regardless of the attack method.`
 
 ## 📥 Installation
 
@@ -109,7 +142,9 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 **Security Implementation Design:** PermGuard uses `PlayerJoinEvent` instead of `PlayerLoginEvent` by design. This
 ensures that no other plugin can accidentally or intentionally override our security checks. With `PlayerJoinEvent`,
 once we detect restricted permissions and kick the player, the action cannot be cancelled or overridden by other
-plugins, providing maximum security guarantee. Why not PlayerLoginEvent? Although `PlayerLoginEvent` would prevent the
+plugins, providing maximum security guarantee.
+
+**Why not PlayerLoginEvent?** Although `PlayerLoginEvent` would prevent the
 player from appearing in the tab list, other plugins with higher priority could potentially `allow()` the connection
 after our `disallow()`, creating a security vulnerability.
 
@@ -118,10 +153,10 @@ checks permissions when a player joins the server, so if you remove all permissi
 the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*`
 permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
 
-**Performance Optimization:** PermGuard checks permissions synchronously during the player join event. For optimal
-performance, avoid adding unnecessary permissions to the configuration file. Remove any permissions that you don't
-actually need to monitor. For most admin accounts, you can simply use the wildcard permission `*` instead of listing
-multiple individual permissions, as this provides comprehensive protection while maintaining efficiency.
+**Performance Optimization:** PermGuard uses an optimized permission caching system that pre-processes all
+configurations on reload. Wildcard (`*`) permissions are checked first as a fast-path, followed by regular permissions
+that are deduplicated and stored in an immutable cache. This ensures O(1) lookup performance with zero runtime overhead
+for permission list processing.
 
 **Native MiniMessage Support:** Plugin uses only native Kyori Adventure MiniMessage implementation without any
 backporting or compatibility layers:
@@ -148,7 +183,7 @@ Also check out my other plugins for protecting your Minecraft server:
 
 - [**NoMoreTNTChainCrash**](https://github.com/alex2276564/NoMoreTNTChainCrash)  
   *NoMoreTNTChainCrash* is a Minecraft plugin designed to prevent server crashes and lag caused by excessive TNT
-  explosions. It achieves this by removing TNT before automated chain explosions can occur, while still allowing players
+  explosions. It achieves this by ignoring TNT before automated chain explosions can occur, while still allowing players
   to manually detonate TNT as desired.
 
 > 🔍 **You can find more of my Minecraft plugins here:**  
