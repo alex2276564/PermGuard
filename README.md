@@ -8,7 +8,7 @@
 [![Zero Trust Architecture](https://img.shields.io/badge/Zero%20Trust-Architecture-blue)](https://www.nist.gov/publications/zero-trust-architecture)
 [![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
-[![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
+[![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Information_security)
 [![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
 [![Text Formatting](https://img.shields.io/badge/Text%20Formatting-🌈%20MiniMessage-ff69b4)](https://docs.advntr.dev/minimessage/)
 
