@@ -2,13 +2,13 @@ package uz.alex2276564.permguard.listeners;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
+import uz.alex2276564.permguard.config.configs.permissionsconfig.CompiledPermissions;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.SecurityUtils;
@@ -33,45 +33,33 @@ public class PlayerJoinListener implements Listener {
             priority = EventPriority.LOWEST
     )
     public void on(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+        var player = event.getPlayer();
 
-        var all = plugin.getConfigManager().getAllPermissions();
+        CompiledPermissions compiled = plugin.getConfigManager().getCompiledPermissions();
 
-        // 1) find '*' entry
-        PermissionsConfig.PermissionEntry starEntry = null;
-        for (PermissionsConfig.PermissionEntry e : all) {
-            if ("*".equals(e.permission)) {
-                starEntry = e;
-                break;
-            }
-        }
-
-        // 2) if player has '*', handle it first
+        // 1) '*' first — the most critical case
         if (player.hasPermission("*")) {
+            var starEntry = compiled.wildcard();
             if (starEntry != null) {
-                PlayerHasRestrictedPermissionEvent e =
-                        new PlayerHasRestrictedPermissionEvent(player, starEntry.permission, starEntry.cmd, starEntry.log, starEntry.kickMessage);
+                var e = new PlayerHasRestrictedPermissionEvent(
+                        player, starEntry.permission, starEntry.cmd, starEntry.log, starEntry.kickMessage
+                );
                 Bukkit.getPluginManager().callEvent(e);
             } else {
-                // fallback conflict message (no '*' entry configured)
+                // Fallback if wildcard not configured
                 MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
                 Component kickComponent = plugin.getMessageManager().parse(msg.general.wildcardPermissionConflict);
-
-                if (plugin.getRunner().isFolia()) {
-                    plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
-                } else {
-                    player.kick(kickComponent);
-                }
+                plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
             }
             return;
         }
 
-        // 3) otherwise check all other entries
-        for (PermissionsConfig.PermissionEntry entry : all) {
-            if ("*".equals(entry.permission)) continue;
+        // 2) Regular permissions — already pre-filtered and deduped
+        for (PermissionsConfig.PermissionEntry entry : compiled.regular()) {
             if (player.hasPermission(entry.permission)) {
-                PlayerHasRestrictedPermissionEvent e =
-                        new PlayerHasRestrictedPermissionEvent(player, entry.permission, entry.cmd, entry.log, entry.kickMessage);
+                var e = new PlayerHasRestrictedPermissionEvent(
+                        player, entry.permission, entry.cmd, entry.log, entry.kickMessage
+                );
                 Bukkit.getPluginManager().callEvent(e);
                 if (e.isCancelled()) break;
             }
@@ -83,10 +71,10 @@ public class PlayerJoinListener implements Listener {
             ignoreCancelled = true
     )
     public void on(PlayerHasRestrictedPermissionEvent event) {
-        Player player = event.getPlayer();
-        String name = player.getName();
-        String permission = event.getPermission();
-        String ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown";
+        var player = event.getPlayer();
+        var name = player.getName();
+        var permission = event.getPermission();
+        var ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown";
 
         String safeName = SecurityUtils.sanitize(name, SecurityUtils.SanitizeType.PLAYER_NAME);
 
@@ -99,12 +87,7 @@ public class PlayerJoinListener implements Listener {
         );
 
         Component kickComponent = plugin.getMessageManager().parse(event.getKickMessage(), "permission", permission);
-
-        if (plugin.getRunner().isFolia()) {
-            plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
-        } else {
-            player.kick(kickComponent);
-        }
+        plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
 
         plugin.getRunner().runAsync(() -> {
             String date = java.time.ZonedDateTime.now()
@@ -130,10 +113,7 @@ public class PlayerJoinListener implements Listener {
 
         plugin.getLogger().info(logMessage);
 
-        // Ensure folder exists
-        if (!plugin.getDataFolder().exists()) {
-            plugin.getDataFolder().mkdirs();
-        }
+        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
 
         // Use file name from main config
         String fileName = plugin.getConfigManager().getMainConfig().logging.violationsFile;

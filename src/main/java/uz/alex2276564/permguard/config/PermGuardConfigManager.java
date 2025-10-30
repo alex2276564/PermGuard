@@ -5,16 +5,16 @@ import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import lombok.Getter;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
-import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
-import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfigValidator;
+import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfigValidator;
+import uz.alex2276564.permguard.config.configs.permissionsconfig.CompiledPermissions;
+import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfigValidator;
 import uz.alex2276564.permguard.utils.ResourceUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PermGuardConfigManager {
     private final PermGuard plugin;
@@ -26,20 +26,28 @@ public class PermGuardConfigManager {
     private MessagesConfig messagesConfig;
 
     @Getter
-    private List<PermissionsConfig> permissionConfigs;
+    private final List<PermissionsConfig> permissionConfigs = new ArrayList<>();
+
+    // Atomic, immutable snapshot for join-time reads
+    @Getter
+    @SuppressWarnings("java:S3077")
+    // Thread-safe: volatile ensures visibility + CompiledPermissions is immutable (record + List.copyOf)
+    private volatile CompiledPermissions compiledPermissions = CompiledPermissions.empty();
 
     public PermGuardConfigManager(PermGuard plugin) {
         this.plugin = plugin;
-        this.permissionConfigs = new ArrayList<>();
     }
 
     public void reload() {
         try {
             loadMainConfig();
             loadMessagesConfig();
-            loadPermissionConfigs();
+            loadPermissionConfigs(); // loads files into permissionConfigs
+            rebuildCompiledPermissions(); // builds atomic immutable cache
 
-            plugin.getLogger().info("Configuration system reloaded successfully!");
+            plugin.getLogger().info("Configuration reloaded.");
+            plugin.getLogger().info("Permission cache: wildcard=" + (compiledPermissions.wildcard() != null)
+                    + ", regular=" + compiledPermissions.regular().size());
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to reload configuration: " + e.getMessage());
             e.printStackTrace();
@@ -95,11 +103,7 @@ public class PermGuardConfigManager {
         permissionConfigs.clear();
 
         File permissionsDir = new File(plugin.getDataFolder(), "restrictedpermissions");
-
-        // Create directory if it doesn't exist
-        if (!permissionsDir.exists()) {
-            permissionsDir.mkdirs();
-        }
+        if (!permissionsDir.exists()) permissionsDir.mkdirs();
 
         // Always update examples.txt from resources (to keep it up-to-date)
         File examplesFile = new File(permissionsDir, "examples.txt");
@@ -120,24 +124,39 @@ public class PermGuardConfigManager {
         File[] files = permissionsDir.listFiles((dir, name) -> name.endsWith(".yml"));
 
         if (files != null && files.length > 0) {
-            for (File file : files) {
-                loadPermissionConfig(file);
-            }
+            for (File file : files) loadPermissionConfig(file);
         } else {
             plugin.getLogger().warning("No permission configuration files found!");
         }
 
-        plugin.getLogger().info("Loaded " + permissionConfigs.size() + " permission configuration(s)");
+        plugin.getLogger().info("Loaded " + permissionConfigs.size() + " permission configuration file(s).");
     }
 
-    // Convenience methods
-    public List<PermissionsConfig.PermissionEntry> getAllPermissions() {
-        List<PermissionsConfig.PermissionEntry> allPermissions = new ArrayList<>();
+    // Build immutable, deduplicated cache. First '*' wins, first occurrence of each permission wins.
+    private void rebuildCompiledPermissions() {
+        PermissionsConfig.PermissionEntry star = null;
 
-        for (PermissionsConfig config : permissionConfigs) {
-            allPermissions.addAll(config.restrictedPermissions);
+        // Dedup by permission name (case-insensitive), preserve first occurrence order
+        Map<String, PermissionsConfig.PermissionEntry> map = new LinkedHashMap<>();
+
+        for (var cfg : permissionConfigs) {
+            for (var e : cfg.restrictedPermissions) {
+                var raw = e.permission;
+                var p = (raw == null) ? null : raw.trim(); // normalize
+                if (p == null || p.isBlank()) continue;
+
+                if ("*".equals(p)) {
+                    if (star == null) star = e;
+                    else plugin.getLogger().warning("Multiple '*' entries detected. Using the first one.");
+                    continue;
+                }
+
+                var key = p.toLowerCase(Locale.ROOT);
+                map.putIfAbsent(key, e);
+            }
         }
 
-        return allPermissions;
+        var nonStar = List.copyOf(map.values()); // immutable snapshot
+        compiledPermissions = new CompiledPermissions(star, nonStar);
     }
 }
