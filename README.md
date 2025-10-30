@@ -5,6 +5,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/alex2276564/PermGuard?color=blue)](https://github.com/alex2276564/PermGuard/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/isoiec-27001.html)
+[![Zero Trust Architecture](https://img.shields.io/badge/Zero%20Trust-Architecture-blue)](https://www.nist.gov/publications/zero-trust-architecture)
 [![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 [![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Audit_trail_(information_security))
@@ -153,10 +154,9 @@ checks permissions when a player joins the server, so if you remove all permissi
 the Axiom mod will not work properly. To make PermGuard and Axiom work together, you can grant yourself the `axiom.*`
 permission on your account (and configure PermGuard not to remove it) to ensure both plugins function correctly.
 
-**Performance Optimization:** PermGuard uses an optimized permission caching system that pre-processes all
-configurations on reload. Wildcard (`*`) permissions are checked first as a fast-path, followed by regular permissions
-that are deduplicated and stored in an immutable cache. This ensures O(1) lookup performance with zero runtime overhead
-for permission list processing.
+PermGuard uses an optimized permission cache built on reload. On join it performs a single fast‑path check for the
+wildcard (*) and then scans a deduplicated, immutable list of regular permissions. No parsing or reordering happens on
+join.
 
 **Native MiniMessage Support:** Plugin uses only native Kyori Adventure MiniMessage implementation without any
 backporting or compatibility layers:

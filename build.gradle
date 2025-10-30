@@ -7,6 +7,8 @@ plugins {
 group = 'uz.alex2276564'
 version = '1.0.4'
 
+def targetJavaVersion = 17
+
 repositories {
     mavenCentral()
     maven {
@@ -72,8 +74,6 @@ tasks {
         minecraftVersion("1.16.5")
     }
 }
-
-def targetJavaVersion = 17
 
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
