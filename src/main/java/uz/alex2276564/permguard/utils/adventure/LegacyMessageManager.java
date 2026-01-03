@@ -171,6 +171,26 @@ public class LegacyMessageManager implements MessageManager {
         }
     }
 
+    @Override
+    public void sendMessage(@NotNull Player player, @NotNull String message, @NotNull Map<String, String> placeholders) {
+        player.sendMessage(parse(message, placeholders));
+    }
+
+    @Override
+    public void sendMessage(@NotNull CommandSender sender, @NotNull String message, @NotNull Map<String, String> placeholders) {
+        if (sender instanceof Player p) {
+            p.sendMessage(parse(message, placeholders));
+        } else {
+            // For console - plain text without tags
+            String processed = message;
+            for (Map.Entry<String, String> e : placeholders.entrySet()) {
+                String token = "<" + e.getKey() + ">";
+                processed = processed.replace(token, escapeForLegacy(e.getValue()));
+            }
+            sender.sendMessage(stripTags(processed));
+        }
+    }
+
     // keyed
     @Override
     public void sendMessageKeyed(@NotNull Player player, String key, @NotNull String message) {
@@ -311,7 +331,7 @@ public class LegacyMessageManager implements MessageManager {
         return out.toString();
     }
 
-    private enum TagType { COLOR, STYLE }
+    private enum TagType {COLOR, STYLE}
 
     /**
      * @param code legacy code (&a, &l, etc.)
@@ -324,7 +344,10 @@ public class LegacyMessageManager implements MessageManager {
         List<Tag> list = new ArrayList<>(stack); // iteration is top->bottom
         Tag lastColor = null;
         for (int i = list.size() - 1; i >= 0; i--) {
-            if (list.get(i).type == TagType.COLOR) { lastColor = list.get(i); break; }
+            if (list.get(i).type == TagType.COLOR) {
+                lastColor = list.get(i);
+                break;
+            }
         }
         if (lastColor != null) out.append(lastColor.code);
         for (int i = list.size() - 1; i >= 0; i--) {
@@ -339,7 +362,10 @@ public class LegacyMessageManager implements MessageManager {
         boolean removed = false;
         while (!stack.isEmpty()) {
             Tag t = stack.pop();
-            if (!removed && p.test(t)) { removed = true; continue; }
+            if (!removed && p.test(t)) {
+                removed = true;
+                continue;
+            }
             tmp.push(t);
         }
         while (!tmp.isEmpty()) stack.push(tmp.pop());
