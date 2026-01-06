@@ -127,16 +127,21 @@ public final class PermGuard extends JavaPlugin {
         if (runner != null) {
             runner.cancelAllTasks();
         }
-        shutdown();
+        handleDisableAndOptionalShutdown();
     }
 
-    private void shutdown() {
+    /**
+     * Handle plugin disable and optionally shut down the server based on configuration.
+     */
+    private void handleDisableAndOptionalShutdown() {
         if (configManager != null && configManager.getMainConfig().settings.shutdownOnDisable) {
-            getLogger().info("The server is shutting down because PermGuard was disabled and shutdown-on-disable is enabled.");
+            getLogger().severe("PermGuard was disabled. For security reasons the server will now shut down "
+                    + "(settings.shutdownOnDisable = true).");
             getServer().shutdown();
         } else {
-            getLogger().warning("PermGuard has been disabled but the server will continue running. " +
-                    "Please ensure your server security is maintained through other means!");
+            getLogger().warning("PermGuard has been disabled but the server will continue running "
+                    + "(settings.shutdownOnDisable = false).");
+            getLogger().warning("Make sure you understand the security implications and have other protection in place.");
         }
     }
 }
