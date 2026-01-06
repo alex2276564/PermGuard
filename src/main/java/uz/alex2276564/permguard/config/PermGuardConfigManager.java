@@ -141,17 +141,18 @@ public class PermGuardConfigManager {
 
         for (var cfg : permissionConfigs) {
             for (var e : cfg.restrictedPermissions) {
-                var raw = e.permission;
-                var p = (raw == null) ? null : raw.trim(); // normalize
-                if (p == null || p.isBlank()) continue;
+                String p = e.permission.trim();
 
                 if ("*".equals(p)) {
-                    if (star == null) star = e;
-                    else plugin.getLogger().warning("Multiple '*' entries detected. Using the first one.");
+                    if (star == null) {
+                        star = e;
+                    } else {
+                        plugin.getLogger().warning("Multiple '*' entries detected in restricted permissions. Using the first one.");
+                    }
                     continue;
                 }
 
-                var key = p.toLowerCase(Locale.ROOT);
+                String key = p.toLowerCase(Locale.ROOT);
                 map.putIfAbsent(key, e);
             }
         }
