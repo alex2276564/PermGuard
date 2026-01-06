@@ -41,14 +41,20 @@ public class MainConfig extends OkaeriConfig {
         public boolean enabled = false;
 
         @Comment("")
-        @Comment("Your Telegram bot token (get it from @BotFather)")
+        @Comment("Your Telegram bot token (get it from @BotFather).")
+        @Comment("Steps:")
+        @Comment("  1) Open Telegram and talk to @BotFather.")
+        @Comment("  2) Create a new bot or reuse an existing one.")
+        @Comment("  3) Copy the HTTP API token and paste it here.")
         public String botToken = "your_bot_token_here";
 
         @Comment("")
         @Comment("Chat IDs where notifications will be sent (separate multiple IDs with commas)")
         @Comment("")
         @Comment("How to get your Chat ID:")
-        @Comment("1. Send a message to your bot.")
+        @Comment("")
+        @Comment("Quick start (personal chat, recommended for first setup):")
+        @Comment("  1) Send any message to your bot (e.g. \"hello\").")
         @Comment("2. Open the following link in your browser (replace <YourBOTToken> with your bot token):")
         @Comment("   https://api.telegram.org/bot<YourBOTToken>/getUpdates")
         @Comment("3. In the JSON response, look for \"chat\": {\"id\": ...} — this is your Chat ID.")
@@ -89,13 +95,13 @@ public class MainConfig extends OkaeriConfig {
         public long retryDelay = 1100;
 
         @Comment("")
-        @Comment("Notification message template")
+        @Comment("Notification message template.")
         @Comment("Available placeholders:")
-        @Comment("%player% - player name")
-        @Comment("%permission% - restricted permission")
-        @Comment("%ip% - player's IP address")
-        @Comment("%country% - player's country (based on IP)")
-        @Comment("%date% - date and time of the incident (Server time)")
+        @Comment("  %player%     - player name")
+        @Comment("  %permission% - restricted permission")
+        @Comment("  %ip%         - player's IP address")
+        @Comment("  %country%    - player's country (based on IP)")
+        @Comment("  %date%       - date and time of the incident (server time)")
         public String message = "⚠️ Security Alert!\\n\\nPlayer %player% tried to join with restricted permission %permission% and was kicked\\n\\n📍 Details:\\n👤 Player: %player%\\n🔒 Permission: %permission%\\n🌐 IP: %ip%\\n🗺️ Country: %country%\\n⏰ Time: %date% (Server time)\\n\\n❗If this wasn't authorized by you, please take immediate action to secure your server.";
 
         public boolean isConfigured() {
