@@ -30,10 +30,30 @@ public class MainConfigValidator {
             Validators.pattern(result, "telegram.botToken", telegram.botToken,
                     "^\\d+:[A-Za-z0-9_-]{35}$", "Invalid Telegram bot token format");
 
-            // Chat IDs validation
+            // Chat IDs validation (split + per-id checks)
             Validators.notBlank(result, "telegram.chatIds", telegram.chatIds, "Chat IDs cannot be empty");
-            Validators.pattern(result, "telegram.chatIds", telegram.chatIds,
-                    "^\\s*-?\\d+(\\s*,\\s*-?\\d+)*\\s*$", "Chat IDs must be comma-separated numbers (e.g., 123456789,-987654321)");
+
+            String[] ids = telegram.getChatIdsArray();
+            int count = 0;
+
+            for (String rawId : ids) {
+                String chatId = rawId.trim();
+                if (chatId.isEmpty()) continue; // skip accidental empty fragments
+                count++;
+
+                if (count > 30) {
+                    result.addError("telegram.chatIds",
+                            "You can configure at most 30 chat IDs (Telegram API limit).");
+                    break;
+                }
+
+                // Accept personal, group or channel IDs
+                // Examples: 123456789, -987654321, -1001234567890
+                if (!chatId.matches("^-?\\d{9,15}$")) {
+                    result.addError("telegram.chatIds",
+                            "Invalid chat ID: " + chatId + ". Expected a number like 123456789 or -1001234567890.");
+                }
+            }
 
             // Max retries validation
             Validators.min(result, "telegram.maxRetries", telegram.maxRetries, 0, "Max retries cannot be negative");
