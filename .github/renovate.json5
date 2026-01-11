@@ -43,7 +43,7 @@
   // ================================================================
 
   "schedule": [
-    "at any time"    // Weekly check: Monday before 06:00 UTC
+    "before 6am on monday"    // Weekly check: Monday before 06:00 UTC
   ],
 
   "timezone": "UTC",          // Use UTC for consistency across environments
