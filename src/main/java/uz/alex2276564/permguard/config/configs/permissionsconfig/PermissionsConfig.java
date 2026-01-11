@@ -3,13 +3,12 @@ package uz.alex2276564.permguard.config.configs.permissionsconfig;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Comment;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PermissionsConfig extends OkaeriConfig {
 
     @Comment("List of restricted permissions")
-    public List<PermissionEntry> restrictedPermissions = Arrays.asList(
+    public List<PermissionEntry> restrictedPermissions = List.of(
             new PermissionEntry(
                     "*",
                     "lp user <player> permission unset <permission>",
@@ -24,7 +23,9 @@ public class PermissionsConfig extends OkaeriConfig {
         public boolean log;
         public String kickMessage;
 
-        public PermissionEntry() {}
+        @SuppressWarnings("unused")
+        public PermissionEntry() {
+        }
 
         public PermissionEntry(String permission, String cmd, boolean log, String kickMessage) {
             this.permission = permission;

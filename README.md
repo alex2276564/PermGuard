@@ -116,8 +116,7 @@ This makes PermGuard effective against:
 
 ## 📥 Installation
 
-1. **Download:** Download the latest version of PermGuard from
-   the [Releases](https://github.com/alex2276564/PermGuard/releases) page.
+1. **Download:** Download the latest version of PermGuard from the [Releases](https://github.com/alex2276564/PermGuard/releases) page.
 2. **Install:** Place the `.jar` file into your server's `plugins` folder.
 3. **Restart:** Restart your server to load the plugin.
 
@@ -133,9 +132,9 @@ PermGuard supports both the full command `/permguard` and the shorter alias `/pg
 
 - **Minecraft Versions:** 1.16.5 to the latest release
 - **Server Software:**
-    - ✅ [Paper](https://papermc.io/) (1.16.5 and newer) - **Fully Supported**
-    - ✅ [Folia](https://papermc.io/software/folia) - **Fully Supported** with optimized region-aware scheduling
-    - ❌ Spigot - Not supported
+  - ✅ [Paper](https://papermc.io/) (1.16.5 and newer) - **Fully Supported**
+  - ✅ [Folia](https://papermc.io/software/folia) - **Fully Supported** with optimized region-aware scheduling
+  - ❌ Spigot - Not supported
 - **Java Version:** Java 17 or higher
 
 ## 📝 Note
