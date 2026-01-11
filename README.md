@@ -42,7 +42,7 @@ elevated permissions and manually re-grants them via the console using commands 
 
 ## 🛡️ Security Benefits
 
-### How PermGuard Protects Against Advanced Attacks:
+### How PermGuard Protects Against Advanced Attacks
 
 1. **Brute Force Attacks:** By removing permissions upon login, it prevents unauthorized access even if someone gains
    temporary access to an admin account.
@@ -64,23 +64,23 @@ elevated permissions and manually re-grants them via the console using commands 
 10. **Shutdown Protection:** Ensures that if the plugin is disabled , the server shuts down to prevent any security gaps
     from being exploited.
 
-### Compliance with Security Standards:
+### Compliance with Security Standards
 
 **Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall
 security compliance depends on your complete infrastructure setup, proper configuration of all components, and following
 security best practices across your entire system.
 
-- **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to
+* **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to
   perform their tasks, reducing the risk of privilege abuse.
-- **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating
+* **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating
   compliance audits and forensic analysis.
-- **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by
+* **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by
   enforcing strict permission controls and audit logging.
-- **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by
+* **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by
   implementing strong access control measures.
-- **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only
+* **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only
   authorized personnel can grant elevated privileges.
-- **Zero Trust Architecture (NIST SP 800-207):**  Applies a deny-by-default philosophy to administrative privileges.
+* **Zero Trust Architecture (NIST SP 800-207):**  Applies a deny-by-default philosophy to administrative privileges.
   Elevated access is never implicitly trusted and must be explicitly restored via the console after join.
 
 ## 🛡️ Zero Trust Security Model
@@ -93,9 +93,9 @@ login.
 
 Traditional security plugins rely on **verification mechanisms** (passwords, 2FA, IP checks) which can be:
 
-- 🔓 **Bypassed** through exploits (AuthMe vulnerabilities, session hijacking)
-- 🔓 **Compromised** via social engineering or credential theft
-- 🔓 **Circumvented** by unknown zero-day vulnerabilities
+* 🔓 **Bypassed** through exploits (AuthMe vulnerabilities, session hijacking)
+* 🔓 **Compromised** via social engineering or credential theft
+* 🔓 **Circumvented** by unknown zero-day vulnerabilities
 
 **PermGuard's approach is fundamentally different:**
 
@@ -105,10 +105,10 @@ Traditional security plugins rely on **verification mechanisms** (passwords, 2FA
 
 This makes PermGuard effective against:
 
-- ✅ **Known attack vectors** (brute force, AuthMe bypass, BungeeCord exploits)
-- ✅ **Unknown future exploits** (zero-day vulnerabilities)
-- ✅ **Advanced persistent threats** (compromised accounts, session hijacking)
-- ✅ **Insider threats** (unauthorized access by trusted users)
+* ✅ **Known attack vectors** (brute force, AuthMe bypass, BungeeCord exploits)
+* ✅ **Unknown future exploits** (zero-day vulnerabilities)
+* ✅ **Advanced persistent threats** (compromised accounts, session hijacking)
+* ✅ **Insider threats** (unauthorized access by trusted users)
 
 ### TL;DR
 
@@ -125,17 +125,17 @@ This makes PermGuard effective against:
 PermGuard supports both the full command `/permguard` and the shorter alias `/pg` for all commands (requires
 `permguard.command` permission).
 
-- `/pg help` - Show help information (requires `permguard.command`)
-- `/pg reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
+* `/pg help` - Show help information (requires `permguard.command`)
+* `/pg reload` - Reloads the plugin configuration (requires `permguard.reload` permission)
 
 ## 🛠️ Compatibility
 
-- **Minecraft Versions:** 1.16.5 to the latest release
-- **Server Software:**
-  - ✅ [Paper](https://papermc.io/) (1.16.5 and newer) - **Fully Supported**
-  - ✅ [Folia](https://papermc.io/software/folia) - **Fully Supported** with optimized region-aware scheduling
-  - ❌ Spigot - Not supported
-- **Java Version:** Java 17 or higher
+* **Minecraft Versions:** 1.16.5 to the latest release
+* **Server Software:**
+  * ✅ [Paper](https://papermc.io/) (1.16.5 and newer) - **Fully Supported**
+  * ✅ [Folia](https://papermc.io/software/folia) - **Fully Supported** with optimized region-aware scheduling
+  * ❌ Spigot - Not supported
+* **Java Version:** Java 17 or higher
 
 ## 📝 Note
 
@@ -165,9 +165,9 @@ join.
 **Native MiniMessage Support:** Plugin uses only native Kyori Adventure MiniMessage implementation without any
 backporting or compatibility layers:
 
-- **Paper 1.18+:** Full native MiniMessage support with all features including gradients, hover effects, click events,
+* **Paper 1.18+:** Full native MiniMessage support with all features including gradients, hover effects, click events,
   and advanced formatting
-- **Paper 1.16-1.17:** Partial support with automatic conversion to legacy ChatColor codes. Supported features include
+* **Paper 1.16-1.17:** Partial support with automatic conversion to legacy ChatColor codes. Supported features include
   basic colors (`<red>`, `<blue>`, etc.), text styles (`<bold>`, `<italic>`, `<underlined>`, `<strikethrough>`,
   `<obfuscated>`), and reset tags (`<reset>`). Advanced features like gradients and hover effects are automatically
   stripped without causing errors.
@@ -186,12 +186,12 @@ server versions.
 
 Also check out my other plugins for protecting your Minecraft server:
 
-- [**LeverLock**](https://github.com/alex2276564/LeverLock)  
+* [**LeverLock**](https://github.com/alex2276564/LeverLock)  
   *LeverLock* - a plugin to prevent rapid lever interactions, which can cause lag or be exploited for unintended game
   mechanics. Works in conjunction with **AntiRedstoneClock-Remastered**, providing comprehensive protection from
   redstone-based lag and exploits.
 
-- [**NoMoreTNTChainCrash**](https://github.com/alex2276564/NoMoreTNTChainCrash)  
+* [**NoMoreTNTChainCrash**](https://github.com/alex2276564/NoMoreTNTChainCrash)  
   *NoMoreTNTChainCrash* is a Minecraft plugin designed to prevent server crashes and lag caused by excessive TNT
   explosions. It achieves this by ignoring TNT before automated chain explosions can occur, while still allowing players
   to manually detonate TNT as desired.
