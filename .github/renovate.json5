@@ -405,6 +405,7 @@
       "semanticCommits": "disabled",
       // Example: "[GitHub Actions] Update actions/checkout action to v4.2.0"
     },
+  ],
 
   // ================================================================
   // 🔐 VULNERABILITY ALERTS
