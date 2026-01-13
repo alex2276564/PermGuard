@@ -103,11 +103,21 @@ public class PlayerJoinListener implements Listener {
     }
 
     private void logViolation(String name, String permission, String ip, String date) {
+        // Decide whether to sanitize the player name for logs
+        boolean sanitize = plugin.getConfigManager()
+                .getMainConfig()
+                .logging
+                .sanitizePlayerNames;
+
+        String nameForLog = sanitize
+                ? SecurityUtils.sanitize(name, SecurityUtils.SanitizeType.PLAYER_NAME)
+                : name;
+
         // Build message from template
         String logMessage = plugin.getConfigManager().getMessagesConfig()
                 .logging.violationEntry
                 .replace("<date>", date)
-                .replace("<player>", name)
+                .replace("<player>", nameForLog)
                 .replace("<permission>", permission)
                 .replace("<ip>", ip);
 

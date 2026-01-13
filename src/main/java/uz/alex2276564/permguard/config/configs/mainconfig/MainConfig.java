@@ -34,6 +34,17 @@ public class MainConfig extends OkaeriConfig {
         @Comment("File name for the violations log (saved under the plugin's data folder)")
         @Comment("Must be a simple file name ending with .log")
         public String violationsFile = "violations.log";
+
+        @Comment("")
+        @Comment("Whether to sanitize player names before writing them to logs.")
+        @Comment("true  = strip control characters and other potentially problematic chars")
+        @Comment("false = write raw player names as returned by Bukkit (safe on online-mode servers)")
+        @Comment("")
+        @Comment("Recommendation:")
+        @Comment(" - Keep this enabled (true) on offline/cracked servers or when you copy logs into")
+        @Comment("   external systems that may be sensitive to bad/control characters.")
+        @Comment(" - On normal online-mode servers this setting usually makes no visible difference.")
+        public boolean sanitizePlayerNames = true;
     }
 
     public static class TelegramSection extends OkaeriConfig {
