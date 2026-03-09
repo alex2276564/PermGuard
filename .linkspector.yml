@@ -25,3 +25,6 @@ ignorePatterns:
 
   # SpigotMC - blocks automated scrapers
   - pattern: '^https://www\.spigotmc\.org/.*$'
+
+  # ISO - blocks automated scrapers
+  - pattern: '^https://www\.iso\.org/.*$'
