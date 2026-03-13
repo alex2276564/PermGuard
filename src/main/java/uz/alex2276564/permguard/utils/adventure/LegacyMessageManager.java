@@ -84,12 +84,17 @@ public class LegacyMessageManager implements MessageManager {
     }
 
     @Override
-    public @NotNull Component parseWithTrustedPlaceholders(@NotNull String message, @NotNull Map<String, String> trusted) {
-        // Trusted: do NOT escape user input
-        String processed = message;
+    public @NotNull Component parseWithTrustedPlaceholders(@NotNull String message,
+                                                           @NotNull Map<String, String> trusted) {
+        String processed = StringUtils.processEscapeSequences(message);
+
         for (Map.Entry<String, String> e : trusted.entrySet()) {
-            processed = processed.replace(e.getKey(), e.getValue());
+            String key = e.getKey();
+            String value = e.getValue();
+            // Replace <key> with value as-is (trusted: can contain MiniMessage-like tags)
+            processed = processed.replace("<" + key + ">", value);
         }
+
         return parse(processed);
     }
 
