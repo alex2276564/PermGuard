@@ -6,11 +6,18 @@
 //
 // 📖 Documentation: https://docs.renovatebot.com
 // 🎯 Philosophy:
-//    - Security updates: immediate auto-merge
-//    - Stable releases: wait 3 days before updating
-//    - Patch/minor: auto-merge (after stabilization)
-//    - Major: manual review (breaking changes)
-//    - Dev dependencies: grouped into single PR (less spam)
+//    - Security updates:
+//        • GitHub vulnerabilityAlerts + OSV → dedicated security PRs
+//        • Security fix PRs: immediate auto-merge (may bypass CI)
+//    - Stable releases:
+//        • minimumReleaseAge = 3 days before updating
+//        • Patch/minor: auto-merge after 3-day stabilization
+//        • Major: manual review (no automerge)
+//    - GitHub Actions (CI/CD):
+//        • Patch/minor/major: auto-merge, grouped into a single PR
+//        • Grouping keeps CI config updates low-noise
+//    - Dev/test dependencies:
+//        • grouped into a single PR (less noise)
 //
 // 🔧 To adapt for other projects:
 //    1. Update enabledManagers (npm, composer, pip, etc.)
@@ -389,6 +396,19 @@
       // Requires manual review: API changes, deprecations, migrations
     },
 
+    {
+      "description": "🔁 GitHub Actions: grouped auto-merge (including majors)",
+      "matchManagers": ["github-actions"],
+      // Allow automerge for patch, minor *and* major updates of GitHub Actions:
+      "automerge": true,
+      // Group all GitHub Actions updates into a single PR (less noise):
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions",
+      // Do not split the group by major/minor/patch:
+      "separateMajorMinor": false,
+      "separateMinorPatch": false
+    },
+
     // ================================================================
     // 📦 DEV / TEST DEPENDENCIES GROUPING
     // ================================================================
@@ -476,6 +496,17 @@
     //    - Group related updates
     // ================================================================
 
+    {
+      "description": "🛡️ Project-specific: ignore MAJOR updates for net.kyori:adventure-text-minimessage",
+      "matchManagers": ["gradle"],
+      "matchPackageNames": [
+        "net.kyori:adventure-text-minimessage"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+      // Allow patch/minor updates, but never propose major (v5+) because it
+      // raises Java baseline and this project only uses v4 via reflection.
+    }
   ],
 
   // ================================================================

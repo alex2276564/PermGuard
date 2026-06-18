@@ -15,6 +15,8 @@ import uz.alex2276564.permguard.utils.backup.BackupManager;
 import uz.alex2276564.permguard.utils.runner.FoliaRunner;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
+import java.util.logging.Level;
+
 public final class PermGuard extends JavaPlugin {
     @Getter
     private static PermGuard instance;
@@ -46,8 +48,7 @@ public final class PermGuard extends JavaPlugin {
 
             getLogger().info("PermGuard has been enabled successfully!");
         } catch (Exception e) {
-            getLogger().severe("Failed to enable PermGuard: " + e.getMessage());
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Failed to enable PermGuard", e);
             getServer().getPluginManager().disablePlugin(this);
         }
     }
