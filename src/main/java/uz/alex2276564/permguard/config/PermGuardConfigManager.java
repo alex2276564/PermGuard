@@ -15,6 +15,7 @@ import uz.alex2276564.permguard.utils.ResourceUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
 
 public class PermGuardConfigManager {
     private final PermGuard plugin;
@@ -49,8 +50,7 @@ public class PermGuardConfigManager {
             plugin.getLogger().info("Permission cache: wildcard=" + (compiledPermissions.wildcard() != null)
                     + ", regular=" + compiledPermissions.regular().size());
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to reload configuration: " + e.getMessage());
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Failed to reload configuration", e);
         }
     }
 

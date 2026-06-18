@@ -5,7 +5,10 @@ import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
@@ -44,8 +48,7 @@ public final class BackupManager {
             try {
                 checkAndBackup();
             } catch (Exception e) {
-                plugin.getLogger().severe("Backup check failed: " + e.getMessage());
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Backup check failed", e);
             }
         });
     }
@@ -59,8 +62,7 @@ public final class BackupManager {
                 plugin.getLogger().info("Starting forced backup...");
                 createBackup();
             } catch (Exception e) {
-                plugin.getLogger().severe("Forced backup failed: " + e.getMessage());
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Forced backup failed", e);
             }
         });
     }
