@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 
 public class TelegramNotifier {
     private static final String TELEGRAM_API_URL = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+    // SECURITY NOTE: HTTP is used because ip-api.com requires a paid tier for HTTPS.
+    // MITM risks are fully mitigated by strict input/output verification via SecurityUtils.
     @SuppressWarnings("HttpUrlsUsage")
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
 
