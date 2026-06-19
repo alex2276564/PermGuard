@@ -78,7 +78,11 @@ on:
         type: string
 
       scan_mode:
-        description: 'Scan Mode (standard: full multi-agent pentest, quick: fast CI check, deep: max coverage)'
+        description: |
+          Strix Scan Mode depth (Choose based on your use case):
+          - quick: Fast checks for obvious vulnerabilities. (Best for CI/CD, PRs, smoke tests. Duration: Minutes).
+          - standard: Balanced routine review. Uses source-aware mapping and static triage to prioritize dynamic exploit validation paths. (Duration: 30m - 1h).
+          - deep: Thorough pentest. DEFAULT mode. Runs broad triage (semgrep, AST search, secrets, supply-chain checks) and systematically validates candidates dynamically. Explores edge cases, chained vulnerabilities, and complex paths. (Duration: 1-4h).
         required: true
         type: choice
         options:
@@ -252,12 +256,16 @@ jobs:
           curl -sSL https://strix.ai/install | bash
 
       - name: Run Code Analysis via ${{ env.STRIX_LLM }}
+        env:
+          STRIX_SCAN_MODE: ${{ github.event.inputs.scan_mode }}
+          STRIX_SCOPE_MODE: ${{ github.event.inputs.scope_mode }}
+          STRIX_INSTRUCTION: ${{ github.event.inputs.instruction }}
         run: |
           strix -n \
             -t ./ \
-            --scan-mode "${{ github.event.inputs.scan_mode }}" \
-            --scope-mode "${{ github.event.inputs.scope_mode }}" \
-            --instruction "${{ github.event.inputs.instruction }}"
+            --scan-mode "$STRIX_SCAN_MODE" \
+            --scope-mode "$STRIX_SCOPE_MODE" \
+            --instruction "$STRIX_INSTRUCTION"
 
   security-scan-snyk:
     name: 🔐 Security Scan Snyk
