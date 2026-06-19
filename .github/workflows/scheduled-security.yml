@@ -193,6 +193,8 @@ jobs:
     env:
       STRIX_LLM: ${{ github.event.inputs.ai_model }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      LLM_TIMEOUT: "600"
+      STRIX_LLM_MAX_RETRIES: "7"
 
     steps:
       - name: Harden Runner
@@ -215,7 +217,8 @@ jobs:
           strix -n \
             -t ./ \
             --scan-mode standard \
-            --scope-mode full
+            --scope-mode full \
+            --instruction "AUTONOMY MODE: Dynamically analyze the repo structure and autonomously skip all non-production files, test suites, build artifacts, and package caches (like gradle, node_modules, build, target). Focus 100% of reasoning exclusively on core production source code and active endpoints."
 
   security-scan-snyk:
     name: 🔐 Security Scan Snyk
