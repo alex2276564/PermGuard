@@ -15,10 +15,13 @@ public class TelegramNotifier {
 
     private final PermGuard plugin;
     private final HttpUtils httpUtils;
+    private final String userAgent;
 
     public TelegramNotifier(PermGuard plugin, HttpUtils httpUtils) {
         this.plugin = plugin;
         this.httpUtils = httpUtils;
+        this.userAgent = plugin.getDescription().getName()
+                + "/" + plugin.getDescription().getVersion();
     }
 
     public void sendNotification(String name, String permission, String ip, String date) {
@@ -69,7 +72,7 @@ public class TelegramNotifier {
             HttpUtils.HttpResponse response = httpUtils.postJson(
                     urlString,
                     body,
-                    "PermGuard/" + plugin.getDescription().getVersion()
+                    userAgent
             );
 
             int status = response.statusCode();

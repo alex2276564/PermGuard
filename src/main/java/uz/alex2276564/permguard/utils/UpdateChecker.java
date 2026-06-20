@@ -9,12 +9,15 @@ public class UpdateChecker {
     private final String githubRepo;
     private final Runner runner;
     private final HttpUtils httpUtils;
+    private final String userAgent;
 
     public UpdateChecker(JavaPlugin plugin, String githubRepo, Runner runner, HttpUtils httpUtils) {
         this.plugin = plugin;
         this.githubRepo = githubRepo;
         this.runner = runner;
         this.httpUtils = httpUtils;
+        this.userAgent = plugin.getDescription().getName()
+                + "/" + plugin.getDescription().getVersion();
     }
 
     public void checkForUpdates() {
@@ -41,10 +44,7 @@ public class UpdateChecker {
     private String getLatestVersion() throws Exception {
         String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
 
-        HttpUtils.HttpResponse response = httpUtils.getJson(
-                apiUrl,
-                "PermGuard/" + plugin.getDescription().getVersion()
-        );
+        HttpUtils.HttpResponse response = httpUtils.getJson(apiUrl, userAgent);
 
         if (response.statusCode() == 200) {
             JSONObject jsonObject = response.jsonBody();
