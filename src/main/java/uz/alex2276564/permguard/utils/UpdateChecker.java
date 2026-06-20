@@ -1,10 +1,8 @@
 package uz.alex2276564.permguard.utils;
 
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.bukkit.plugin.java.JavaPlugin;
 import uz.alex2276564.permguard.utils.runner.Runner;
-
-import java.net.HttpURLConnection;
 
 public class UpdateChecker {
     private final JavaPlugin plugin;
@@ -12,11 +10,11 @@ public class UpdateChecker {
     private final Runner runner;
     private final HttpUtils httpUtils;
 
-    public UpdateChecker(JavaPlugin plugin, String githubRepo, Runner runner) {
+    public UpdateChecker(JavaPlugin plugin, String githubRepo, Runner runner, HttpUtils httpUtils) {
         this.plugin = plugin;
         this.githubRepo = githubRepo;
         this.runner = runner;
-        this.httpUtils = new HttpUtils();
+        this.httpUtils = httpUtils;
     }
 
     public void checkForUpdates() {
@@ -42,12 +40,23 @@ public class UpdateChecker {
 
     private String getLatestVersion() throws Exception {
         String apiUrl = "https://api.github.com/repos/" + githubRepo + "/releases/latest";
-        HttpUtils.HttpResponse response = httpUtils.getResponse(apiUrl, "MinecraftPlugin");
 
-        if (response.responseCode() == HttpURLConnection.HTTP_OK) {
-            JsonObject jsonObject = response.jsonBody();
-            String tagName = jsonObject.get("tag_name").getAsString();
-            
+        HttpUtils.HttpResponse response = httpUtils.getJson(
+                apiUrl,
+                "PermGuard/" + plugin.getDescription().getVersion()
+        );
+
+        if (response.statusCode() == 200) {
+            JSONObject jsonObject = response.jsonBody();
+            if (jsonObject.isEmpty()) {
+                throw new Exception("GitHub API returned empty or invalid JSON body");
+            }
+
+            String tagName = jsonObject.getString("tag_name");
+            if (tagName == null) {
+                throw new Exception("GitHub API response does not contain tag_name");
+            }
+
             if (SecurityUtils.containsSuspiciousPatterns(tagName)) {
                 plugin.getLogger().warning("Suspicious version tag detected from GitHub API, blocking update check");
                 return "blocked";
@@ -55,7 +64,7 @@ public class UpdateChecker {
 
             return SecurityUtils.sanitize(tagName, SecurityUtils.SanitizeType.VERSION);
         } else {
-            throw new Exception("GitHub API returned HTTP " + response.responseCode());
+            throw new Exception("GitHub API returned HTTP " + response.statusCode());
         }
     }
 }

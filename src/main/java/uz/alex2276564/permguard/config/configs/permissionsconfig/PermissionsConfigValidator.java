@@ -4,6 +4,8 @@ import lombok.experimental.UtilityClass;
 import uz.alex2276564.permguard.config.utils.validation.ValidationResult;
 import uz.alex2276564.permguard.config.utils.validation.Validators;
 
+import java.util.List;
+
 @UtilityClass
 public class PermissionsConfigValidator {
 
@@ -15,7 +17,7 @@ public class PermissionsConfigValidator {
         result.throwIfInvalid("Permissions configuration (" + fileName + ")");
     }
 
-    private static void validatePermissionsList(ValidationResult result, java.util.List<PermissionsConfig.PermissionEntry> permissions) {
+    private static void validatePermissionsList(ValidationResult result, List<PermissionsConfig.PermissionEntry> permissions) {
         if (permissions == null || permissions.isEmpty()) {
             result.addError("restrictedPermissions", "List cannot be empty");
             return;

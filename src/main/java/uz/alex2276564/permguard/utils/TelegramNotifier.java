@@ -1,28 +1,24 @@
 package uz.alex2276564.permguard.utils;
 
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson2.JSONObject;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 public class TelegramNotifier {
-    private static final String TELEGRAM_API_URL = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+    private static final String TELEGRAM_SEND_MESSAGE_URL = "https://api.telegram.org/bot%s/sendMessage";
     // SECURITY NOTE: HTTP is used because ip-api.com requires a paid tier for HTTPS.
-    // MITM risks are fully mitigated by strict input/output verification via SecurityUtils.
+    // MITM risks are mitigated by strict input/output verification via SecurityUtils.
     @SuppressWarnings("HttpUrlsUsage")
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
 
     private final PermGuard plugin;
     private final HttpUtils httpUtils;
 
-    public TelegramNotifier(PermGuard plugin) {
+    public TelegramNotifier(PermGuard plugin, HttpUtils httpUtils) {
         this.plugin = plugin;
-        this.httpUtils = new HttpUtils();
+        this.httpUtils = httpUtils;
     }
 
     public void sendNotification(String name, String permission, String ip, String date) {
@@ -60,33 +56,39 @@ public class TelegramNotifier {
 
     private void sendMessageAttempt(MainConfig.TelegramSection config, String chatId,
                                     String message, int attempt) {
-        String urlString = String.format(TELEGRAM_API_URL,
-                config.botToken,
-                chatId,
-                URLEncoder.encode(message, StandardCharsets.UTF_8));
+        String urlString = String.format(TELEGRAM_SEND_MESSAGE_URL, config.botToken);
+        JSONObject body = new JSONObject();
+        body.put("chat_id", chatId);
+        body.put("text", message);
 
         int maxAttempts = config.maxRetries + 1;
         MessagesConfig.TelegramMessagesSection tmsg =
                 plugin.getConfigManager().getMessagesConfig().telegramMessages;
 
         try {
-            HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
+            HttpUtils.HttpResponse response = httpUtils.postJson(
+                    urlString,
+                    body,
+                    "PermGuard/" + plugin.getDescription().getVersion()
+            );
 
-            if (response.responseCode() == HttpURLConnection.HTTP_OK) {
+            int status = response.statusCode();
+            if (status == 200) {
                 return;
             }
 
             long nextDelayMs = config.retryDelay;
 
-            if (response.responseCode() == 429) {
+            if (status == 429) {
                 // Try to read retry_after from Telegram API response for better rate limiting
                 try {
-                    JsonObject body = response.jsonBody();
-                    if (body != null && body.has("parameters")) {
-                        JsonObject params = body.getAsJsonObject("parameters");
-                        if (params.has("retry_after")) {
-                            long retryAfter = params.get("retry_after").getAsLong() * 1000L;
-                            nextDelayMs = Math.max(nextDelayMs, retryAfter);
+                    JSONObject json = response.jsonBody();
+                    JSONObject params = json.getJSONObject("parameters");
+                    if (params != null) {
+                        Long retryAfter = params.getLong("retry_after");
+                        if (retryAfter != null) {
+                            long retryAfterMs = retryAfter * 1000L;
+                            nextDelayMs = Math.max(nextDelayMs, retryAfterMs);
                         }
                     }
                 } catch (Exception ignored) {
@@ -97,18 +99,16 @@ public class TelegramNotifier {
                     logRetryAttempt(tmsg, attempt, maxAttempts, "Rate limit (429)");
                     scheduleRetry(config, chatId, message, attempt, nextDelayMs);
                 } else {
-                    // Use message from config instead of hardcode
                     plugin.getLogger().warning(tmsg.tooManyRequests);
                 }
             } else {
-                throw new Exception("HTTP " + response.responseCode());
+                throw new Exception("HTTP " + status);
             }
         } catch (Exception e) {
             if (attempt < maxAttempts) {
                 logRetryAttempt(tmsg, attempt, maxAttempts, e.getMessage());
                 scheduleRetry(config, chatId, message, attempt, config.retryDelay);
             } else {
-                // Use sendFailed message from config
                 String msg = tmsg.sendFailed.replace("<error>", e.getMessage());
                 plugin.getLogger().warning(msg);
             }
@@ -124,7 +124,6 @@ public class TelegramNotifier {
         plugin.getRunner().runAsyncLater(() ->
                 sendMessageAttempt(config, chatId, message, attempt + 1), delayTicks);
     }
-
 
     private void logRetryAttempt(MessagesConfig.TelegramMessagesSection tmsg,
                                  int attempt, int maxAttempts, String error) {
@@ -142,19 +141,23 @@ public class TelegramNotifier {
         try {
             String cleanIp = SecurityUtils.sanitize(ip, SecurityUtils.SanitizeType.IP_ADDRESS);
             String urlString = String.format(IP_API_URL, cleanIp);
-            HttpUtils.HttpResponse response = httpUtils.getResponse(urlString, null);
 
-            if (response.responseCode() == HttpURLConnection.HTTP_OK) {
-                JsonObject json = response.jsonBody();
-                if (json.has("country")) {
-                    String country = json.get("country").getAsString();
+            HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
+
+            if (response.statusCode() == 200) {
+                JSONObject json = response.jsonBody();
+                if (json.containsKey("country")) {
+                    String country = json.getString("country");
                     return SecurityUtils.sanitize(country, SecurityUtils.SanitizeType.COUNTRY);
                 }
             }
         } catch (Exception e) {
             String msg = tmsg.countryLookupFailed
                     .replace("<ip>", SecurityUtils.safeLog(ip))
-                    .replace("<error>", SecurityUtils.sanitize(e.getMessage(), SecurityUtils.SanitizeType.ERROR_MESSAGE));
+                    .replace("<error>", SecurityUtils.sanitize(
+                            e.getMessage(),
+                            SecurityUtils.SanitizeType.ERROR_MESSAGE
+                    ));
             plugin.getLogger().warning(msg);
         }
         return tmsg.unknownCountry;

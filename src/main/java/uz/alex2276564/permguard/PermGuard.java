@@ -7,6 +7,7 @@ import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
 import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
 import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
+import uz.alex2276564.permguard.utils.HttpUtils;
 import uz.alex2276564.permguard.utils.UpdateChecker;
 import uz.alex2276564.permguard.utils.adventure.AdventureMessageManager;
 import uz.alex2276564.permguard.utils.adventure.LegacyMessageManager;
@@ -25,6 +26,9 @@ public final class PermGuard extends JavaPlugin {
     private Runner runner;
 
     @Getter
+    private HttpUtils httpUtils;
+
+    @Getter
     private PermGuardConfigManager configManager;
 
     @Getter
@@ -39,6 +43,7 @@ public final class PermGuard extends JavaPlugin {
 
         try {
             setupRunner();
+            setupHttpClient();
             setupMessageManager();
             setupConfig();
             setupBackupManager();
@@ -60,6 +65,10 @@ public final class PermGuard extends JavaPlugin {
         if (runner.isFolia()) {
             getLogger().info("Folia detected - using RegionScheduler and EntityScheduler for optimal performance");
         }
+    }
+
+    private void setupHttpClient() {
+        this.httpUtils = new HttpUtils();
     }
 
     private void setupMessageManager() {
@@ -119,7 +128,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void checkUpdates() {
-        UpdateChecker updateChecker = new UpdateChecker(this, "alex2276564/PermGuard", runner);
+        UpdateChecker updateChecker = new UpdateChecker(this, "alex2276564/PermGuard", runner, httpUtils);
         updateChecker.checkForUpdates();
     }
 

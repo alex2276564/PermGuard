@@ -26,7 +26,7 @@ public class PlayerJoinListener implements Listener {
 
     public PlayerJoinListener(PermGuard plugin) {
         this.plugin = plugin;
-        this.telegramNotifier = new TelegramNotifier(plugin);
+        this.telegramNotifier = new TelegramNotifier(plugin, plugin.getHttpUtils());
     }
 
     @EventHandler(
