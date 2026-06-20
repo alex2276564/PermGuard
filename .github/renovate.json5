@@ -106,7 +106,7 @@
   // Setup:
   // ------
   // VPS Cron (run Renovate daily):
-  //   0 1 * * * /root/renovate/run-renovate.sh
+  //   0 1 * * * /opt/renovate/run-renovate.sh
   //
   // renovate.json (filter which days to create PRs):
   //   "schedule": ["on monday"]  ← This setting (day-based)
@@ -167,7 +167,7 @@
   // Setup:
   // ------
   // VPS Cron (run Renovate only on Monday):
-  //   0 1 * * 1 /root/renovate/run-renovate.sh
+  //   0 1 * * 1 /opt/renovate/run-renovate.sh
   //   #       ↑
   //   #       └─ 1 = Monday (0=Sun, 1=Mon, ..., 6=Sat)
   //
@@ -320,34 +320,32 @@
   // ================================================================
   // 🤖 AUTO-MERGE CONFIGURATION
   // ================================================================
-  // Controls how and when PRs are automatically merged
   //
-  // Strategies:
-  // 1. platformAutomerge: true
-  //    - Uses GitHub/GitLab native auto-merge
-  //    - Requires Branch Protection rules
-  //    - Waits for required status checks
+  // Choose ONE of the two options below based on your setup.
+  // Uncomment the chosen option's settings and comment out the other.
   //
-  // 2. platformAutomerge: false + automergeType: "pr"
-  //    - Renovate merges directly via API
-  //    - Does NOT require Branch Protection
-  //    - Controlled by ignoreTests setting
+  // ── Option 1: No Branch Protection ────────────────────
+  // Renovate merges PRs directly via API without waiting for CI.
+  // Simple setup, no GitHub Branch Protection rules required.
   //
-  // Current config: Strategy 2 (no Branch Protection required)
+  // ── Option 2: With Branch Protection ────
+  // GitHub native auto-merge: waits for required status checks.
+  // Requires: Settings → Branches → Branch protection rules →
+  //   "Require status checks to pass before merging"
   // ================================================================
 
-  "automerge": false,             // Don't auto-merge by default (use packageRules)
+  // ── Option 1: No Branch Protection ──────────────────────────────
+  "platformAutomerge": false,   // Renovate merges via API, not GitHub native
+  "ignoreTests": true,          // Don't wait for CI before merging
 
-  "platformAutomerge": false,     // Don't use native GitHub/GitLab auto-merge
-                                  // (⚠️ would require Branch Protection)
+  // ── Option 2: With Branch Protection ────────────────────────────
+  // "platformAutomerge": true, // Use GitHub native auto-merge
+  // "ignoreTests": false,      // Wait for required CI checks (default)
+  // "prCreation": "not-pending", // Create PR only when checks finish
+  // "internalChecksAsSuccess": true, // Count renovate/stability-days as passing check
 
-  "automergeType": "pr",          // Renovate merges PRs directly via API
-
-  "automergeStrategy": "squash",  // Squash commits when merging (clean history)
-
-  "ignoreTests": true,            // Merge immediately without waiting for CI
-                                  // Set to false if you want to wait for CI
-                                  // (⚠️ requires more complex setup with Branch Protection)
+  // ── Common settings (apply to both options) ──────────────────────
+  "automergeStrategy": "squash", // Squash commits on merge (clean history)
 
   // ================================================================
   // 📦 DEPENDENCY UPDATE RULES
