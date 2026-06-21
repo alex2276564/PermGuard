@@ -76,7 +76,14 @@ public class PlayerJoinListener implements Listener {
         var permission = event.getPermission();
         var ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown";
 
-        String safeName = SecurityUtils.sanitize(name, SecurityUtils.SanitizeType.PLAYER_NAME);
+        String safeName = SecurityUtils.sanitize(
+                name,
+                SecurityUtils.SanitizeType.PLAYER_NAME
+        );
+        String safeIp = SecurityUtils.sanitize(
+                ip,
+                SecurityUtils.SanitizeType.IP_ADDRESS
+        );
 
         String cmd = event.getCmd()
                 .replace("<player>", safeName)
@@ -94,15 +101,15 @@ public class PlayerJoinListener implements Listener {
                     .format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
 
             if (event.isLog()) {
-                logViolation(name, permission, ip, date);
+                logViolation(name, safeName, permission, safeIp, date);
             }
-            telegramNotifier.sendNotification(name, permission, ip, date);
+            telegramNotifier.sendNotification(safeName, permission, safeIp, date);
         });
 
         event.setCancelled(true);
     }
 
-    private void logViolation(String name, String permission, String ip, String date) {
+    private void logViolation(String name, String safeName, String permission, String safeIp, String date) {
         // Decide whether to sanitize the player name for logs
         boolean sanitize = plugin.getConfigManager()
                 .getMainConfig()
@@ -110,7 +117,7 @@ public class PlayerJoinListener implements Listener {
                 .sanitizePlayerNames;
 
         String nameForLog = sanitize
-                ? SecurityUtils.sanitize(name, SecurityUtils.SanitizeType.PLAYER_NAME)
+                ? safeName
                 : name;
 
         // Build message from template
@@ -119,7 +126,7 @@ public class PlayerJoinListener implements Listener {
                 .replace("<date>", date)
                 .replace("<player>", nameForLog)
                 .replace("<permission>", permission)
-                .replace("<ip>", ip);
+                .replace("<ip>", safeIp);
 
         plugin.getLogger().info(logMessage);
 

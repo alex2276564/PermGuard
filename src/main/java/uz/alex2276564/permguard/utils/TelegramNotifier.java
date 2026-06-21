@@ -24,7 +24,7 @@ public class TelegramNotifier {
                 + "/" + plugin.getDescription().getVersion();
     }
 
-    public void sendNotification(String name, String permission, String ip, String date) {
+    public void sendNotification(String safeName, String permission, String safeIp, String date) {
         MainConfig.TelegramSection telegram = plugin.getConfigManager().getMainConfig().telegram;
 
         if (!telegram.enabled || !telegram.isConfigured()) {
@@ -32,12 +32,12 @@ public class TelegramNotifier {
         }
 
         try {
-            String country = getCountryByIp(ip);
+            String country = getCountryByIp(safeIp);
 
             String message = StringUtils.processEscapeSequences(telegram.message)
-                    .replace("%player%", name)
+                    .replace("%player%", safeName)
                     .replace("%permission%", permission)
-                    .replace("%ip%", ip)
+                    .replace("%ip%", safeIp)
                     .replace("%country%", country)
                     .replace("%date%", date);
 
@@ -137,13 +137,12 @@ public class TelegramNotifier {
         plugin.getLogger().warning(msg);
     }
 
-    private String getCountryByIp(String ip) {
+    private String getCountryByIp(String safeIp) {
         MessagesConfig.TelegramMessagesSection tmsg =
                 plugin.getConfigManager().getMessagesConfig().telegramMessages;
 
         try {
-            String cleanIp = SecurityUtils.sanitize(ip, SecurityUtils.SanitizeType.IP_ADDRESS);
-            String urlString = String.format(IP_API_URL, cleanIp);
+            String urlString = String.format(IP_API_URL, safeIp);
 
             HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
 
@@ -156,7 +155,7 @@ public class TelegramNotifier {
             }
         } catch (Exception e) {
             String msg = tmsg.countryLookupFailed
-                    .replace("<ip>", SecurityUtils.safeLog(ip))
+                    .replace("<ip>", safeIp)
                     .replace("<error>", SecurityUtils.sanitize(
                             e.getMessage(),
                             SecurityUtils.SanitizeType.ERROR_MESSAGE

@@ -117,7 +117,7 @@ on:
         description: 'Custom AI Agent prompt / constraints'
         required: true
         type: string
-        default: 'AUTONOMY MODE: Dynamically analyze the repo structure and autonomously skip all non-production files, test suites, build artifacts, and package caches (like gradle, node_modules, build, target). Focus 100% of reasoning exclusively on core production source code and active endpoints.'
+        default: 'AUTONOMY MODE: Dynamically analyze the repo structure and autonomously skip all non-production files, test suites, build artifacts, and package caches (like gradle, node_modules, build, target). Focus 100% of reasoning exclusively on core production source code and active endpoints. RULES: Always check README.md and SECURITY.md first.'
 
 permissions:
   contents: read
