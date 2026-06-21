@@ -202,7 +202,7 @@ Also check out my other plugins for protecting your Minecraft server:
 ## 🆘 Support
 
 If you encounter any issues or have suggestions for improving the plugin, please create
-an [issue](https://github.com/alex2276564/PermGuard/issues) in this repository.
+an [issue](../../PermGuard/issues) in this repository.
 
 ## 📄 License
 

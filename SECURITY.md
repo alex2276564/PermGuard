@@ -23,12 +23,14 @@ For **enterprise-grade security requirements**, use **commercially supported sol
 Whenever data comes from external or untrusted sources (user input, network responses, version tags, IP addresses, etc.), it is validated and sanitized before being used.
 
 **Current protection:**
+
 - Blocks **basic attacks**.
 
 - May not fully prevent advanced bypasses (e.g., obfuscation).
   *Such attacks are rare* and require deep technical knowledge to exploit.
 
 **Limitations:**
+
 - Filters prioritize **broad compatibility** (e.g., allow valid Unicode).
 
 - **Admins should enforce whitelisting** for sensitive inputs (e.g., command restrictions).
@@ -40,6 +42,7 @@ Improvements to detect bypasses.
 ## Network Security
 
 All external HTTP communications use TLS where possible.
+
 The built-in `HttpUtils` wrapper enforces:
 - **Timeouts**: Connection (5s), Request (10s).
 - **Response limits**: Hard cap of **256 KiB** to prevent DoS via large payloads.
@@ -85,5 +88,5 @@ SCA/SAST/IAST scans triggered on every commit and executed automatically on a da
 ## Reporting a vulnerability
 
 If you discover a security vulnerability, please use the
-[Security tab](https://github.com/alex2276564/PermGuard/security/advisories/new) to report it privately.  
+[Security tab](../../PermGuard/security/advisories) to report it privately.  
 Do **not** disclose security vulnerabilities publicly before they have been addressed.
