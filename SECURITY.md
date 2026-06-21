@@ -2,7 +2,7 @@
 
 **⚠️ IMPORTANT NOTE:**
 
-This plugin follows **best-practice security**, but **cannot guarantee 100% protection** against zero-day exploits or highly targeted attacks.
+This project follows **best-practice security**, but **cannot guarantee 100% protection** against zero-day exploits or highly targeted attacks.
 For **enterprise-grade security requirements**, use **commercially supported solutions** with dedicated threat intelligence.
 
 ---
@@ -15,7 +15,8 @@ For **enterprise-grade security requirements**, use **commercially supported sol
 2. **Business logic bypass**
 3. **Supply chain**
 4. **Input sanitization bypass**
-5. **Reflected/Stored XSS**
+5. **Text / formatting injection**
+6. **Network attacks**
 
 ## Data sanitization
 
@@ -23,15 +24,30 @@ Whenever data comes from external or untrusted sources (user input, network resp
 
 **Current protection:**
 - Blocks **basic attacks**.
-- **May not fully prevent advanced bypasses** (e.g., obfuscation,).
+
+- May not fully prevent advanced bypasses (e.g., obfuscation).
   *Such attacks are rare* and require deep technical knowledge to exploit.
 
 **Limitations:**
 - Filters prioritize **broad compatibility** (e.g., allow valid Unicode).
+
 - **Admins should enforce whitelisting** for sensitive inputs (e.g., command restrictions).
 
 **Future plans:**
+
 Improvements to detect bypasses.
+
+## Network Security
+
+All external HTTP communications use TLS where possible.
+The built-in `HttpUtils` wrapper enforces:
+- **Timeouts**: Connection (5s), Request (10s).
+- **Response limits**: Hard cap of **256 KiB** to prevent DoS via large payloads.
+- **Safe JSON parsing**: Fails securely (empty `JSONObject` on errors).
+
+## **Text / formatting injection**
+
+- **MiniMessage**: `unparsed()` blocks dangerous tag injection from user input, preventing XSS via `<click>`, `<hover>`, etc. Only trusted placeholders are parsed.
 
 ## Symlinks in the data directory
 
@@ -48,7 +64,7 @@ Each release artifact ships with a **SLSA Build Level 3** provenance file
 and a **SHA-256 checksum** — both are published on the release page and can
 be used to verify the integrity of the JAR.
 
-### CI hardening
+## CI hardening
 
 All CI jobs are protected by StepSecurity Harden Runner, which monitors
 outbound network and process activity on the runner at runtime.
@@ -63,10 +79,11 @@ is the primary supply-chain control instead.
 
 The codebase and its dependencies are continuously monitored, with automated
 SCA/SAST/IAST scans triggered on every commit and executed automatically on a daily schedule.
-**IAST scans using AI agents are conducted manually ~2-4 times/year during major refactoring or upon request**.
+
+**Note:** IAST scans using AI agents are conducted manually ~2-4 times/year during major refactoring or upon request.
 
 ## Reporting a vulnerability
 
 If you discover a security vulnerability, please use the
-[Security tab](../../security/advisories/new) to report it privately.  
+[Security tab](https://github.com/alex2276564/PermGuard/security/advisories/new) to report it privately.  
 Do **not** disclose security vulnerabilities publicly before they have been addressed.
