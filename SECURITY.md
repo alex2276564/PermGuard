@@ -44,6 +44,7 @@ Improvements to detect bypasses.
 All external HTTP communications use TLS where possible.
 
 The built-in `HttpUtils` wrapper enforces:
+
 - **Timeouts**: Connection (5s), Request (10s).
 - **Response limits**: Hard cap of **256 KiB** to prevent DoS via large payloads.
 - **Safe JSON parsing**: Fails securely (empty `JSONObject` on errors).
@@ -88,5 +89,5 @@ SCA/SAST/IAST scans triggered on every commit and executed automatically on a da
 ## Reporting a vulnerability
 
 If you discover a security vulnerability, please use the
-[Security tab](../../PermGuard/security/advisories) to report it privately.  
+[Security tab](https://github.com/alex2276564/security/advisories) to report it privately.  
 Do **not** disclose security vulnerabilities publicly before they have been addressed.
