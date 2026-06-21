@@ -15,8 +15,8 @@ For **enterprise-grade security requirements**, use **commercially supported sol
 2. **Business logic bypass**
 3. **Supply chain**
 4. **Input sanitization bypass**
-5. **Text / formatting injection**
-6. **Network attacks**
+5. **Network attacks**
+6. **Text / formatting injection**
 
 ## Data sanitization
 
@@ -48,10 +48,6 @@ The built-in `HttpUtils` wrapper enforces:
 - **Timeouts**: Connection (5s), Request (10s).
 - **Response limits**: Hard cap of **256 KiB** to prevent DoS via large payloads.
 - **Safe JSON parsing**: Fails securely (empty `JSONObject` on errors).
-
-## **Text / formatting injection**
-
-- **MiniMessage**: `unparsed()` blocks dangerous tag injection from user input, preventing XSS via `<click>`, `<hover>`, etc. Only trusted placeholders are parsed.
 
 ## Symlinks in the data directory
 
@@ -85,6 +81,10 @@ The codebase and its dependencies are continuously monitored, with automated
 SCA/SAST/IAST scans triggered on every commit and executed automatically on a daily schedule.
 
 **Note:** IAST scans using AI agents are conducted manually ~2-4 times/year during major refactoring or upon request.
+
+## **Text / formatting injection**
+
+- **MiniMessage**: `unparsed()` blocks dangerous tag injection from user input, preventing injection via `<click>`, `<hover>`, etc. Only trusted placeholders are parsed.
 
 ## Reporting a vulnerability
 
