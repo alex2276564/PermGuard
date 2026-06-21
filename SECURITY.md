@@ -89,5 +89,5 @@ SCA/SAST/IAST scans triggered on every commit and executed automatically on a da
 ## Reporting a vulnerability
 
 If you discover a security vulnerability, please use the
-[Security tab](https://github.com/alex2276564/security/advisories) to report it privately.  
+[Security tab](https://github.com/alex2276564/PermGuard/security/advisories) to report it privately.  
 Do **not** disclose security vulnerabilities publicly before they have been addressed.
