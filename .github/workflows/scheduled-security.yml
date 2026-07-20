@@ -252,8 +252,8 @@ jobs:
           fetch-depth: 0
 
       - name: Install Strix
+        # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
         run: |
-          # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
           curl -sSL https://strix.ai/install | bash
 
       - name: Run Code Analysis via ${{ env.STRIX_LLM }}
