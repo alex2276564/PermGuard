@@ -122,7 +122,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void setupTelegramNotifier() {
-        telegramNotifier = new TelegramNotifier(this, httpUtils);
+        telegramNotifier = new TelegramNotifier(this);
     }
 
     private void registerListeners() {

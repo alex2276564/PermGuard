@@ -1,11 +1,9 @@
 package uz.alex2276564.permguard.telegram;
 
-import com.alibaba.fastjson2.JSONObject;
 import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
-import uz.alex2276564.permguard.utils.HttpUtils;
-import uz.alex2276564.permguard.utils.SecurityUtils;
+import uz.alex2276564.permguard.utils.IpCountryResolver;
 import uz.alex2276564.permguard.utils.StringUtils;
 
 /**
@@ -19,18 +17,11 @@ import uz.alex2276564.permguard.utils.StringUtils;
  */
 public class TelegramNotifier {
 
-    // SECURITY NOTE: HTTP is used because ip-api.com requires a paid tier for HTTPS.
-    // MITM risks are mitigated by strict input/output verification via SecurityUtils.
-    @SuppressWarnings("HttpUrlsUsage")
-    private static final String IP_API_URL = "http://ip-api.com/json/%s";
-
     private final PermGuard plugin;
-    private final HttpUtils httpUtils;
     private final TelegramSendQueue sendQueue;
 
-    public TelegramNotifier(PermGuard plugin, HttpUtils httpUtils) {
+    public TelegramNotifier(PermGuard plugin) {
         this.plugin = plugin;
-        this.httpUtils = httpUtils;
 
         String userAgent = plugin.getDescription().getName()
                 + "/" + plugin.getDescription().getVersion();
@@ -40,7 +31,7 @@ public class TelegramNotifier {
                 .telegram
                 .minDelayMs;
 
-        this.sendQueue = new TelegramSendQueue(plugin, httpUtils, userAgent, defaultDelayMs);
+        this.sendQueue = new TelegramSendQueue(plugin, plugin.getHttpUtils(), userAgent, defaultDelayMs);
     }
 
     /**
@@ -61,7 +52,7 @@ public class TelegramNotifier {
                 plugin.getConfigManager().getMessagesConfig().telegramMessages;
 
         try {
-            String country = getCountryByIp(safeIp);
+            String country = IpCountryResolver.resolveCountry(safeIp, plugin);
 
             String message = StringUtils.processEscapeSequences(telegram.message)
                     .replace("%player%", safeName)
@@ -93,38 +84,6 @@ public class TelegramNotifier {
                     .replace("<error>", String.valueOf(e.getMessage()));
             plugin.getLogger().warning(msg);
         }
-    }
-
-    /**
-     * Country lookup by IP using ip-api.com.
-     * Runs on an async thread (see comment on sendNotification).
-     */
-    private String getCountryByIp(String safeIp) {
-        MessagesConfig.TelegramMessagesSection tmsg =
-                plugin.getConfigManager().getMessagesConfig().telegramMessages;
-
-        try {
-            String urlString = String.format(IP_API_URL, safeIp);
-
-            HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
-
-            if (response.statusCode() == 200) {
-                JSONObject json = response.jsonBody();
-                if (json.containsKey("country")) {
-                    String country = json.getString("country");
-                    return SecurityUtils.sanitize(country, SecurityUtils.SanitizeType.COUNTRY);
-                }
-            }
-        } catch (Exception e) {
-            String msg = tmsg.countryLookupFailed
-                    .replace("<ip>", safeIp)
-                    .replace("<error>", SecurityUtils.sanitize(
-                            e.getMessage(),
-                            SecurityUtils.SanitizeType.ERROR_MESSAGE
-                    ));
-            plugin.getLogger().warning(msg);
-        }
-        return tmsg.unknownCountry;
     }
 
     /**
