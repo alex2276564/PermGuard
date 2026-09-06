@@ -7,6 +7,7 @@ import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
 import uz.alex2276564.permguard.commands.framework.builder.MultiCommandManager;
 import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.listeners.PlayerJoinListener;
+import uz.alex2276564.permguard.telegram.TelegramNotifier;
 import uz.alex2276564.permguard.utils.HttpUtils;
 import uz.alex2276564.permguard.utils.UpdateChecker;
 import uz.alex2276564.permguard.utils.adventure.AdventureMessageManager;
@@ -35,6 +36,9 @@ public final class PermGuard extends JavaPlugin {
     private BackupManager backupManager;
 
     @Getter
+    private TelegramNotifier telegramNotifier;
+
+    @Getter
     private MessageManager messageManager;
 
     @Override
@@ -47,6 +51,7 @@ public final class PermGuard extends JavaPlugin {
             setupMessageManager();
             setupConfig();
             setupBackupManager();
+            setupTelegramNotifier();
             registerListeners();
             registerCommands();
             checkUpdates();
@@ -116,6 +121,10 @@ public final class PermGuard extends JavaPlugin {
         runner.runAsyncTimer(() -> backupManager.checkAndBackupAsync(), dailyTicks, dailyTicks);
     }
 
+    private void setupTelegramNotifier() {
+        telegramNotifier = new TelegramNotifier(this, httpUtils);
+    }
+
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
     }
@@ -136,6 +145,9 @@ public final class PermGuard extends JavaPlugin {
     public void onDisable() {
         if (runner != null) {
             runner.cancelAllTasks();
+        }
+        if (telegramNotifier != null) {
+            telegramNotifier.shutdown();
         }
         handleDisableAndOptionalShutdown();
     }

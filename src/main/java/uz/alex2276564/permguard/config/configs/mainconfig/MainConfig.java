@@ -106,6 +106,12 @@ public class MainConfig extends OkaeriConfig {
         public long retryDelay = 1100;
 
         @Comment("")
+        @Comment("Minimum delay between successful Telegram API calls in milliseconds")
+        @Comment("Telegram officially allows around 30 messages/second per bot.")
+        @Comment("Default 50ms (~20 msg/sec) is conservative and effectively instant for a Minecraft server.")
+        public long minDelayMs = 50L;
+
+        @Comment("")
         @Comment("Notification message template.")
         @Comment("Available placeholders:")
         @Comment("  %player%     - player name")

@@ -62,6 +62,12 @@ public class MainConfigValidator {
             // Retry delay validation
             Validators.min(result, "telegram.retryDelay", telegram.retryDelay, 1000L, "Retry delay must be at least 1000ms");
 
+            // Min delay between messages validation
+            Validators.min(result, "telegram.minDelayMs", telegram.minDelayMs, 0L,
+                    "Minimum delay between Telegram messages cannot be negative");
+            Validators.max(result, "telegram.minDelayMs", telegram.minDelayMs, 60000L,
+                    "Minimum delay between Telegram messages cannot exceed 60000ms (60 seconds)");
+
             // Message template validation
             Validators.notBlank(result, "telegram.message", telegram.message, "Message template cannot be empty");
 

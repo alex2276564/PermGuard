@@ -12,7 +12,6 @@ import uz.alex2276564.permguard.config.configs.permissionsconfig.CompiledPermiss
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.utils.SecurityUtils;
-import uz.alex2276564.permguard.utils.TelegramNotifier;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,11 +21,9 @@ import java.nio.file.StandardOpenOption;
 
 public class PlayerJoinListener implements Listener {
     private final PermGuard plugin;
-    private final TelegramNotifier telegramNotifier;
 
     public PlayerJoinListener(PermGuard plugin) {
         this.plugin = plugin;
-        this.telegramNotifier = new TelegramNotifier(plugin, plugin.getHttpUtils());
     }
 
     @EventHandler(
@@ -103,7 +100,7 @@ public class PlayerJoinListener implements Listener {
             if (event.isLog()) {
                 logViolation(name, safeName, permission, safeIp, date);
             }
-            telegramNotifier.sendNotification(safeName, permission, safeIp, date);
+            plugin.getTelegramNotifier().sendNotification(safeName, permission, safeIp, date);
         });
 
         event.setCancelled(true);
@@ -120,7 +117,6 @@ public class PlayerJoinListener implements Listener {
                 ? safeName
                 : name;
 
-        // Build message from template
         String logMessage = plugin.getConfigManager().getMessagesConfig()
                 .logging.violationEntry
                 .replace("<date>", date)
@@ -132,7 +128,6 @@ public class PlayerJoinListener implements Listener {
 
         if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
 
-        // Use file name from main config
         String fileName = plugin.getConfigManager().getMainConfig().logging.violationsFile;
         Path logPath = plugin.getDataFolder().toPath().resolve(fileName);
 
