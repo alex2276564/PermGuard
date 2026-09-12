@@ -31,7 +31,6 @@ elevated permissions and manually re-grants them via the console using commands 
   console commands.
 * **Customizable Kick Messages:** You can personalize the message shown to admins when they are kicked.
 * **Logging:** Logs all permission revocation events to both the console and a file for auditing.
-* **Reload Command:** Allows reloading the configuration without restarting the server.
 * **Lightweight and Efficient:** Designed to have minimal impact on server performance.
 * **Shutdown Protection:** If the plugin is disabled (e.g., through Plugman), the server will automatically shut down to
   ensure no security gaps are left open.
@@ -40,54 +39,39 @@ elevated permissions and manually re-grants them via the console using commands 
 * **Modern Text Rendering:** Uses Adventure MiniMessage for sleek formatting on supported servers (Paper 1.18+), with
   automatic fallback on older versions.
 
-## 🛡️ Security Benefits
+## 🛡️ Why PermGuard?
 
-### How PermGuard Protects Against Advanced Attacks
+One of the fundamental problems in cybersecurity is **trust factors**. Server administrators trust BungeeGuard, AuthMe/Mojang authentication, session systems, and various security plugins — but what happens when these systems are compromised?
 
-1. **Brute Force Attacks:** By removing permissions upon login, it prevents unauthorized access even if someone gains
-   temporary access to an admin account.
-2. **Account Compromise:** If an admin's account is compromised, the attacker won't be able to abuse their permissions
-   as they will be revoked upon joining.
-3. **Session Hijacking:** Mitigates the risk of session hijacking by ensuring that permissions are not persistently
-   available during a hijacked session.
-4. **Social Engineering:** Reduces the risk of admins being tricked into giving away their permissions.
-5. **Unknown Vulnerabilities:** Helps mitigate the risks associated with unknown vulnerabilities by limiting the
-   potential damage an attacker can do, even if they find a way to bypass other security measures.
-6. **Port Exploitation / BungeeCord Hacks:** By revoking admin permissions on entry, PermGuard minimizes the potential
-   for attackers to exploit server ports or use BungeeCord-related hacks to gain elevated privileges.
-7. **AuthMe Bypass:** Even if an attacker finds a way to bypass AuthMe authentication, they won't gain immediate access
-   to admin permissions as PermGuard will revoke them upon entry.
-8. **Zero-Day Exploits:** Provides a safety net against zero-day exploits by ensuring that even if a vulnerability is
-   exploited, the attacker will not have sustained access to admin permissions.
-9. **Telegram Alerts:** If a suspicious activity is detected, detailed notifications are sent to Telegram, including the
-   player's IP and country, so you can take immediate action.
-10. **Shutdown Protection:** Ensures that if the plugin is disabled , the server shuts down to prevent any security gaps
-    from being exploited.
+**Real-world security incidents that affected Minecraft infrastructure:**
 
-### Compliance with Security Standards
+* **June 2025 — [BungeeGuard critical vulnerability](https://github.com/lucko/BungeeGuard/security):** Authorization token leak through LoginSuccess packet. Due to changes in BungeeCord (builds 1756+), BungeeGuard's secret token accidentally leaked to regular players. Velocity networks using BungeeGuard-compatible mode were also vulnerable, allowing attackers to completely bypass backend server authorization by impersonating the proxy.
 
-**Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall
-security compliance depends on your complete infrastructure setup, proper configuration of all components, and following
-security best practices across your entire system.
+* **March 2024 — [Massive database leak](https://www.cyberdaily.au/security/10379-14gb-minecraft-data-leak-puts-players-at-risk):** A 14.8 GB Minecraft database published on a dark web forum by user "rafaelll" containing years of collected player data, server configurations, login credentials, and partial financial information from donation systems.
 
-* **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to
-  perform their tasks, reducing the risk of privilege abuse.
-* **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating
-  compliance audits and forensic analysis.
-* **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by
-  enforcing strict permission controls and audit logging.
-* **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by
-  implementing strong access control measures.
-* **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only
-  authorized personnel can grant elevated privileges.
-* **Zero Trust Architecture (NIST SP 800-207):**  Applies a deny-by-default philosophy to administrative privileges.
-  Elevated access is never implicitly trusted and must be explicitly restored via the console after join.
+* **2023-2024 — [UltimateServerProtector bypasses](https://www.spigotmc.org/resources/ultimateserverprotector-admins-operators-security-plugin-lightweight-and-async.105237/update?update=514856):** Multiple bypass methods were discovered and acknowledged by the developer in community chats. The incidents demonstrated that password-based verification plugins are vulnerable to sophisticated attacks, as verification logic itself can be exploited.
+
+* **June 2023 — [Fractureiser epidemic](https://linuxsecurity.com/news/hackscracks/new-fractureiser-malware-used-curseforge-minecraft-mods-to-infect-windows-linux):** The largest mod infrastructure attack in game history. Hackers compromised major developer accounts on CurseForge and Bukkit, injecting a multi-stage infostealer virus into popular mods and modpacks (including Better Minecraft, downloaded millions of times). The virus not only copied Minecraft sessions but infected other .jar files, stole browser passwords, Discord tokens, and replaced cryptocurrency wallet addresses in the clipboard.
+
+* **June 2020 — [BungeeGuard critical vulnerability](https://github.com/lucko/BungeeGuard/security):** Authentication check bypass in the BungeeGuard Spigot plugin. A flaw in the backend (Spigot/Paper) side of the plugin allowed malicious users to completely bypass BungeeGuard's verification protocols. Attackers could connect directly to backend servers by exploiting a verification flaw, tricking the plugin into accepting custom handshakes without validating the legitimate proxy token, affecting all releases prior to v1.2.0.
+
+* **Early 2020 — [Leaky-Leaky vulnerability](https://github.com/nerdsinspace/leaky-leaky):** Critical authentication bypass in Mojang's legacy authentication API (`joinServer.jsp`). The API failed to validate session token ownership, accepting any valid session ID for any username. Attackers could log into their own account, obtain a valid session token, then use the legacy API to join servers under any administrator's username — bypassing license verification entirely without owning the target account.
+
+* **Fall 2016 — Hypixel admin account compromise:** A white-hat security researcher discovered a Mojang session token vulnerability allowing unauthorized access under any account. The researcher joined under an administrator's nickname, documented the exploit without causing damage, and immediately reported it to Hypixel founders, leading to a quick fix from Mojang.
+
+* **2016 and earlier — AuthMe bypass:** Critical vulnerability in AuthMe and BungeeCord integration. Due to case-sensitivity differences between MySQL/SQLite and server core, attackers could register as "admin" while the original "Admin" account existed, receiving the administrator's UUID and inventory.
+
+* **Early 2014 — BungeeCord UUID spoofing:** Following the introduction of the UUID system in Minecraft 1.7.6, a critical architectural vulnerability was discovered in BungeeCord networks. If backend sub-servers lacked proper firewall protection, they were completely exposed to direct outside connections. Attackers could easily craft custom handshake packets with spoofed UUID and IP data, bypassing the proxy entirely to join backend servers as any administrator with full OP permissions — no password required..
+
+**...many more incidents throughout Minecraft's history where PermGuard could have significantly reduced the impact on in‑game admin access.**
+
+**The core problem isn't just vulnerabilities — it's excessive trust in third-party code** without considering compromise scenarios. Attackers can theoretically exploit these systems even today.
+
+**So what's the solution? Who can you trust?**
 
 ## 🛡️ Zero Trust Security Model
 
-**PermGuard** implements a **Zero Trust Architecture** for Minecraft server security - instead of relying on
-authentication checks, passwords, or trust assumptions, it **unconditionally revokes elevated permissions** upon every
-login.
+**PermGuard** implements a **Zero Trust Architecture** for Minecraft server security — instead of relying on authentication checks, passwords, or trust assumptions, it **unconditionally revokes elevated permissions** upon every login.
 
 ### Why Zero Trust?
 
@@ -99,9 +83,7 @@ Traditional security plugins rely on **verification mechanisms** (passwords, 2FA
 
 **PermGuard's approach is fundamentally different:**
 
-> **"Never trust, always revoke"** - Permissions are removed *before* any verification, making the security model *
-*attack-method agnostic**. Even if an attacker bypasses all authentication layers, they gain **no elevated privileges**
-> because those privileges simply don't exist until manually restored via console.
+> **"Never trust, always revoke"** — Permissions are removed *before* any verification, making the security model **attack-method agnostic**. Even if an attacker bypasses all authentication layers, they gain **no elevated privileges** because those privileges simply don't exist until manually restored via console.
 
 This makes PermGuard effective against:
 
@@ -110,6 +92,32 @@ This makes PermGuard effective against:
 * ✅ **Advanced persistent threats** (compromised accounts, session hijacking)
 * ✅ **Insider threats** (unauthorized access by trusted users)
 
+## 🛡️ Security Benefits
+
+### How PermGuard Protects Against Advanced Attacks
+
+1. **Brute Force Attacks:** By removing permissions upon login, it prevents unauthorized access even if someone gains temporary access to an admin account.
+2. **Account Compromise:** If an admin's account is compromised, the attacker won't be able to abuse their permissions as they will be revoked upon joining.
+3. **Session Hijacking:** Mitigates the risk of session hijacking by ensuring that permissions are not persistently available during a hijacked session.
+4. **Social Engineering:** Reduces the risk of admins being tricked into giving away their permissions.
+5. **Unknown Vulnerabilities:** Helps mitigate the risks associated with unknown vulnerabilities by limiting the potential damage an attacker can do, even if they find a way to bypass other security measures.
+6. **Port Exploitation / BungeeCord Hacks:** By revoking admin permissions on entry, PermGuard minimizes the potential for attackers to exploit server ports or use BungeeCord-related hacks to gain elevated privileges.
+7. **AuthMe Bypass:** Even if an attacker finds a way to bypass AuthMe authentication, they won't gain immediate access to admin permissions as PermGuard will revoke them upon entry.
+8. **Zero-Day Exploits:** Provides a safety net against zero-day exploits by ensuring that even if a vulnerability is exploited, the attacker will not have sustained access to admin permissions.
+9. **Telegram Alerts:** If suspicious activity is detected, detailed notifications are sent to Telegram, including the player's IP and country, so you can take immediate action.
+10. **Shutdown Protection:** Ensures that if the plugin is disabled, the server shuts down to prevent any security gaps from being exploited.
+
+### Compliance with Security Standards
+
+**Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall security compliance depends on your complete infrastructure setup, proper configuration of all components, and following security best practices across your entire system.
+
+* **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to perform their tasks, reducing the risk of privilege abuse.
+* **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating compliance audits and forensic analysis.
+* **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by enforcing strict permission controls and audit logging.
+* **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by implementing strong access control measures.
+* **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only authorized personnel can grant elevated privileges.
+* **Zero Trust Architecture (NIST SP 800-207):** Applies a deny-by-default philosophy to administrative privileges. Elevated access is never implicitly trusted and must be explicitly restored via the console after join.
+
 ### TL;DR
 
 `PermGuard implements the principle of “zero trust” — instead of relying on checks and passwords, it simply revokes permissions upon any login. This makes it effective even against unknown types of attacks, as the basic security principle works regardless of the attack method.`
@@ -117,8 +125,13 @@ This makes PermGuard effective against:
 ## 📥 Installation
 
 1. **Download:** Download the latest version of PermGuard from the [Releases](https://github.com/alex2276564/PermGuard/releases) page.
+
 2. **Install:** Place the `.jar` file into your server's `plugins` folder.
+   > **Important:** If you run a BungeeCord/Velocity network, install PermGuard on **all backend servers** (production, testing, hub, minigames, etc.). The plugin must be present on every server where administrators can join, as it operates at the permission check level on each individual backend server.
+
 3. **Restart:** Restart your server to load the plugin.
+
+4. **(Recommended) Remove overlapping in‑game “admin password” plugins:** If you previously used admin password plugins like UltimateServerProtector, OPGuard, AdminAuth, or similar password-based / in‑game MFA protection systems, you should remove them. PermGuard's Zero Trust approach makes these plugins redundant. Keep only your base authentication plugin (AuthMe/JPremium) for regular player login — PermGuard handles administrator permission security through a fundamentally different mechanism.
 
 ## 📜 Commands
 

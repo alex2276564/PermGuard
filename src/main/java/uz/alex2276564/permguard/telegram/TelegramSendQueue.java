@@ -1,7 +1,6 @@
 package uz.alex2276564.permguard.telegram;
 
 import com.alibaba.fastjson2.JSONObject;
-import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.utils.HttpUtils;
@@ -9,6 +8,7 @@ import uz.alex2276564.permguard.utils.runner.Runner;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.logging.Logger;
 
 /**
  * Global send queue for Telegram Bot API.
@@ -23,12 +23,13 @@ final class TelegramSendQueue {
 
     private static final String TELEGRAM_SEND_MESSAGE_URL = "https://api.telegram.org/bot%s/sendMessage";
 
-    private final PermGuard plugin;
+    private final Runner runner;
     private final HttpUtils httpUtils;
     private final String userAgent;
 
     // Default delay between successful sends, used as a fallback.
     private final long defaultSuccessDelayMs;
+    private final Logger logger;
 
     // Thread-safe double-ended queue of pending send jobs
     private final Deque<SendJob> queue = new ConcurrentLinkedDeque<>();
@@ -37,11 +38,16 @@ final class TelegramSendQueue {
     private final Object workerLock = new Object();
     private boolean workerScheduled = false;
 
-    TelegramSendQueue(PermGuard plugin, HttpUtils httpUtils, String userAgent, long defaultSuccessDelayMs) {
-        this.plugin = plugin;
+    TelegramSendQueue(Runner runner,
+                      HttpUtils httpUtils,
+                      String userAgent,
+                      long defaultSuccessDelayMs,
+                      Logger logger) {
+        this.runner = runner;
         this.httpUtils = httpUtils;
         this.userAgent = userAgent;
         this.defaultSuccessDelayMs = Math.max(0L, defaultSuccessDelayMs);
+        this.logger = logger;
     }
 
     void enqueue(SendJob job) {
@@ -64,7 +70,7 @@ final class TelegramSendQueue {
 
     private void scheduleWorker(long delayMs) {
         long ticks = Runner.msToTicks(Math.max(0L, delayMs));
-        plugin.getRunner().runAsyncLater(this::processQueue, ticks);
+        runner.runAsyncLater(this::processQueue, ticks);
     }
 
     /**
@@ -107,7 +113,7 @@ final class TelegramSendQueue {
             }
 
         } catch (Exception e) {
-            plugin.getLogger().warning("[PermGuard] Unexpected error while sending Telegram message: " + e.getMessage());
+            logger.warning("[PermGuard] Unexpected error while sending Telegram message: " + e.getMessage());
             delayForNextRunMs = Math.max(1000L, defaultSuccessDelayMs);
         }
 
@@ -156,7 +162,7 @@ final class TelegramSendQueue {
                     logRetryAttempt(tmsg, job.attempt, maxAttempts, "Rate limit (429)");
                     return Outcome.retry(delayMs);
                 } else {
-                    plugin.getLogger().warning(tmsg.tooManyRequests);
+                    logger.warning(tmsg.tooManyRequests);
                     return Outcome.drop();
                 }
             }
@@ -168,7 +174,7 @@ final class TelegramSendQueue {
                 return Outcome.retry(delayMs);
             } else {
                 String msg = tmsg.sendFailed.replace("<error>", error);
-                plugin.getLogger().warning(msg);
+                logger.warning(msg);
                 return Outcome.drop();
             }
 
@@ -181,7 +187,7 @@ final class TelegramSendQueue {
                 return Outcome.retry(delayMs);
             } else {
                 String msg = tmsg.sendFailed.replace("<error>", error);
-                plugin.getLogger().warning(msg);
+                logger.warning(msg);
                 return Outcome.drop();
             }
         }
@@ -213,7 +219,7 @@ final class TelegramSendQueue {
                 .replace("<attempt>", String.valueOf(attempt))
                 .replace("<max>", String.valueOf(maxAttempts))
                 .replace("<error>", error);
-        plugin.getLogger().warning(msg);
+        logger.warning(msg);
     }
 
     /**
@@ -223,7 +229,7 @@ final class TelegramSendQueue {
     void shutdown() {
         int pending = queue.size();
         if (pending > 0) {
-            plugin.getLogger().info("Telegram send queue shutting down with " + pending + " pending message(s)");
+            logger.info("Telegram send queue shutting down with " + pending + " pending message(s)");
         }
         queue.clear();
 

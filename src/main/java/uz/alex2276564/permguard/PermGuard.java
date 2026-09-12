@@ -17,11 +17,12 @@ import uz.alex2276564.permguard.utils.backup.BackupManager;
 import uz.alex2276564.permguard.utils.runner.FoliaRunner;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class PermGuard extends JavaPlugin {
-    @Getter
-    private static PermGuard instance;
 
     @Getter
     private Runner runner;
@@ -41,10 +42,14 @@ public final class PermGuard extends JavaPlugin {
     @Getter
     private MessageManager messageManager;
 
+    @Getter
+    private UpdateChecker updateChecker;
+
+    @Getter
+    private PermGuardServices services;
+
     @Override
     public void onEnable() {
-        instance = this;
-
         try {
             setupRunner();
             setupHttpClient();
@@ -52,9 +57,10 @@ public final class PermGuard extends JavaPlugin {
             setupConfig();
             setupBackupManager();
             setupTelegramNotifier();
+            setupServices();
+            setupUpdateChecker();
             registerListeners();
             registerCommands();
-            checkUpdates();
 
             getLogger().info("PermGuard has been enabled successfully!");
         } catch (Exception e) {
@@ -79,7 +85,7 @@ public final class PermGuard extends JavaPlugin {
     private void setupMessageManager() {
         if (isMiniMessageAvailable()) {
             try {
-                messageManager = new AdventureMessageManager();
+                messageManager = new AdventureMessageManager(runner);
                 getLogger().info("Using Adventure MiniMessage for text formatting - full MiniMessage syntax supported");
                 return;
             } catch (Exception e) {
@@ -104,41 +110,85 @@ public final class PermGuard extends JavaPlugin {
         }
     }
 
-
     private void setupConfig() {
-        configManager = new PermGuardConfigManager(this);
+        File dataFolder = getDataFolder();
+        Logger logger = getLogger();
+        this.configManager = new PermGuardConfigManager(
+                dataFolder,
+                logger,
+                messageManager,
+                getClassLoader()
+        );
         configManager.reload();
     }
 
     private void setupBackupManager() {
-        backupManager = new BackupManager(this);
+        backupManager = new BackupManager(runner, getLogger(), getDataFolder().toPath());
 
         // Check for backup need on startup
         backupManager.checkAndBackupAsync();
 
         // Schedule periodic checks - daily (24 hours)
-        long dailyTicks = Runner.secondsToTicks(24 * 60 * 60);
+        long dailySeconds = 24L * 60L * 60L;
+        long dailyTicks = Runner.secondsToTicks(dailySeconds);
         runner.runAsyncTimer(() -> backupManager.checkAndBackupAsync(), dailyTicks, dailyTicks);
     }
 
     private void setupTelegramNotifier() {
-        telegramNotifier = new TelegramNotifier(this);
+        this.telegramNotifier = new TelegramNotifier(
+                configManager,
+                httpUtils,
+                runner,
+                getDescription().getName(),
+                getDescription().getVersion(),
+                getLogger()
+        );
+    }
+
+    private void setupServices() {
+        this.services = new PermGuardServices(
+                runner,
+                configManager,
+                messageManager,
+                telegramNotifier,
+                getLogger()
+        );
+    }
+
+    private void setupUpdateChecker() {
+        this.updateChecker = new UpdateChecker(
+                getDescription().getName(),
+                getDescription().getVersion(),
+                "alex2276564/PermGuard",
+                runner,
+                httpUtils,
+                getLogger()
+        );
+
+        updateChecker.checkForUpdates();
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        Path dataFolderPath = getDataFolder().toPath();
+
+        getServer().getPluginManager().registerEvents(
+                new PlayerJoinListener(
+                        configManager,
+                        runner,
+                        telegramNotifier,
+                        messageManager,
+                        getLogger(),
+                        dataFolderPath
+                ),
+                this
+        );
     }
 
     private void registerCommands() {
-        MultiCommandManager multiManager = new MultiCommandManager(this);
+        MultiCommandManager multiManager = new MultiCommandManager(this, services);
 
-        BuiltCommand permGuardCommand = PermGuardCommands.createPermGuardCommand();
+        BuiltCommand permGuardCommand = PermGuardCommands.createPermGuardCommand(services);
         multiManager.registerCommand(permGuardCommand);
-    }
-
-    private void checkUpdates() {
-        UpdateChecker updateChecker = new UpdateChecker(this, "alex2276564/PermGuard", runner, httpUtils);
-        updateChecker.checkForUpdates();
     }
 
     @Override

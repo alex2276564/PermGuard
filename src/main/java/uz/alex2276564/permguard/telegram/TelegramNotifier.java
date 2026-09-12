@@ -1,10 +1,14 @@
 package uz.alex2276564.permguard.telegram;
 
-import uz.alex2276564.permguard.PermGuard;
+import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
+import uz.alex2276564.permguard.utils.HttpUtils;
 import uz.alex2276564.permguard.utils.IpCountryResolver;
 import uz.alex2276564.permguard.utils.StringUtils;
+import uz.alex2276564.permguard.utils.runner.Runner;
+
+import java.util.logging.Logger;
 
 /**
  * High-level service responsible for:
@@ -17,21 +21,31 @@ import uz.alex2276564.permguard.utils.StringUtils;
  */
 public class TelegramNotifier {
 
-    private final PermGuard plugin;
+    private final PermGuardConfigManager configManager;
     private final TelegramSendQueue sendQueue;
+    private final HttpUtils httpUtils;
+    private final Logger logger;
 
-    public TelegramNotifier(PermGuard plugin) {
-        this.plugin = plugin;
+    public TelegramNotifier(PermGuardConfigManager configManager,
+                            HttpUtils httpUtils,
+                            Runner runner,
+                            String pluginName,
+                            String pluginVersion,
+                            Logger logger) {
+        this.configManager = configManager;
+        this.httpUtils = httpUtils;
+        this.logger = logger;
 
-        String userAgent = plugin.getDescription().getName()
-                + "/" + plugin.getDescription().getVersion();
+        String userAgent = pluginName + "/" + pluginVersion;
+        long defaultDelayMs = configManager.getMainConfig().telegram.minDelayMs;
 
-        long defaultDelayMs = plugin.getConfigManager()
-                .getMainConfig()
-                .telegram
-                .minDelayMs;
-
-        this.sendQueue = new TelegramSendQueue(plugin, plugin.getHttpUtils(), userAgent, defaultDelayMs);
+        this.sendQueue = new TelegramSendQueue(
+                runner,
+                httpUtils,
+                userAgent,
+                defaultDelayMs,
+                logger
+        );
     }
 
     /**
@@ -42,17 +56,17 @@ public class TelegramNotifier {
      * blocking HTTP request.
      */
     public void sendNotification(String safeName, String permission, String safeIp, String date) {
-        MainConfig.TelegramSection telegram = plugin.getConfigManager().getMainConfig().telegram;
+        MainConfig.TelegramSection telegram = configManager.getMainConfig().telegram;
 
         if (!telegram.enabled || !telegram.isConfigured()) {
             return;
         }
 
         MessagesConfig.TelegramMessagesSection tmsg =
-                plugin.getConfigManager().getMessagesConfig().telegramMessages;
+                configManager.getMessagesConfig().telegramMessages;
 
         try {
-            String country = IpCountryResolver.resolveCountry(safeIp, plugin);
+            String country = IpCountryResolver.resolveCountry(safeIp, httpUtils, tmsg, logger);
 
             String message = StringUtils.processEscapeSequences(telegram.message)
                     .replace("%player%", safeName)
@@ -82,7 +96,7 @@ public class TelegramNotifier {
         } catch (Exception e) {
             String msg = tmsg.notificationFailed
                     .replace("<error>", String.valueOf(e.getMessage()));
-            plugin.getLogger().warning(msg);
+            logger.warning(msg);
         }
     }
 

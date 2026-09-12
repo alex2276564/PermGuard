@@ -6,24 +6,47 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import uz.alex2276564.permguard.PermGuard;
+import uz.alex2276564.permguard.config.PermGuardConfigManager;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.CompiledPermissions;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
+import uz.alex2276564.permguard.telegram.TelegramNotifier;
 import uz.alex2276564.permguard.utils.SecurityUtils;
+import uz.alex2276564.permguard.utils.adventure.MessageManager;
+import uz.alex2276564.permguard.utils.runner.Runner;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Logger;
 
 public class PlayerJoinListener implements Listener {
-    private final PermGuard plugin;
 
-    public PlayerJoinListener(PermGuard plugin) {
-        this.plugin = plugin;
+    private final PermGuardConfigManager configManager;
+    private final Runner runner;
+    private final TelegramNotifier telegramNotifier;
+    private final MessageManager messageManager;
+    private final Logger logger;
+    private final Path dataFolder;
+
+    public PlayerJoinListener(PermGuardConfigManager configManager,
+                              Runner runner,
+                              TelegramNotifier telegramNotifier,
+                              MessageManager messageManager,
+                              Logger logger,
+                              Path dataFolder) {
+        this.configManager = configManager;
+        this.runner = runner;
+        this.telegramNotifier = telegramNotifier;
+        this.messageManager = messageManager;
+        this.logger = logger;
+        this.dataFolder = dataFolder;
     }
 
     @EventHandler(
@@ -32,7 +55,7 @@ public class PlayerJoinListener implements Listener {
     public void on(PlayerJoinEvent event) {
         var player = event.getPlayer();
 
-        CompiledPermissions compiled = plugin.getConfigManager().getCompiledPermissions();
+        CompiledPermissions compiled = configManager.getCompiledPermissions();
 
         // 1) '*' first — the most critical case
         if (player.hasPermission("*")) {
@@ -44,9 +67,9 @@ public class PlayerJoinListener implements Listener {
                 Bukkit.getPluginManager().callEvent(e);
             } else {
                 // Fallback if wildcard not configured
-                MessagesConfig msg = plugin.getConfigManager().getMessagesConfig();
-                Component kickComponent = plugin.getMessageManager().parse(msg.general.wildcardPermissionConflict);
-                plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
+                MessagesConfig msg = configManager.getMessagesConfig();
+                Component kickComponent = messageManager.parse(msg.general.wildcardPermissionConflict);
+                runner.runAtEntity(player, () -> player.kick(kickComponent));
             }
             return;
         }
@@ -86,21 +109,21 @@ public class PlayerJoinListener implements Listener {
                 .replace("<player>", safeName)
                 .replace("<permission>", permission);
 
-        plugin.getRunner().runGlobal(() ->
+        runner.runGlobal(() ->
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
         );
 
-        Component kickComponent = plugin.getMessageManager().parse(event.getKickMessage(), "permission", permission);
-        plugin.getRunner().runAtEntity(player, () -> player.kick(kickComponent));
+        Component kickComponent = messageManager.parse(event.getKickMessage(), "permission", permission);
+        runner.runAtEntity(player, () -> player.kick(kickComponent));
 
-        plugin.getRunner().runAsync(() -> {
-            String date = java.time.ZonedDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        runner.runAsync(() -> {
+            String date = ZonedDateTime.now(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
 
             if (event.isLog()) {
                 logViolation(name, safeName, permission, safeIp, date);
             }
-            plugin.getTelegramNotifier().sendNotification(safeName, permission, safeIp, date);
+            telegramNotifier.sendNotification(safeName, permission, safeIp, date);
         });
 
         event.setCancelled(true);
@@ -108,7 +131,7 @@ public class PlayerJoinListener implements Listener {
 
     private void logViolation(String name, String safeName, String permission, String safeIp, String date) {
         // Decide whether to sanitize the player name for logs
-        boolean sanitize = plugin.getConfigManager()
+        boolean sanitize = configManager
                 .getMainConfig()
                 .logging
                 .sanitizePlayerNames;
@@ -117,19 +140,22 @@ public class PlayerJoinListener implements Listener {
                 ? safeName
                 : name;
 
-        String logMessage = plugin.getConfigManager().getMessagesConfig()
+        String logMessage = configManager.getMessagesConfig()
                 .logging.violationEntry
                 .replace("<date>", date)
                 .replace("<player>", nameForLog)
                 .replace("<permission>", permission)
                 .replace("<ip>", safeIp);
 
-        plugin.getLogger().info(logMessage);
+        logger.info(logMessage);
 
-        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
+        try {
+            Files.createDirectories(dataFolder);
+        } catch (IOException ignored) {
+        }
 
-        String fileName = plugin.getConfigManager().getMainConfig().logging.violationsFile;
-        Path logPath = plugin.getDataFolder().toPath().resolve(fileName);
+        String fileName = configManager.getMainConfig().logging.violationsFile;
+        Path logPath = dataFolder.resolve(fileName);
 
         try {
             Files.writeString(
@@ -140,10 +166,10 @@ public class PlayerJoinListener implements Listener {
                     StandardOpenOption.APPEND
             );
         } catch (IOException e) {
-            String msg = plugin.getConfigManager().getMessagesConfig()
+            String msg = configManager.getMessagesConfig()
                     .logging.fileWriteError
                     .replace("<error>", e.getMessage());
-            plugin.getLogger().severe(msg);
+            logger.severe(msg);
         }
     }
 }

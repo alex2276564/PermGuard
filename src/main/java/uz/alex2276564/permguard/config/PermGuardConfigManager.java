@@ -3,7 +3,6 @@ package uz.alex2276564.permguard.config;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import lombok.Getter;
-import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfigValidator;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
@@ -12,13 +11,19 @@ import uz.alex2276564.permguard.config.configs.permissionsconfig.CompiledPermiss
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfig;
 import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConfigValidator;
 import uz.alex2276564.permguard.utils.ResourceUtils;
+import uz.alex2276564.permguard.utils.adventure.MessageManager;
 
 import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PermGuardConfigManager {
-    private final PermGuard plugin;
+
+    private final File dataFolder;
+    private final Logger logger;
+    private final MessageManager messageManager;
+    private final ClassLoader resourceLoader;
 
     @Getter
     private MainConfig mainConfig;
@@ -35,8 +40,14 @@ public class PermGuardConfigManager {
     // Thread-safe: volatile ensures visibility + CompiledPermissions is immutable (record + List.copyOf)
     private volatile CompiledPermissions compiledPermissions = CompiledPermissions.empty();
 
-    public PermGuardConfigManager(PermGuard plugin) {
-        this.plugin = plugin;
+    public PermGuardConfigManager(File dataFolder,
+                                  Logger logger,
+                                  MessageManager messageManager,
+                                  ClassLoader resourceLoader) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.messageManager = messageManager;
+        this.resourceLoader = resourceLoader;
     }
 
     public void reload() {
@@ -46,39 +57,39 @@ public class PermGuardConfigManager {
             loadPermissionConfigs(); // loads files into permissionConfigs
             rebuildCompiledPermissions(); // builds atomic immutable cache
 
-            plugin.getLogger().info("Configuration reloaded.");
-            plugin.getLogger().info("Permission cache: wildcard=" + (compiledPermissions.wildcard() != null)
+            logger.info("Configuration reloaded.");
+            logger.info("Permission cache: wildcard=" + (compiledPermissions.wildcard() != null)
                     + ", regular=" + compiledPermissions.regular().size());
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to reload configuration", e);
+            logger.log(Level.SEVERE, "Failed to reload configuration", e);
         }
     }
 
     private void loadMainConfig() {
         mainConfig = ConfigManager.create(MainConfig.class, it -> {
             it.withConfigurer(new YamlSnakeYamlConfigurer());
-            it.withBindFile(new File(plugin.getDataFolder(), "config.yml"));
+            it.withBindFile(new File(dataFolder, "config.yml"));
             it.withRemoveOrphans(true);
             it.saveDefaults();
             it.load(true);
         });
 
         MainConfigValidator.validate(mainConfig);
-        plugin.getLogger().info("Main configuration loaded and validated successfully");
+        logger.info("Main configuration loaded and validated successfully");
     }
 
     private void loadMessagesConfig() {
         messagesConfig = ConfigManager.create(MessagesConfig.class, it -> {
             it.withConfigurer(new YamlSnakeYamlConfigurer());
-            it.withBindFile(new File(plugin.getDataFolder(), "messages.yml"));
+            it.withBindFile(new File(dataFolder, "messages.yml"));
             it.withRemoveOrphans(true);
             it.saveDefaults();
             it.load(true);
         });
 
         MessagesConfigValidator.validate(messagesConfig);
-        PermGuard.getInstance().getMessageManager().configureDisabledKeysProvider(() -> getMessagesConfig().disabledKeys);
-        plugin.getLogger().info("Messages configuration loaded and validated successfully");
+        messageManager.configureDisabledKeysProvider(() -> getMessagesConfig().disabledKeys);
+        logger.info("Messages configuration loaded and validated successfully");
     }
 
     private void loadPermissionConfig(File file) {
@@ -93,21 +104,21 @@ public class PermGuardConfigManager {
 
             PermissionsConfigValidator.validate(config, file.getName());
             permissionConfigs.add(config);
-            plugin.getLogger().info("Permission configuration loaded and validated successfully: " + file.getName());
+            logger.info("Permission configuration loaded and validated successfully: " + file.getName());
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to load permission config " + file.getName() + ": " + e.getMessage());
+            logger.warning("Failed to load permission config " + file.getName() + ": " + e.getMessage());
         }
     }
 
     private void loadPermissionConfigs() {
         permissionConfigs.clear();
 
-        File permissionsDir = new File(plugin.getDataFolder(), "restrictedpermissions");
+        File permissionsDir = new File(dataFolder, "restrictedpermissions");
         if (!permissionsDir.exists()) permissionsDir.mkdirs();
 
         // Always update examples.txt from resources (to keep it up-to-date)
         File examplesFile = new File(permissionsDir, "examples.txt");
-        ResourceUtils.updateFromResource(plugin, "restrictedpermissions/examples.txt", examplesFile);
+        ResourceUtils.updateFromResource(resourceLoader, logger, "restrictedpermissions/examples.txt", examplesFile);
 
         // Check if we need to create default permissions.yml
         File[] existingFiles = permissionsDir.listFiles((dir, name) -> name.endsWith(".yml"));
@@ -115,8 +126,9 @@ public class PermGuardConfigManager {
         if (existingFiles == null || existingFiles.length == 0) {
             // No yml files found - create default permissions.yml from resources
             File defaultPermFile = new File(permissionsDir, "permissions.yml");
-            if (ResourceUtils.copyResourceIfNotExists(plugin, "restrictedpermissions/permissions.yml", defaultPermFile)) {
-                plugin.getLogger().info("Created default permission configuration: permissions.yml");
+            if (ResourceUtils.copyResourceIfNotExists(resourceLoader, logger,
+                    "restrictedpermissions/permissions.yml", defaultPermFile)) {
+                logger.info("Created default permission configuration: permissions.yml");
             }
         }
 
@@ -126,10 +138,10 @@ public class PermGuardConfigManager {
         if (files != null && files.length > 0) {
             for (File file : files) loadPermissionConfig(file);
         } else {
-            plugin.getLogger().warning("No permission configuration files found!");
+            logger.warning("No permission configuration files found!");
         }
 
-        plugin.getLogger().info("Loaded " + permissionConfigs.size() + " permission configuration file(s).");
+        logger.info("Loaded " + permissionConfigs.size() + " permission configuration file(s).");
     }
 
     // Build immutable, deduplicated cache. First '*' wins, first occurrence of each permission wins.
@@ -147,7 +159,7 @@ public class PermGuardConfigManager {
                     if (star == null) {
                         star = e;
                     } else {
-                        plugin.getLogger().warning("Multiple '*' entries detected in restricted permissions. Using the first one.");
+                        logger.warning("Multiple '*' entries detected in restricted permissions. Using the first one.");
                     }
                     continue;
                 }

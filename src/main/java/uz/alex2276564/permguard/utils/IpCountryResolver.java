@@ -2,25 +2,27 @@ package uz.alex2276564.permguard.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.experimental.UtilityClass;
-import uz.alex2276564.permguard.PermGuard;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 
+import java.util.logging.Logger;
+
 @UtilityClass
-public final class IpCountryResolver {
+public class IpCountryResolver {
 
     // SECURITY NOTE: HTTP is used because ip-api.com requires a paid tier for HTTPS.
     // MITM risks are mitigated by strict input/output verification via SecurityUtils.
     @SuppressWarnings("HttpUrlsUsage")
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
 
-    public static String resolveCountry(String safeIp, PermGuard plugin) {
-        MessagesConfig.TelegramMessagesSection tmsg =
-                plugin.getConfigManager().getMessagesConfig().telegramMessages;
+    public static String resolveCountry(String safeIp,
+                                        HttpUtils httpUtils,
+                                        MessagesConfig.TelegramMessagesSection tmsg,
+                                        Logger logger) {
 
         try {
             String urlString = String.format(IP_API_URL, safeIp);
 
-            HttpUtils.HttpResponse response = plugin.getHttpUtils().getJson(urlString, null);
+            HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
 
             if (response.statusCode() == 200) {
                 JSONObject json = response.jsonBody();
@@ -36,7 +38,7 @@ public final class IpCountryResolver {
                             e.getMessage(),
                             SecurityUtils.SanitizeType.ERROR_MESSAGE
                     ));
-            plugin.getLogger().warning(msg);
+            logger.warning(msg);
         }
         return tmsg.unknownCountry;
     }
