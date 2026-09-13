@@ -61,7 +61,7 @@ One of the fundamental problems in cybersecurity is **trust factors**. Server ad
 
 * **2016 and earlier — AuthMe bypass:** Critical vulnerability in AuthMe and BungeeCord integration. Due to case-sensitivity differences between MySQL/SQLite and server core, attackers could register as "admin" while the original "Admin" account existed, receiving the administrator's UUID and inventory.
 
-* **Early 2014 — BungeeCord UUID spoofing:** Following the introduction of the UUID system in Minecraft 1.7.6, a critical architectural vulnerability was discovered in BungeeCord networks. If backend sub-servers lacked proper firewall protection, they were completely exposed to direct outside connections. Attackers could easily craft custom handshake packets with spoofed UUID and IP data, bypassing the proxy entirely to join backend servers as any administrator with full OP permissions — no password required..
+* **Early 2014 — BungeeCord UUID spoofing:** Following the introduction of the UUID system in Minecraft 1.7.6, a critical architectural vulnerability was discovered in BungeeCord networks. If backend sub-servers lacked proper firewall protection, they were completely exposed to direct outside connections. Attackers could easily craft custom handshake packets with spoofed UUID and IP data, bypassing the proxy entirely to join backend servers as any administrator with full OP permissions — no password required.
 
 **...many more incidents throughout Minecraft's history where PermGuard could have significantly reduced the impact on in‑game admin access.**
 
@@ -131,7 +131,7 @@ This makes PermGuard effective against:
 
 3. **Restart:** Restart your server to load the plugin.
 
-4. **(Recommended) Remove overlapping in‑game “admin password” plugins:** If you previously used admin password plugins like UltimateServerProtector, OPGuard, AdminAuth, or similar password-based / in‑game MFA protection systems, you should remove them. PermGuard's Zero Trust approach makes these plugins redundant. Keep only your base authentication plugin (AuthMe/JPremium) for regular player login — PermGuard handles administrator permission security through a fundamentally different mechanism.
+4. **(Recommended) Remove overlapping in‑game “admin password” plugins:** If you previously used admin password plugins like UltimateServerProtector, OPGuard, AdminAuth, or similar password-based / in‑game MFA protection systems, you should remove them. PermGuard's Zero Trust approach makes these plugins redundant. Keep only your base authentication method (AuthMe/Mojang) for regular player login — PermGuard handles administrator permission security through a fundamentally different mechanism.
 
 ## 📜 Commands
 
