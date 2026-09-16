@@ -1,6 +1,5 @@
 package uz.alex2276564.permguard;
 
-import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import uz.alex2276564.permguard.commands.PermGuardCommands;
 import uz.alex2276564.permguard.commands.framework.builder.BuiltCommand;
@@ -23,29 +22,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class PermGuard extends JavaPlugin {
-
-    @Getter
+    
     private Runner runner;
-
-    @Getter
     private HttpUtils httpUtils;
-
-    @Getter
     private PermGuardConfigManager configManager;
-
-    @Getter
-    private BackupManager backupManager;
-
-    @Getter
     private TelegramNotifier telegramNotifier;
-
-    @Getter
     private MessageManager messageManager;
-
-    @Getter
-    private UpdateChecker updateChecker;
-
-    @Getter
     private PermGuardServices services;
 
     @Override
@@ -123,6 +105,7 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void setupBackupManager() {
+        BackupManager backupManager;
         backupManager = new BackupManager(runner, getLogger(), getDataFolder().toPath());
 
         // Check for backup need on startup
@@ -156,7 +139,8 @@ public final class PermGuard extends JavaPlugin {
     }
 
     private void setupUpdateChecker() {
-        this.updateChecker = new UpdateChecker(
+        UpdateChecker updateChecker;
+        updateChecker = new UpdateChecker(
                 getDescription().getName(),
                 getDescription().getVersion(),
                 "alex2276564/PermGuard",

@@ -9,8 +9,9 @@ import java.util.logging.Logger;
 @UtilityClass
 public class IpCountryResolver {
 
-    // SECURITY NOTE: HTTP is used because ip-api.com requires a paid tier for HTTPS.
-    // MITM risks are mitigated by strict input/output verification via SecurityUtils.
+    // SECURITY NOTE: Plain HTTP is used because ip-api.com requires a paid subscription for HTTPS access.
+    // MITM exposure is accepted here as these geolocation data points are non-critical and
+    // strictly validated via SecurityUtils to prevent any injection vectors.
     @SuppressWarnings("HttpUrlsUsage")
     private static final String IP_API_URL = "http://ip-api.com/json/%s";
 
