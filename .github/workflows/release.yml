@@ -79,6 +79,7 @@ on:
         description: 'Release notes (markdown supported)'
         required: false
         type: string
+        multiline: true
 
 permissions:
   contents: read
