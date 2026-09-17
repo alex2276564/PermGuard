@@ -79,7 +79,6 @@ on:
         description: 'Release notes (markdown supported)'
         required: false
         type: string
-        multiline: true
 
 permissions:
   contents: read
@@ -120,16 +119,16 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@main
 
-      #      - name: Check Gradle version matches input
-      #        env:
-      #          RELEASE_VERSION: ${{ inputs.release_version }}
-      #        run: |
-      #          GRADLE_VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
-      #          echo "Gradle project version: $GRADLE_VERSION"
-      #          if [ "$GRADLE_VERSION" != "$RELEASE_VERSION" ]; then
-      #            echo "::error::Version mismatch: Gradle=$GRADLE_VERSION, input=$RELEASE_VERSION"
-      #            exit 1
-      #          fi
+      - name: Check Gradle version matches input
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          GRADLE_VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
+          echo "Gradle project version: $GRADLE_VERSION"
+          if [ "$GRADLE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "::error::Version mismatch: Gradle=$GRADLE_VERSION, input=$RELEASE_VERSION"
+            exit 1
+          fi
 
       - name: Build plugin (reproducible)
         run: |
