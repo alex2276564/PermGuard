@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class PermGuard extends JavaPlugin {
-    
+
     private Runner runner;
     private HttpUtils httpUtils;
     private PermGuardConfigManager configManager;
@@ -114,7 +114,7 @@ public final class PermGuard extends JavaPlugin {
         // Schedule periodic checks - daily (24 hours)
         long dailySeconds = 24L * 60L * 60L;
         long dailyTicks = Runner.secondsToTicks(dailySeconds);
-        runner.runAsyncTimer(() -> backupManager.checkAndBackupAsync(), dailyTicks, dailyTicks);
+        runner.runAsyncTimer(backupManager::checkAndBackupAsync, dailyTicks, dailyTicks);
     }
 
     private void setupTelegramNotifier() {
