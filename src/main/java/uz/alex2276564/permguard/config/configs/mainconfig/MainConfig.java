@@ -93,6 +93,18 @@ public class MainConfig extends OkaeriConfig {
         public String chatIds = "123456789,987654321";
 
         @Comment("")
+        @Comment("IP geolocation API endpoint used to resolve %country% from player IP.")
+        @Comment("Use {ip} placeholder in the URL. It will be replaced with the player's IP address.")
+        @Comment("Default: https://free.freeipapi.com/api/v1/json/{ip} (HTTPS, free, no API key required, allowed for commercial use).")
+        @Comment("You can change this to any provider that returns JSON with a 'countryName' or 'country' field,")
+        @Comment("for example: https://ipwho.is/{ip}, a local service like http://localhost/{ip},")
+        @Comment("or your own custom endpoint.")
+        @Comment("If your provider requires an API key, you can include it directly in the URL path or query string,")
+        @Comment("e.g. https://api.example.com/lookup?key=YOUR_TOKEN&ip={ip}.")
+        @Comment("Note: the {ip} placeholder in the URL is required.")
+        public String ipGeolocationEndpoint = "https://free.freeipapi.com/api/v1/json/{ip}";
+
+        @Comment("")
         @Comment("Number of retry attempts if sending fails")
         @Comment("Set to 0 for dedicated hosting with stable network (recommended)")
         @Comment("Increase this value (1-3) for shared hosting or unstable network")

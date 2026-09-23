@@ -66,7 +66,13 @@ public class TelegramNotifier {
                 configManager.getMessagesConfig().telegramMessages;
 
         try {
-            String country = IpCountryResolver.resolveCountry(safeIp, httpUtils, tmsg, logger);
+            String country = IpCountryResolver.resolveCountry(
+                    safeIp,
+                    telegram.ipGeolocationEndpoint,
+                    httpUtils,
+                    tmsg,
+                    logger
+            );
 
             String message = StringUtils.processEscapeSequences(telegram.message)
                     .replace("%player%", safeName)

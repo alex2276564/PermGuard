@@ -4,33 +4,60 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.experimental.UtilityClass;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 @UtilityClass
 public class IpCountryResolver {
 
-    // SECURITY NOTE: Plain HTTP is used because ip-api.com requires a paid subscription for HTTPS access.
-    // MITM exposure is accepted here as these geolocation data points are non-critical and
-    // strictly validated via SecurityUtils to prevent any injection vectors.
-    @SuppressWarnings("HttpUrlsUsage")
-    private static final String IP_API_URL = "http://ip-api.com/json/%s";
-
+    /**
+     * Resolve player's country based on IP using a configurable HTTP JSON endpoint.
+     * <p>
+     * The endpoint template must contain the "{ip}" placeholder, which will be replaced
+     * with the player's (sanitized) IP address. For example:
+     * <p>
+     * https://free.freeipapi.com/api/v1/json/{ip}
+     * https://ipwho.is/{ip}
+     * https://api.example.com/lookup?key=YOUR_TOKEN&ip={ip}
+     * http://localhost/{ip}
+     * <p>
+     * The JSON response is expected to contain one of:
+     * - countryName
+     * - country
+     * - country_name
+     */
     public static String resolveCountry(String safeIp,
+                                        String ipGeolocationEndpoint,
                                         HttpUtils httpUtils,
                                         MessagesConfig.TelegramMessagesSection tmsg,
                                         Logger logger) {
 
         try {
-            String urlString = String.format(IP_API_URL, safeIp);
+            String template = ipGeolocationEndpoint.trim();
+            String encodedIp = URLEncoder.encode(safeIp, StandardCharsets.UTF_8);
+            String urlString = template.replace("{ip}", encodedIp);
 
             HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
 
             if (response.statusCode() == 200) {
                 JSONObject json = response.jsonBody();
-                if (json.containsKey("country")) {
-                    String country = json.getString("country");
+
+                // Try common country field names used by several providers.
+                String country = null;
+                if (json.containsKey("countryName")) {
+                    country = json.getString("countryName"); // freeipapi.com style
+                } else if (json.containsKey("country")) {
+                    country = json.getString("country");     // ipwho.is, ip-api.com, etc.
+                } else if (json.containsKey("country_name")) {
+                    country = json.getString("country_name");
+                }
+
+                if (country != null && !country.isEmpty()) {
                     return SecurityUtils.sanitize(country, SecurityUtils.SanitizeType.COUNTRY);
                 }
+            } else {
+                logger.warning("IP geolocation request failed: HTTP " + response.statusCode());
             }
         } catch (Exception e) {
             String msg = tmsg.countryLookupFailed
@@ -41,6 +68,7 @@ public class IpCountryResolver {
                     ));
             logger.warning(msg);
         }
+
         return tmsg.unknownCountry;
     }
 }

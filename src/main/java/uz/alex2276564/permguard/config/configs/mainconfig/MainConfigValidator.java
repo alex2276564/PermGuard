@@ -55,6 +55,18 @@ public class MainConfigValidator {
                 }
             }
 
+            // IP geolocation endpoint validation
+            String endpoint = telegram.ipGeolocationEndpoint;
+            if (endpoint != null) {
+                endpoint = endpoint.trim();
+                if (!endpoint.isEmpty() && !endpoint.contains("{ip}")) {
+                    result.addError(
+                            "telegram.ipGeolocationEndpoint",
+                            "IP geolocation endpoint must contain {ip} placeholder."
+                    );
+                }
+            }
+
             // Max retries validation
             Validators.min(result, "telegram.maxRetries", telegram.maxRetries, 0, "Max retries cannot be negative");
             Validators.max(result, "telegram.maxRetries", telegram.maxRetries, 10, "Max retries cannot exceed 10");
