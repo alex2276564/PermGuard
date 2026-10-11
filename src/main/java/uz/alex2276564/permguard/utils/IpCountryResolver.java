@@ -17,10 +17,10 @@ public class IpCountryResolver {
      * The endpoint template must contain the "{ip}" placeholder, which will be replaced
      * with the player's (sanitized) IP address. For example:
      * <p>
-     * https://free.freeipapi.com/api/v1/json/{ip}
-     * https://ipwho.is/{ip}
-     * https://api.example.com/lookup?key=YOUR_TOKEN&ip={ip}
-     * http://localhost/{ip}
+     * - https://free.freeipapi.com/api/v1/json/{ip}
+     * - https://ipwho.is/{ip}
+     * - https://api.example.com/lookup?key=YOUR_TOKEN&ip={ip}
+     * - http://localhost/{ip}
      * <p>
      * The JSON response is expected to contain one of:
      * - countryName
@@ -40,7 +40,7 @@ public class IpCountryResolver {
 
             HttpUtils.HttpResponse response = httpUtils.getJson(urlString, null);
 
-            if (response.statusCode() == 200) {
+            if (response.isOk()) {
                 JSONObject json = response.jsonBody();
 
                 // Try common country field names used by several providers.
@@ -56,8 +56,15 @@ public class IpCountryResolver {
                 if (country != null && !country.isEmpty()) {
                     return SecurityUtils.sanitize(country, SecurityUtils.SanitizeType.COUNTRY);
                 }
+
+                // 2xx but no usable country field
+                String reason = "response did not contain a recognizable country field";
+                logFailure(safeIp, reason, tmsg, logger);
             } else {
-                logger.warning("IP geolocation request failed: HTTP " + response.statusCode());
+                String reason = response.hasError()
+                        ? response.describeError()
+                        : "HTTP " + response.statusCode();
+                logFailure(safeIp, reason, tmsg, logger);
             }
         } catch (Exception e) {
             String msg = tmsg.countryLookupFailed
@@ -70,5 +77,18 @@ public class IpCountryResolver {
         }
 
         return tmsg.unknownCountry;
+    }
+
+    private static void logFailure(String safeIp,
+                                   String reason,
+                                   MessagesConfig.TelegramMessagesSection tmsg,
+                                   Logger logger) {
+        String msg = tmsg.countryLookupFailed
+                .replace("<ip>", safeIp)
+                .replace("<error>", SecurityUtils.sanitize(
+                        reason,
+                        SecurityUtils.SanitizeType.ERROR_MESSAGE
+                ));
+        logger.warning(msg);
     }
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.utils.HttpUtils;
+import uz.alex2276564.permguard.utils.SecurityUtils;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
 import java.util.Deque;
@@ -140,56 +141,62 @@ final class TelegramSendQueue {
         body.put("text", job.message);
 
         int maxAttempts = job.maxAttempts;
-
         long successDelayMs = config.minDelayMs;
+        long retryDelayMs = config.retryDelay;
 
-        try {
-            HttpUtils.HttpResponse response = httpUtils.postJson(url, body, userAgent);
-            int status = response.statusCode();
+        HttpUtils.HttpResponse response = httpUtils.postJson(url, body, userAgent);
 
-            if (status == 200) {
-                // Successful send, schedule the next message after successDelayMs
-                return Outcome.success(successDelayMs);
-            }
-
-            long delayMs = config.retryDelay;
-
-            if (status == 429) {
-                // Rate limited by Telegram - respect retry_after if available
-                delayMs = extractRetryAfterMillis(response, delayMs);
-
-                if (job.attempt < maxAttempts) {
-                    logRetryAttempt(tmsg, job.attempt, maxAttempts, "Rate limit (429)");
-                    return Outcome.retry(delayMs);
-                } else {
-                    logger.warning(tmsg.tooManyRequests);
-                    return Outcome.drop();
-                }
-            }
-
-            // Any other non-200 HTTP status code
-            String error = "HTTP " + status;
-            if (job.attempt < maxAttempts) {
-                logRetryAttempt(tmsg, job.attempt, maxAttempts, error);
-                return Outcome.retry(delayMs);
-            } else {
-                String msg = tmsg.sendFailed.replace("<error>", error);
-                logger.warning(msg);
-                return Outcome.drop();
-            }
-
-        } catch (Exception e) {
-            long delayMs = config.retryDelay;
-            String error = (e.getMessage() != null) ? e.getMessage() : e.getClass().getSimpleName();
+        // Transport / parsing errors (timeout, connection, invalid JSON, etc.)
+        if (response.hasError()) {
+            String error = response.describeError();
 
             if (job.attempt < maxAttempts) {
                 logRetryAttempt(tmsg, job.attempt, maxAttempts, error);
-                return Outcome.retry(delayMs);
+                return Outcome.retry(retryDelayMs);
             } else {
-                String msg = tmsg.sendFailed.replace("<error>", error);
+                String msg = tmsg.sendFailed.replace(
+                        "<error>",
+                        SecurityUtils.sanitize(error, SecurityUtils.SanitizeType.ERROR_MESSAGE)
+                );
                 logger.warning(msg);
                 return Outcome.drop();
             }
+        }
+
+        int status = response.statusCode();
+
+        if (status == 200) {
+            // Successful send, schedule the next message after successDelayMs
+            return Outcome.success(successDelayMs);
+        }
+
+        long delayMs = retryDelayMs;
+
+        if (status == 429) {
+            // Rate limited by Telegram - respect retry_after if available
+            delayMs = extractRetryAfterMillis(response, delayMs);
+
+            if (job.attempt < maxAttempts) {
+                logRetryAttempt(tmsg, job.attempt, maxAttempts, "Rate limit (429)");
+                return Outcome.retry(delayMs);
+            } else {
+                logger.warning(tmsg.tooManyRequests);
+                return Outcome.drop();
+            }
+        }
+
+        // Any other non-200 HTTP status code
+        String error = "HTTP " + status;
+        if (job.attempt < maxAttempts) {
+            logRetryAttempt(tmsg, job.attempt, maxAttempts, error);
+            return Outcome.retry(delayMs);
+        } else {
+            String msg = tmsg.sendFailed.replace(
+                    "<error>",
+                    SecurityUtils.sanitize(error, SecurityUtils.SanitizeType.ERROR_MESSAGE)
+            );
+            logger.warning(msg);
+            return Outcome.drop();
         }
     }
 
@@ -197,14 +204,12 @@ final class TelegramSendQueue {
         long nextDelayMs = defaultDelayMs;
         try {
             JSONObject json = response.jsonBody();
-            if (json != null) {
-                JSONObject params = json.getJSONObject("parameters");
-                if (params != null) {
-                    Long retryAfter = params.getLong("retry_after");
-                    if (retryAfter != null) {
-                        long retryAfterMs = retryAfter * 1000L;
-                        nextDelayMs = Math.max(nextDelayMs, retryAfterMs);
-                    }
+            JSONObject params = json.getJSONObject("parameters");
+            if (params != null) {
+                Long retryAfter = params.getLong("retry_after");
+                if (retryAfter != null) {
+                    long retryAfterMs = retryAfter * 1000L;
+                    nextDelayMs = Math.max(nextDelayMs, retryAfterMs);
                 }
             }
         } catch (Exception ignored) {
@@ -215,10 +220,11 @@ final class TelegramSendQueue {
 
     private void logRetryAttempt(MessagesConfig.TelegramMessagesSection tmsg,
                                  int attempt, int maxAttempts, String error) {
+        String safeError = SecurityUtils.sanitize(error, SecurityUtils.SanitizeType.ERROR_MESSAGE);
         String msg = tmsg.sendFailedAttempt
                 .replace("<attempt>", String.valueOf(attempt))
                 .replace("<max>", String.valueOf(maxAttempts))
-                .replace("<error>", error);
+                .replace("<error>", safeError);
         logger.warning(msg);
     }
 

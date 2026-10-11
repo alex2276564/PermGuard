@@ -13,6 +13,7 @@ import uz.alex2276564.permguard.config.configs.permissionsconfig.PermissionsConf
 import uz.alex2276564.permguard.events.PlayerHasRestrictedPermissionEvent;
 import uz.alex2276564.permguard.telegram.TelegramNotifier;
 import uz.alex2276564.permguard.utils.SecurityUtils;
+import uz.alex2276564.permguard.utils.TimeUtils;
 import uz.alex2276564.permguard.utils.adventure.MessageManager;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
@@ -21,9 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 public class PlayerJoinListener implements Listener {
@@ -117,12 +116,11 @@ public class PlayerJoinListener implements Listener {
         runner.runAtEntity(player, () -> player.kick(kickComponent));
 
         runner.runAsync(() -> {
-            ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
-            String telegramDate = now
-                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            ZonedDateTime now = TimeUtils.now();
+            String telegramDate = TimeUtils.formatDmyHms(now);
 
             if (event.isLog()) {
-                String logDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                String logDate = TimeUtils.formatIsoOffset(now);
                 logViolation(name, safeName, permission, safeIp, logDate);
             }
             telegramNotifier.sendNotification(safeName, permission, safeIp, telegramDate);

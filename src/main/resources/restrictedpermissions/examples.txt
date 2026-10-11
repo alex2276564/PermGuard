@@ -75,8 +75,10 @@ PLUGIN INTEGRATION EXAMPLES:
 - PowerRanks: "pr setrank <player> default"
 
 SECURITY TIPS:
-1. Always test commands on a test server first
-2. Use wildcard permission (*) with caution
-3. Monitor logs to ensure commands execute properly
-4. Keep backups of working configurations
-5. Consider using multiple .yml files to organize different permission types
+1. Always test new config on a test server first
+2. Monitor logs to ensure commands execute properly
+3. Consider using multiple .yml files to organize different permission types
+4. It's better to move your entire server to a full Zero Trust model right away, instead of mixing approaches - e.g. AuthMe/USP for staff but PermGuard only for admin accounts
+5. If you set up a third-party plugin/script/channel to restore permissions after PermGuard revokes them, dangerous permissions (like *) should still only be re-grantable through the console
+6. Convenience is the enemy of security
+7. Always stay paranoid - 100% security doesn't exist

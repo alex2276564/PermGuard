@@ -77,14 +77,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@main
         with:
-          egress-policy: block
-          allowed-endpoints: >
-            api.deps.dev:443
-            api.github.com:443
-            api.osv.dev:443
-            github.com:443
-            oss-fuzz-build-logs.storage.googleapis.com:443
-            www.bestpractices.dev:443
+          egress-policy: audit
 
       - name: Checkout repository
         uses: actions/checkout@main

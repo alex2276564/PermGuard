@@ -58,7 +58,13 @@ The built-in `HttpUtils` wrapper enforces:
 
 - **Timeouts**: Connection (5s), Request (10s).
 - **Response limits**: Hard cap of **256 KiB** to prevent DoS via large payloads.
-- **Safe JSON parsing**: Fails securely (empty `JSONObject` on errors).
+- **Typed error handling**: Each HTTP call returns a structured `HttpResponse`
+  that exposes an explicit `HttpErrorType` (`TIMEOUT`, `CONNECTION_FAILED`,
+  `RESPONSE_TOO_LARGE`, `INVALID_JSON`, etc.) instead of throwing checked
+  exceptions or silently returning an empty JSON object on failure.
+- **No implicit redirects**: `HttpUtils` never follows HTTP redirects
+  (`Redirect.NEVER`), so requests cannot be transparently redirected to
+  unexpected or untrusted endpoints.
 
 ---
 

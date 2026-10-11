@@ -12,14 +12,7 @@
 [![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
 [![Text Formatting](https://img.shields.io/badge/Text%20Formatting-🌈%20MiniMessage-ff69b4)](https://docs.advntr.dev/minimessage/)
 
-**PermGuard** is a Minecraft plugin designed to enhance server security by temporarily revoking admin permissions upon
-joining the server and sending security alerts to Telegram. Unlike traditional admin password plugins, which can often
-be bypassed through various exploits, PermGuard implements a fundamentally more secure approach by completely removing
-elevated permissions on join. This helps to prevent unauthorized access and potential security breaches, even if other
-security measures are compromised. When an admin with elevated permissions joins the server, their permissions are
-removed, and they are kicked from the server. The permissions can only be restored after the admin rejoins without the
-elevated permissions and manually re-grants them via the console using commands like
-`lp user playernick permission set *`.
+**PermGuard** is a next‑generation Zero Trust security plugin for Minecraft servers. It is designed to enhance server security by temporarily revoking admin permissions upon joining the server and sending security alerts to Telegram. Unlike traditional admin password plugins, which can often be bypassed through various exploits, PermGuard implements a fundamentally more secure approach by completely removing elevated permissions on join. This helps to prevent unauthorized access and potential security breaches, even if other security measures are compromised. When an admin with elevated permissions joins the server, their permissions are removed and they are kicked from the server. The permissions can only be restored after the admin rejoins without the elevated permissions and manually re‑grants them via the console using commands like `lp user playernick permission set *`.
 
 ## ✨ Features
 
@@ -47,7 +40,7 @@ One of the fundamental problems in cybersecurity is **trust factors**. Server ad
 
 * **June 2025 — [BungeeGuard critical vulnerability](https://github.com/lucko/BungeeGuard/security):** Authorization token leak through LoginSuccess packet. Due to changes in BungeeCord (builds 1756+), BungeeGuard's secret token accidentally leaked to regular players. Velocity networks using BungeeGuard-compatible mode were also vulnerable, allowing attackers to completely bypass backend server authorization by impersonating the proxy.
 
-* **March 2024 — [Massive database leak](https://www.cyberdaily.au/security/10379-14gb-minecraft-data-leak-puts-players-at-risk):** A 14.8 GB Minecraft database published on a dark web forum by user "rafaelll" containing years of collected player data, server configurations, login credentials, and partial financial information from donation systems.
+* **March 2024 — [Massive database leak](https://www.cyberdaily.au/security/10379-14gb-minecraft-data-leak-puts-players-at-risk):** A 14.8 GB Minecraft database published on a dark web forum by user "rafaelll" containing years of collected player data, server configurations, login credentials, and partial financial information from donation systems — data that will inevitably resurface in future attacks against server admins through leaked/reused passwords, ready-made malicious server builds, and social engineering.
 
 * **2023-2024 — [UltimateServerProtector bypasses](https://www.spigotmc.org/resources/ultimateserverprotector-admins-operators-security-plugin-lightweight-and-async.105237/update?update=514856):** Multiple bypass methods were discovered and acknowledged by the developer in community chats. The incidents demonstrated that password-based verification plugins are vulnerable to sophisticated attacks, as verification logic itself can be exploited.
 
