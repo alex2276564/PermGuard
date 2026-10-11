@@ -117,19 +117,21 @@ public class PlayerJoinListener implements Listener {
         runner.runAtEntity(player, () -> player.kick(kickComponent));
 
         runner.runAsync(() -> {
-            String date = ZonedDateTime.now(ZoneId.systemDefault())
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+            String telegramDate = now
                     .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
 
             if (event.isLog()) {
-                logViolation(name, safeName, permission, safeIp, date);
+                String logDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                logViolation(name, safeName, permission, safeIp, logDate);
             }
-            telegramNotifier.sendNotification(safeName, permission, safeIp, date);
+            telegramNotifier.sendNotification(safeName, permission, safeIp, telegramDate);
         });
 
         event.setCancelled(true);
     }
 
-    private void logViolation(String name, String safeName, String permission, String safeIp, String date) {
+    private void logViolation(String name, String safeName, String permission, String safeIp, String logDate) {
         // Decide whether to sanitize the player name for logs
         boolean sanitize = configManager
                 .getMainConfig()
@@ -142,7 +144,7 @@ public class PlayerJoinListener implements Listener {
 
         String logMessage = configManager.getMessagesConfig()
                 .logging.violationEntry
-                .replace("<date>", date)
+                .replace("<date>", logDate)
                 .replace("<player>", nameForLog)
                 .replace("<permission>", permission)
                 .replace("<ip>", safeIp);

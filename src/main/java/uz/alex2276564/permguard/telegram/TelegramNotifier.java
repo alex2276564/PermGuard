@@ -55,7 +55,7 @@ public class TelegramNotifier {
      * already wraps it in runner.runAsync), because getCountryByIp() performs a
      * blocking HTTP request.
      */
-    public void sendNotification(String safeName, String permission, String safeIp, String date) {
+    public void sendNotification(String safeName, String permission, String safeIp, String telegramDate) {
         MainConfig.TelegramSection telegram = configManager.getMainConfig().telegram;
 
         if (!telegram.enabled || !telegram.isConfigured()) {
@@ -79,7 +79,7 @@ public class TelegramNotifier {
                     .replace("%permission%", permission)
                     .replace("%ip%", safeIp)
                     .replace("%country%", country)
-                    .replace("%date%", date);
+                    .replace("%date%", telegramDate);
 
             int maxAttempts = telegram.maxRetries + 1;
 
@@ -101,7 +101,7 @@ public class TelegramNotifier {
 
         } catch (Exception e) {
             String msg = tmsg.notificationFailed
-                    .replace("<error>", String.valueOf(e.getMessage()));
+                    .replace("<error>", e.getMessage());
             logger.warning(msg);
         }
     }
