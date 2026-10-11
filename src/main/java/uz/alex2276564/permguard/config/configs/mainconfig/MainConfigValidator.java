@@ -84,11 +84,18 @@ public class MainConfigValidator {
             Validators.notBlank(result, "telegram.message", telegram.message, "Message template cannot be empty");
 
             // Additional message validation - check for required placeholders
-            if (telegram.message != null && !telegram.message.contains("%player%")) {
-                result.addError("telegram.message", "Message template must contain %player% placeholder");
-            }
-            if (telegram.message != null && !telegram.message.contains("%permission%")) {
-                result.addError("telegram.message", "Message template must contain %permission% placeholder");
+            if (telegram.message != null) {
+                String msg = telegram.message;
+
+                if (!msg.contains("%player%")) {
+                    result.addError("telegram.message", "Message template must contain %player% placeholder");
+                }
+                if (!msg.contains("%permission%")) {
+                    result.addError("telegram.message", "Message template must contain %permission% placeholder");
+                }
+                if (!msg.contains("%date%")) {
+                    result.addError("telegram.message", "Message template must contain %date% placeholder");
+                }
             }
         }
     }

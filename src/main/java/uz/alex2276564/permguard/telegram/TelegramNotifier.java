@@ -5,6 +5,7 @@ import uz.alex2276564.permguard.config.configs.mainconfig.MainConfig;
 import uz.alex2276564.permguard.config.configs.messagesconfig.MessagesConfig;
 import uz.alex2276564.permguard.utils.HttpUtils;
 import uz.alex2276564.permguard.utils.IpCountryResolver;
+import uz.alex2276564.permguard.utils.SecurityUtils;
 import uz.alex2276564.permguard.utils.StringUtils;
 import uz.alex2276564.permguard.utils.runner.Runner;
 
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
 /**
  * High-level service responsible for:
  * - building Telegram notification messages,
- * - resolving country by IP,
+ * - resolving country by IP (only when required by template),
  * - enqueuing send jobs into TelegramSendQueue.
  * <p>
  * All actual network I/O to Telegram Bot API is delegated to TelegramSendQueue,
@@ -52,8 +53,8 @@ public class TelegramNotifier {
      * Public API used from PlayerJoinListener.
      * <p>
      * This method is expected to be called from an async context (PlayerJoinListener
-     * already wraps it in runner.runAsync), because getCountryByIp() performs a
-     * blocking HTTP request.
+     * already wraps it in runner.runAsync), because IP geolocation and telegram is a
+     * blocking HTTP requests when used.
      */
     public void sendNotification(String safeName, String permission, String safeIp, String telegramDate) {
         MainConfig.TelegramSection telegram = configManager.getMainConfig().telegram;
@@ -66,15 +67,20 @@ public class TelegramNotifier {
                 configManager.getMessagesConfig().telegramMessages;
 
         try {
-            String country = IpCountryResolver.resolveCountry(
-                    safeIp,
-                    telegram.ipGeolocationEndpoint,
-                    httpUtils,
-                    tmsg,
-                    logger
-            );
+            String template = StringUtils.processEscapeSequences(telegram.message);
 
-            String message = StringUtils.processEscapeSequences(telegram.message)
+            String country = tmsg.unknownCountry;
+            if (template.contains("%country%")) {
+                country = IpCountryResolver.resolveCountry(
+                        safeIp,
+                        telegram.ipGeolocationEndpoint,
+                        httpUtils,
+                        tmsg,
+                        logger
+                );
+            }
+
+            String message = template
                     .replace("%player%", safeName)
                     .replace("%permission%", permission)
                     .replace("%ip%", safeIp)
@@ -101,7 +107,7 @@ public class TelegramNotifier {
 
         } catch (Exception e) {
             String msg = tmsg.notificationFailed
-                    .replace("<error>", e.getMessage());
+                    .replace("<error>", SecurityUtils.sanitize(e.getMessage(), SecurityUtils.SanitizeType.ERROR_MESSAGE));
             logger.warning(msg);
         }
     }
