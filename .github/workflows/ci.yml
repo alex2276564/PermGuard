@@ -12,62 +12,6 @@ env:
   JAVA_VERSION: '17'
   JAVA_DIST: 'temurin'
 
-# =============================================================================
-# Security model for GitHub Actions: action versioning & runner egress
-#
-# RATIONALE
-# ---------
-# This is an open-source project maintained by a single developer.
-# Threat model (for CI / GitHub Actions specifically):
-# - Third-party GitHub Actions and build tools may eventually be compromised.
-# - There is no capacity to manually review SHA-pinned action diffs on every
-#   update.
-# - Therefore, the primary defence against malicious GitHub Actions is
-#   runtime monitoring and egress control on the runner, not version pinning.
-#
-# ACTION VERSIONING
-# -----------------
-# All third-party actions are referenced using @main / @master or the latest
-# convenient semver tag. We do NOT treat tag pinning as a strong security
-# control in this repository.
-#
-# SHA pinning is intentionally NOT used:
-# - It only provides strong guarantees when combined with manual review of
-#   every upstream commit, which this project cannot sustain.
-# - Without that review discipline, SHA pins can still point to malicious
-#   code that was present before the pin was taken, and they add maintenance
-#   overhead without realistic benefit here.
-#
-# Semver/tag pinning is also NOT enforced as a primary control:
-# - Tags on GitHub are mutable; recent supply-chain incidents (e.g. compromised
-#   actions overwriting historical tags) have shown that tag pinning alone does
-#   not reliably prevent malicious updates.
-#
-# Primary CI / GitHub Actions supply-chain controls:
-# - step-security/harden-runner is used in every job to protect the CI runner:
-#   * monitors outbound network, file, and process activity at runtime;
-#   * enforces a Global Block List of known-malicious endpoints maintained
-#     by StepSecurity's SOC;
-#   * supports per-job egress allowlists in block mode to limit exfiltration
-#     impact if an action or dependency is compromised.
-#
-# EGRESS POLICY (step-security/harden-runner)
-# ------------------------------------------
-# High-risk jobs (write permissions / secrets / CD & publishing):
-# - egress-policy: block with an explicit allowed-endpoints allowlist.
-#   Rationale: limits the blast radius if an action or dependency is
-#   compromised and tries to exfiltrate data.
-#
-# Low-risk jobs (read-only, no secrets):
-# - egress-policy: audit.
-#   Rationale: scanning tools may legitimately contact varying endpoints
-#   across versions; strict blocking would require frequent maintenance
-#   for little benefit when no sensitive credentials are present.
-#
-# See Harden-Runner docs:
-#   https://docs.stepsecurity.io/harden-runner
-# =============================================================================
-
 on:
   push:
     branches: [ "main" ]
@@ -90,17 +34,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Actionlint (Reviewdog)
-        uses: step-security/action-actionlint@main
+        uses: step-security/action-actionlint@v1.76.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
@@ -117,22 +61,22 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@main
+        uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: latest
 
       - name: Setup Socket Firewall
-        uses: socketdev/action@main
+        uses: socketdev/action@v1.3.2
         with:
           mode: firewall-free
 
@@ -151,17 +95,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Lint Links
-        uses: umbrelladocs/action-linkspector@main
+        uses: umbrelladocs/action-linkspector@v1.5.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
@@ -173,17 +117,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Lint Markdown files
-        uses: DavidAnson/markdownlint-cli2-action@main
+        uses: DavidAnson/markdownlint-cli2-action@v24.1.0
         with:
           globs: '**/*.md'
           config: '.markdownlint.jsonc'
@@ -199,35 +143,35 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.38.3
         with:
           languages: java-kotlin
           queries: security-and-quality
 
       - name: Set up JDK ${{ env.JAVA_VERSION }} (${{ env.JAVA_DIST }})
-        uses: actions/setup-java@main
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DIST }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@main
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Build for CodeQL
         run: ./gradlew build -x test
 
       - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.38.3
 
   security-scan-semgrep:
     name: 🔐 Security Scan Semgrep
@@ -242,22 +186,22 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@main
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.x'
 
       - name: Setup Socket Firewall
-        uses: socketdev/action@main
+        uses: socketdev/action@v1.3.2
         with:
           mode: firewall-free
 
@@ -267,6 +211,8 @@ jobs:
       - name: Setup Semgrep Pro Engine via Socket Firewall
         run: sfw semgrep install-semgrep-pro
 
+      # Exclude mutable action tag rule because Semgrep does not support the modern
+      # actions.lockfile mechanism yet.
       - name: Run Semgrep
         run: |
           semgrep scan \
@@ -285,7 +231,7 @@ jobs:
             --error
 
       - name: Upload results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.38.3
         if: always()
         with:
           sarif_file: semgrep.sarif
@@ -304,26 +250,26 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up JDK ${{ env.JAVA_VERSION }} (${{ env.JAVA_DIST }})
-        uses: actions/setup-java@main
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DIST }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@main
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-9-jdk17@main
+        uses: snyk/actions/gradle-9-jdk17@v1.0.0
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           JAVA_HOME: /opt/java/openjdk # Enforce directory expected by the Snyk container
@@ -331,7 +277,7 @@ jobs:
           args: --sarif-file-output=snyk.sarif
 
       - name: Upload Snyk scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.38.3
         if: always()
         with:
           sarif_file: 'snyk.sarif'
@@ -347,17 +293,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Run Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -377,7 +323,7 @@ jobs:
           always() &&
           (github.event_name == 'push' || 
            (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false))
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.38.3
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -426,19 +372,44 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Run zizmor 🌈
-        uses: zizmorcore/zizmor-action@main
+        uses: zizmorcore/zizmor-action@v0.6.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  security-scan-gh-actions-lockfile:
+    name: 🔐 Security Scan GitHub Actions Lockfile
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify GitHub Actions lockfile
+        run: |
+          gh extension install github/gh-actions-lock
+          gh actions-lock --verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   dependency-review:
     name: 🧩 Dependency Review (PR)
@@ -453,17 +424,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Dependency Review
-        uses: actions/dependency-review-action@main
+        uses: actions/dependency-review-action@v5.0.0
         with:
           fail-on-severity: high
 
@@ -473,26 +444,26 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0  # Required for diff scan
 
       - name: TruffleHog Secrets Scan (full)
         if: github.event_name != 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.99.2
         with:
           path: ./
           extra_args: --results=verified,unknown
 
       - name: TruffleHog Secrets Scan (diff)
         if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.99.2
         with:
           path: ./
           base: ${{ github.event.pull_request.base.sha }}
@@ -512,6 +483,7 @@ jobs:
       security-scan-trivy,
       security-scan-osv-pr,
       security-scan-zizmor,
+      security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog,
       dependency-review
     ]
@@ -519,12 +491,12 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -532,19 +504,19 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up JDK ${{ env.JAVA_VERSION }} (${{ env.JAVA_DIST }})
-        uses: actions/setup-java@main
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DIST }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@main
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Build with Gradle
         run: ./gradlew build -x test
 
       - name: Upload artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: ${{ env.PLUGIN_NAME }}
           path: ${{ github.workspace }}/build/libs/
@@ -563,18 +535,19 @@ jobs:
       security-scan-trivy,
       security-scan-osv-push,
       security-scan-zizmor,
+      security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog
     ]
     runs-on: ubuntu-latest
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -582,19 +555,19 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up JDK ${{ env.JAVA_VERSION }} (${{ env.JAVA_DIST }})
-        uses: actions/setup-java@main
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DIST }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@main
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Build with Gradle
         run: ./gradlew build -x test
 
       - name: Upload artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: ${{ env.PLUGIN_NAME }}
           path: ${{ github.workspace }}/build/libs/

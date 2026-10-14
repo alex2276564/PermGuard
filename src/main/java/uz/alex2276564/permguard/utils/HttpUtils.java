@@ -51,7 +51,6 @@ public class HttpUtils {
 
     public HttpUtils() {
         this.client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
                 .connectTimeout(CONNECT_TIMEOUT)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .build();
