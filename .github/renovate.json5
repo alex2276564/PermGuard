@@ -69,7 +69,7 @@
   // Controls when Renovate creates PRs for dependency updates.
 
   "schedule": [
-    "at any time"
+    "on monday"
   ],
 
   // ================================================================
