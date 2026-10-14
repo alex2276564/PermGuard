@@ -393,6 +393,9 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
