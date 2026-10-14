@@ -336,10 +336,7 @@
       "matchPackageNames": [
         "umbrelladocs/action-linkspector"
       ],
-      "ignoreVersions": [
-        "1.5.5",
-        "v1.5.5"
-      ]
+      "allowedVersions": "!/^v?1\\.5\\.5$/"
     },
     {
       "description": "🛡️ Project-specific: ignore MAJOR updates for net.kyori:adventure-text-minimessage",
