@@ -21,6 +21,24 @@ For **enterprise-grade security requirements**, use **commercially supported sol
 
 ---
 
+## Command injection
+
+### Command framework
+
+All plugin commands are registered through a single internal command framework shared across our plugins, rather than ad-hoc per-command string parsing. This framework provides the following protections by design:
+
+- **Static, developer-defined command tree.** The set of valid commands, subcommands, and arguments is fully defined in code at plugin startup and cannot be mutated at runtime. User input matches only against explicitly registered subcommands; arbitrary tokens are treated strictly as literal arguments and cannot trigger hidden nodes (e.g., in `/<cmd> <group> op <player>`, `op` is parsed only as a literal player name argument, never as an internal `op` subcommand).
+- **Typed, bounded argument parsing.** Arguments are strongly typed (e.g., string, integer, online player) and parsed before the command handler runs. Parsing automatically enforces null/empty checks, length limits, and strict format validation, rejecting malformed or oversized input before it reaches any business logic.
+- **No dynamic dispatch or reflection.** Command execution always invokes a specific handler function bound to the matched command node at registration time. User input is never used to look up, construct, or invoke handlers by name or via reflection.
+- **Per-node permission checks.** Every command node enforces its own permission string, checked against the sender before reaching argument parsing or handler execution.
+- **No shell/OS execution.** Commands are dispatched through the Minecraft server's internal dispatcher, making classic shell metacharacters (`;`, `|`, `&`) completely inert. When building new console commands from templates (e.g., substituting player names), values undergo context-specific sanitization to strip characters that could construct unexpected multi-command sequences.
+
+### Other injection
+
+Beyond commands, all untrusted input from network events or external APIs follows the "sanitize at the boundary" principle. Raw values are never used directly for logging, display, or template substitution. Instead, they pass through a centralized utility with a context-specific sanitize type (e.g., name or network address) that applies strict allow-lists or escaping appropriate to the destination risk.
+
+---
+
 ## Data sanitization
 
 Whenever data comes from external or untrusted sources (user input, network responses, version tags, IP addresses, etc.), it is validated and sanitized before being used.
@@ -112,7 +130,7 @@ be used to verify the integrity of the JAR.
 
 - **StepSecurity Harden Runner** is enabled for all GitHub Actions workflows (except reusable workflows run in other repositories). It monitors outbound network and process activity on the runner at runtime and provides telemetry for suspicious behavior.
 - **Socket “sfw” firewall wrapper** is used around some high-risk tooling (e.g., package managers) to add an additional inspection layer for supply‑chain risks.
-- **StepSecurity hardened/drop-in Actions** (for example, replacements for popular third‑party Actions) are preferred where available, so that entire Actions are vetted and maintained by a security-focused vendor.
+- **StepSecurity hardened/drop-in Actions** (for example, replacements for popular third‑party Actions) are preferred where available, so that entire Actions are vetted and maintained by a security-focused vendor. However, these hardened variants may sometimes lag behind upstream releases, so regular upstream Actions are still used when the StepSecurity replacement is not yet updated.
 
 ### Network egress policy
 
@@ -148,6 +166,20 @@ Dependencies are kept up to date using [Renovate](https://github.com/renovatebot
 ## **Text / formatting injection**
 
 - **MiniMessage**: `unparsed()` blocks dangerous tag injection from user input, preventing injection via `<click>`, `<hover>`, etc. Only trusted placeholders are parsed.
+
+---
+
+## Repository hardening
+
+GitHub repository-level settings:
+
+- **Force-push protection:** **Enabled**.
+- **Secret Protection (push protection + secret scanning):** **Enabled**.
+- **Dependabot security alerts:** **Not enabled**.
+- **Immutable releases:** **Not enabled**.
+- **Branch protection rules:** **Not enabled**.
+- **Required signed commits/Required signed tags:** **Not enabled**.
+- **Mandatory PR review:** **Not enabled**.
 
 ---
 

@@ -19,7 +19,7 @@ workflows:
         - 'step-security/action-actionlint@v1.76.0'
         - 'step-security/harden-runner@v2.22.1'
         - 'trufflesecurity/trufflehog@v3.99.2'
-        - 'umbrelladocs/action-linkspector@v1.5.5'
+        - 'umbrelladocs/action-linkspector@v1.5.4'
         - 'zizmorcore/zizmor-action@v0.6.4'
     '.github/workflows/release.yml':
         - 'actions/checkout@v7.0.1'
@@ -177,9 +177,9 @@ dependencies:
         commit: 'sha1-e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9'
         owner_id: 79229934
         repo_id: 77726177
-    'umbrelladocs/action-linkspector@v1.5.5':
-        ref: 'v1.5.5'
-        commit: 'sha1-568ec8d29fa92b31fd9ea5381e155c51e922af83'
+    'umbrelladocs/action-linkspector@v1.5.4':
+        ref: 'v1.5.4'
+        commit: 'sha1-6c637d70424624231467a4ca918be54fa3b792d0'
         owner_id: 102124447
         repo_id: 799802002
         uses:

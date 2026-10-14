@@ -331,6 +331,17 @@
     // ================================================================
 
     {
+      "description": "🛠️ Temporarily skip umbrelladocs/action-linkspector v1.5.5 (broken release)",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": [
+        "umbrelladocs/action-linkspector"
+      ],
+      "ignoreVersions": [
+        "1.5.5",
+        "v1.5.5"
+      ]
+    },
+    {
       "description": "🛡️ Project-specific: ignore MAJOR updates for net.kyori:adventure-text-minimessage",
       "matchManagers": ["gradle"],
       "matchPackageNames": [

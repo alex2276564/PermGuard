@@ -105,7 +105,7 @@ jobs:
           persist-credentials: false
 
       - name: Lint Links
-        uses: umbrelladocs/action-linkspector@v1.5.5
+        uses: umbrelladocs/action-linkspector@v1.5.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
