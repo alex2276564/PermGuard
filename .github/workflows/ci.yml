@@ -406,20 +406,20 @@ jobs:
 
       - name: Install gh-actions-lock extension
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RETRY_COUNT: 3
           RETRY_DELAY: 30
         run: |
-          for i in $(seq 1 $RETRY_COUNT); do
+          # Оборачиваем переменные в двойные кавычки для shellcheck
+          for i in $(seq 1 "$RETRY_COUNT"); do
             echo "Attempt $i of $RETRY_COUNT to install github/gh-actions-lock..."
             if gh extension install github/gh-actions-lock; then
               echo "Extension installed successfully!"
               exit 0
             fi
           
-            if [ $i -lt $RETRY_COUNT ]; then
+            if [ "$i" -lt "$RETRY_COUNT" ]; then
               echo "Installation failed. Waiting $RETRY_DELAY seconds before next attempt..."
-              sleep $RETRY_DELAY
+              sleep "$RETRY_DELAY"
             fi
           done
           
@@ -428,7 +428,6 @@ jobs:
 
       - name: Verify GitHub Actions lockfile
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh actions-lock --verify
 
