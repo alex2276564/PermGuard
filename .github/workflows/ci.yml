@@ -105,7 +105,7 @@ jobs:
           persist-credentials: false
 
       - name: Lint Links
-        uses: umbrelladocs/action-linkspector@v1.5.4
+        uses: umbrelladocs/action-linkspector@v1.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
@@ -127,7 +127,7 @@ jobs:
           persist-credentials: false
 
       - name: Lint Markdown files
-        uses: DavidAnson/markdownlint-cli2-action@v24.1.0
+        uses: DavidAnson/markdownlint-cli2-action@v24.2.0
         with:
           globs: '**/*.md'
           config: '.markdownlint.jsonc'
