@@ -23,8 +23,8 @@ permissions:
   contents: read
 
 jobs:
-  lint-actions:
-    name: 🧹 Lint Actions
+  lint-actionlint-kjanat-fork:
+    name: 🧹 Lint Actions (actionlint, kjanat fork via StepSecurity)
     runs-on: ubuntu-latest
 
     permissions:
@@ -361,6 +361,33 @@ jobs:
         --recursive
         ./
 
+  security-scan-jactionlint:
+    name: 🔐 Security Scan jactionlint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run jactionlint (pedantic + online + strict exit)
+        uses: jdx/jactionlint@v2.2.0
+        with:
+          profile: pedantic
+          online: strict
+          strict-exit: true
+
   security-scan-zizmor:
     name: 🔐 GitHub Actions Security (zizmor)
     runs-on: ubuntu-latest
@@ -495,7 +522,7 @@ jobs:
     name: 🏗️ Build Plugin (PR)
     if: github.event_name == 'pull_request'
     needs: [
-      lint-actions,
+      lint-actionlint-kjanat-fork,
       lint-renovate,
       lint-links,
       lint-markdown,
@@ -503,6 +530,7 @@ jobs:
       security-scan-semgrep,
       security-scan-trivy,
       security-scan-osv-pr,
+      security-scan-jactionlint,
       security-scan-zizmor,
       security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog,
@@ -546,7 +574,7 @@ jobs:
     name: 🏗️ Build Plugin (push)
     if: github.event_name == 'push'
     needs: [
-      lint-actions,
+      lint-actionlint-kjanat-fork,
       lint-renovate,
       lint-links,
       lint-markdown,
@@ -555,6 +583,7 @@ jobs:
       security-scan-snyk,
       security-scan-trivy,
       security-scan-osv-push,
+      security-scan-jactionlint,
       security-scan-zizmor,
       security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog

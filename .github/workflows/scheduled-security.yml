@@ -332,6 +332,33 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  security-scan-jactionlint:
+    name: 🔐 Security Scan jactionlint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run jactionlint (pedantic + online + strict exit)
+        uses: jdx/jactionlint@v2.2.0
+        with:
+          profile: pedantic
+          online: strict
+          strict-exit: true
+
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
     runs-on: ubuntu-latest
