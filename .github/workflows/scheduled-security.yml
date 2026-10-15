@@ -62,7 +62,7 @@ permissions:
 jobs:
   security-scan:
     name: 🔐 Security Scan CodeQL
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -102,7 +102,7 @@ jobs:
 
   security-scan-semgrep:
     name: 🔐 Security Scan Semgrep
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -165,7 +165,7 @@ jobs:
 
   security-scan-strix:
     name: 🔐 Security Scan Strix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     if: github.event_name == 'workflow_dispatch'
 
@@ -209,7 +209,7 @@ jobs:
 
   security-scan-snyk:
     name: 🔐 Security Scan Snyk
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -252,7 +252,7 @@ jobs:
 
   security-scan-trivy:
     name: 🔐 Security Scan Trivy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -309,7 +309,7 @@ jobs:
 
   security-scan-zizmor:
     name: 🔐 GitHub Actions Security (zizmor)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -334,12 +334,10 @@ jobs:
 
   security-scan-jactionlint:
     name: 🔐 Security Scan jactionlint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
 
     steps:
       - name: Harden Runner
@@ -361,7 +359,7 @@ jobs:
 
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read

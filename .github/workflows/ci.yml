@@ -25,12 +25,13 @@ permissions:
 jobs:
   lint-actionlint-kjanat-fork:
     name: 🧹 Lint Actions (actionlint, kjanat fork via StepSecurity)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
       pull-requests: write
       checks: write
+      issues: write
 
     steps:
       - name: Harden Runner
@@ -48,13 +49,12 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
-          fail_on_error: true
-          level: any
+          fail_level: any
           filter_mode: nofilter
 
   lint-renovate:
     name: 🧹 Lint Renovate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -86,7 +86,7 @@ jobs:
 
   lint-links:
     name: 🧹 Lint Links
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -113,7 +113,7 @@ jobs:
 
   lint-markdown:
     name: 🧹 Lint Markdown
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Harden Runner
@@ -134,7 +134,7 @@ jobs:
 
   security-scan:
     name: 🔐 Security Scan CodeQL
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -175,7 +175,7 @@ jobs:
 
   security-scan-semgrep:
     name: 🔐 Security Scan Semgrep
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -238,7 +238,7 @@ jobs:
 
   security-scan-snyk:
     name: 🔐 Security Scan Snyk (push)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Skip security scan Snyk for PR (for PR we connect GitHub App integration Snyk)
     if: github.event_name == 'push'
@@ -284,7 +284,7 @@ jobs:
 
   security-scan-trivy:
     name: 🔐 Security Scan Trivy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -363,12 +363,10 @@ jobs:
 
   security-scan-jactionlint:
     name: 🔐 Security Scan jactionlint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
 
     steps:
       - name: Harden Runner
@@ -390,7 +388,7 @@ jobs:
 
   security-scan-zizmor:
     name: 🔐 GitHub Actions Security (zizmor)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -415,7 +413,7 @@ jobs:
 
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read
@@ -461,7 +459,7 @@ jobs:
 
   dependency-review:
     name: 🧩 Dependency Review (PR)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Skip Dependency Review for push
     if: github.event_name == 'pull_request'
@@ -488,7 +486,7 @@ jobs:
 
   secrets-scan-trufflehog:
     name: 🔑 Secrets Scan TruffleHog
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Harden Runner
@@ -536,7 +534,7 @@ jobs:
       secrets-scan-trufflehog,
       dependency-review
     ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Harden Runner
@@ -588,7 +586,7 @@ jobs:
       security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog
     ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Harden Runner
