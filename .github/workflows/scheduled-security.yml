@@ -324,7 +324,6 @@ jobs:
       actions: read
       security-events: write
 
-    # jactionlint ignore=unpinned-uses # gh actions lockfile not support reusable workflow for now time
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0
     with:
       fail-on-vuln: true

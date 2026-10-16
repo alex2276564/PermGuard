@@ -1,0 +1,3 @@
+rules:
+  # gh actions lockfile not support reusable workflow for now time
+  unpinned-uses: off

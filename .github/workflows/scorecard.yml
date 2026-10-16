@@ -11,8 +11,7 @@ permissions:
 # Single stable group: a new scheduled/manual run waits for one still
 # running instead of overlapping with it.
 concurrency:
-  group: >-
-    ${{ github.workflow }}-caller-${{ github.event_name }}-${{ github.event.inputs.ai_model || 'no-model' }}-${{ github.event.inputs.scan_mode || 'no-scan-mode' }}-${{ github.event.inputs.scope_mode || 'no-scope' }}
+  group: ${{ github.workflow }}
   cancel-in-progress: false
   queue: max
 
