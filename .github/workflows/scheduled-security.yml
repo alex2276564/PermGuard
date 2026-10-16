@@ -59,10 +59,26 @@ on:
 permissions:
   contents: read
 
+# Scheduled runs share one group so they queue instead of overlapping.
+# Manual runs fold their inputs into the group so that two dispatches with
+# different parameters do not cancel/replace each other. The "-caller"
+# suffix keeps this group distinct from any group a called reusable
+# workflow (e.g. the OSV scan below) builds from "${{ github.workflow }}".
+concurrency:
+  group: >-
+    ${{ github.workflow }}-caller-${{ github.event_name }}-${{ github.event.inputs.ai_model || 'no-model' }}-${{ github.event.inputs.scan_mode || 'no-scan-mode' }}-${{ github.event.inputs.scope_mode || 'no-scope' }}
+  cancel-in-progress: false
+  queue: max
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   security-scan:
     name: 🔐 Security Scan CodeQL
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -103,6 +119,8 @@ jobs:
   security-scan-semgrep:
     name: 🔐 Security Scan Semgrep
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: security-scans
 
     permissions:
       contents: read
@@ -159,15 +177,18 @@ jobs:
 
       - name: Upload results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4.38.3
-        if: always()
+        if: ${{ always() }}
         with:
           sarif_file: semgrep.sarif
 
   security-scan-strix:
     name: 🔐 Security Scan Strix
     runs-on: ubuntu-24.04
+    timeout-minutes: 240
 
-    if: github.event_name == 'workflow_dispatch'
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    environment: security-scans
 
     permissions:
       contents: read
@@ -193,6 +214,7 @@ jobs:
 
       - name: Install Strix
         # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
+        # jactionlint ignore=unverified-download
         run: |
           curl -sSL https://strix.ai/install | bash
 
@@ -210,6 +232,8 @@ jobs:
   security-scan-snyk:
     name: 🔐 Security Scan Snyk
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: security-scans
 
     permissions:
       contents: read
@@ -246,13 +270,14 @@ jobs:
 
       - name: Upload Snyk scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4.38.3
-        if: always()
+        if: ${{ always() }}
         with:
           sarif_file: 'snyk.sarif'
 
   security-scan-trivy:
     name: 🔐 Security Scan Trivy
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: read
@@ -280,14 +305,14 @@ jobs:
           exit-code: '1'
 
       - name: Run Trivy (console report)
-        if: failure()
+        if: ${{ failure() }}
         run: |
           echo "==== Trivy console report ===="
           trivy fs .
 
       - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ always() }}
         uses: github/codeql-action/upload-sarif@v4.38.3
-        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -299,6 +324,7 @@ jobs:
       actions: read
       security-events: write
 
+    # jactionlint ignore=unpinned-uses # gh actions lockfile not support reusable workflow for now time
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0
     with:
       fail-on-vuln: true
@@ -310,6 +336,7 @@ jobs:
   security-scan-zizmor:
     name: 🔐 GitHub Actions Security (zizmor)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -335,6 +362,7 @@ jobs:
   security-scan-jactionlint:
     name: 🔐 Security Scan jactionlint
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -360,6 +388,7 @@ jobs:
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: read

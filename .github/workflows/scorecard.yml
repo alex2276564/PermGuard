@@ -8,10 +8,19 @@ on:
 permissions:
   contents: read
 
+# Single stable group: a new scheduled/manual run waits for one still
+# running instead of overlapping with it.
+concurrency:
+  group: >-
+    ${{ github.workflow }}-caller-${{ github.event_name }}-${{ github.event.inputs.ai_model || 'no-model' }}-${{ github.event.inputs.scan_mode || 'no-scan-mode' }}-${{ github.event.inputs.scope_mode || 'no-scope' }}
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   analysis:
     name: 📊 OpenSSF Scorecard Analysis
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: read

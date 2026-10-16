@@ -27,6 +27,19 @@ on:
 permissions:
   contents: read
 
+# This workflow publishes a release, so an in-progress run must not be
+# canceled by a newer one (cancel-in-progress: false). The "-caller" suffix
+# keeps this group distinct from any group the SLSA reusable workflow below
+# builds from "${{ github.workflow }}" on its own side.
+concurrency:
+  group: ${{ github.workflow }}-caller
+  cancel-in-progress: false
+  queue: max
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # ================================================================
   # 🏗️ BUILD: build JAR and compute SHA-256
@@ -34,9 +47,9 @@ jobs:
   build:
     name: 🏗️ Build plugin
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
     outputs:
-      jar_file: ${{ steps.jar.outputs.jar_file }}
       jar_name: ${{ steps.jar.outputs.jar_name }}
       sha256: ${{ steps.jar.outputs.sha256 }}
 
@@ -133,6 +146,7 @@ jobs:
       contents: write   # required to upload provenance as artifact
 
     # SLSA Gradle builder: MUST be pinned to exact semver tag (vX.Y.Z)
+    # jactionlint ignore=unpinned-uses # gh actions lockfile not support reusable workflow for now time
     uses: slsa-framework/slsa-github-generator/.github/workflows/builder_gradle_slsa3.yml@v2.1.0
     with:
       # Path(s) to artifacts to attest, relative to repo root.
@@ -148,6 +162,7 @@ jobs:
     name: 🚀 GitHub Release
     needs: [ build, provenance ]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: write

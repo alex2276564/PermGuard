@@ -22,10 +22,21 @@ on:
 permissions:
   contents: read
 
+# A "-caller" suffix keeps this group distinct from any group a called
+# reusable workflow builds from "${{ github.workflow }}" on its own side.
+concurrency:
+  group: ${{ github.workflow }}-caller-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   lint-actionlint-kjanat-fork:
     name: 🧹 Lint Actions (actionlint, kjanat fork via StepSecurity)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -55,6 +66,7 @@ jobs:
   lint-renovate:
     name: 🧹 Lint Renovate
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -87,6 +99,7 @@ jobs:
   lint-links:
     name: 🧹 Lint Links
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -114,6 +127,7 @@ jobs:
   lint-markdown:
     name: 🧹 Lint Markdown
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
       - name: Harden Runner
@@ -135,6 +149,7 @@ jobs:
   security-scan:
     name: 🔐 Security Scan CodeQL
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -176,6 +191,8 @@ jobs:
   security-scan-semgrep:
     name: 🔐 Security Scan Semgrep
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: security-scans
 
     permissions:
       contents: read
@@ -232,16 +249,19 @@ jobs:
 
       - name: Upload results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4.38.3
-        if: always()
+        if: ${{ always() }}
         with:
           sarif_file: semgrep.sarif
 
   security-scan-snyk:
     name: 🔐 Security Scan Snyk (push)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     # Skip security scan Snyk for PR (for PR we connect GitHub App integration Snyk)
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
+
+    environment: security-scans
 
     permissions:
       contents: read
@@ -278,13 +298,14 @@ jobs:
 
       - name: Upload Snyk scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4.38.3
-        if: always()
+        if: ${{ always() }}
         with:
           sarif_file: 'snyk.sarif'
 
   security-scan-trivy:
     name: 🔐 Security Scan Trivy
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: read
@@ -312,17 +333,16 @@ jobs:
           exit-code: '1'
 
       - name: Run Trivy (console report)
-        if: failure()
+        if: ${{ failure() }}
         run: |
           echo "==== Trivy console report ===="
           trivy fs .
 
       - name: Upload Trivy scan results to GitHub Security tab
         # Fix condition to work for both push and PR (excluding forks)
-        if: |
-          always() &&
-          (github.event_name == 'push' || 
-           (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false))
+        if: ${{ always() &&
+          (github.event_name == 'push' ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)) }}
         uses: github/codeql-action/upload-sarif@v4.38.3
         with:
           sarif_file: 'trivy-results.sarif'
@@ -336,6 +356,7 @@ jobs:
       actions: read
       security-events: write
 
+    # jactionlint ignore=unpinned-uses # gh actions lockfile not support reusable workflow for now time
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.6.0
     with:
       fail-on-vuln: true
@@ -353,6 +374,7 @@ jobs:
       actions: read
       security-events: write
 
+    # jactionlint ignore=unpinned-uses # gh actions lockfile not support reusable workflow for now time
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0
     with:
       fail-on-vuln: true
@@ -364,6 +386,7 @@ jobs:
   security-scan-jactionlint:
     name: 🔐 Security Scan jactionlint
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -389,6 +412,7 @@ jobs:
   security-scan-zizmor:
     name: 🔐 GitHub Actions Security (zizmor)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -414,6 +438,7 @@ jobs:
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     permissions:
       contents: read
@@ -460,9 +485,10 @@ jobs:
   dependency-review:
     name: 🧩 Dependency Review (PR)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     # Skip Dependency Review for push
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name == 'pull_request' }}
 
     permissions:
       contents: read
@@ -487,6 +513,7 @@ jobs:
   secrets-scan-trufflehog:
     name: 🔑 Secrets Scan TruffleHog
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
       - name: Harden Runner
@@ -501,14 +528,14 @@ jobs:
           fetch-depth: 0  # Required for diff scan
 
       - name: TruffleHog Secrets Scan (full)
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
         uses: trufflesecurity/trufflehog@v3.99.2
         with:
           path: ./
           extra_args: --results=verified,unknown
 
       - name: TruffleHog Secrets Scan (diff)
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         uses: trufflesecurity/trufflehog@v3.99.2
         with:
           path: ./
@@ -518,7 +545,8 @@ jobs:
 
   build-pr:
     name: 🏗️ Build Plugin (PR)
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name == 'pull_request' }}
+    timeout-minutes: 20
     needs: [
       lint-actionlint-kjanat-fork,
       lint-renovate,
@@ -567,10 +595,12 @@ jobs:
         with:
           name: ${{ env.PLUGIN_NAME }}
           path: ${{ github.workspace }}/build/libs/
+          if-no-files-found: error
 
   build-push:
     name: 🏗️ Build Plugin (push)
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
+    timeout-minutes: 20
     needs: [
       lint-actionlint-kjanat-fork,
       lint-renovate,
@@ -619,3 +649,4 @@ jobs:
         with:
           name: ${{ env.PLUGIN_NAME }}
           path: ${{ github.workspace }}/build/libs/
+          if-no-files-found: error
