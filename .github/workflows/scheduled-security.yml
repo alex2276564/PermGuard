@@ -172,7 +172,7 @@ jobs:
             --exclude "**/build/**" \
             --exclude "**/.gradle/**" \
             --exclude "**/test/**" \
-            --sarif --output semgrep.sarif \
+            --sarif-output semgrep.sarif \
             --error
 
       - name: Upload results to GitHub Security tab
@@ -213,8 +213,8 @@ jobs:
           fetch-depth: 0
 
       - name: Install Strix
-        # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
         # jactionlint ignore=unverified-download
+        # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
         run: |
           curl -sSL https://strix.ai/install | bash
 
