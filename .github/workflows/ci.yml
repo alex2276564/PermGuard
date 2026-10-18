@@ -194,6 +194,8 @@ jobs:
         run: sfw pip install semgrep
 
       - name: Setup Semgrep Pro Engine via Socket Firewall
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: sfw semgrep install-semgrep-pro
 
       # Exclude mutable action tag rule because Semgrep does not support the modern
