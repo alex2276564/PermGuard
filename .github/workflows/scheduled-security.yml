@@ -206,9 +206,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install Strix
-        # jactionlint ignore=unverified-download # Checksum verification is useless here; if Strix goes evil, it can steal our token anyway
         run: |
           curl -sSL -o install_strix.sh https://strix.ai/install
+          # jactionlint ignore=unverified-download  # Checksum verification is useless here; if Strix goes evil, it can steal our token anyway
           bash install_strix.sh
 
       - name: Run Code Analysis via ${{ env.STRIX_LLM }}
