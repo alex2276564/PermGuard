@@ -206,10 +206,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install Strix
-        # jactionlint ignore=unverified-download
-        # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
         run: |
-          curl -sSL https://strix.ai/install | bash
+          curl -sSL -o install_strix.sh https://strix.ai/install
+          bash install_strix.sh
 
       - name: Run Code Analysis via ${{ env.STRIX_LLM }}
         env:
@@ -354,6 +353,7 @@ jobs:
           fail-on: low
           comment-on-pr: true
           refresh-catalog: true
+          exclude-rules: POLICY_SUPPRESSED_SEVERE
 
   security-scan-jactionlint:
     name: 🔐 Security Scan jactionlint

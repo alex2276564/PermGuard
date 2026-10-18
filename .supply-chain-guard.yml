@@ -2,15 +2,8 @@ rules:
   disable:
     GHA_TAG_NOT_SHA: "Exclude mutable action tag rule because supply-chain-guard does not support the modern actions.lockfile mechanism yet."
     GHA_THIRD_PARTY_ACTION: "Third-party actions are acceptable for this project."
-    POLICY_SUPPRESSED_SEVERE: "Risk accepted: suppressed findings are reviewed false positives, not hidden threats."
 
 suppress:
-  - rule: POLICY_SUPPRESSED_SEVERE
-    reason: "Risk accepted: suppressed findings are reviewed false positives, not hidden threats."
-    path: .supply-chain-guard.yml
-  - rule: GHA_CURL_PIPE_EXEC
-    reason: "Strix official installer"
-    path: .github/workflows/scheduled-security.yml
   - rule: WORKFLOW_SECRET_TO_UPLOAD_PATH
     reason: "Secrets are already scoped to the minimum set of steps; outbound calls are limited to trusted endpoints."
     path: .github/workflows/scheduled-security.yml

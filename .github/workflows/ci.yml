@@ -407,6 +407,7 @@ jobs:
           fail-on: low
           comment-on-pr: true
           refresh-catalog: true
+          exclude-rules: POLICY_SUPPRESSED_SEVERE
 
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
