@@ -519,7 +519,6 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     timeout-minutes: 20
     needs: [
-      lint-actionlint-kjanat-fork,
       lint-renovate,
       lint-links,
       lint-markdown,
@@ -528,7 +527,7 @@ jobs:
       security-scan-trivy,
       security-scan-osv-pr,
       security-scan-jactionlint,
-      security-scan-zizmor,
+      security-scan-supply-chain-guard,
       security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog,
       dependency-review
@@ -573,7 +572,6 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     timeout-minutes: 20
     needs: [
-      lint-actionlint-kjanat-fork,
       lint-renovate,
       lint-links,
       lint-markdown,
@@ -583,7 +581,7 @@ jobs:
       security-scan-trivy,
       security-scan-osv-push,
       security-scan-jactionlint,
-      security-scan-zizmor,
+      security-scan-supply-chain-guard,
       security-scan-gh-actions-lockfile,
       secrets-scan-trufflehog
     ]
