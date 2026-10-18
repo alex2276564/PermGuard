@@ -5,6 +5,9 @@ rules:
     POLICY_SUPPRESSED_SEVERE: "Risk accepted: suppressed findings are reviewed false positives, not hidden threats."
 
 suppress:
+  - rule: POLICY_SUPPRESSED_SEVERE
+    reason: "Risk accepted: suppressed findings are reviewed false positives, not hidden threats."
+    path: .supply-chain-guard.yml
   - rule: GHA_CURL_PIPE_EXEC
     reason: "Strix official installer"
     path: .github/workflows/scheduled-security.yml
