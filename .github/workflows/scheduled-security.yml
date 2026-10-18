@@ -124,9 +124,6 @@ jobs:
       contents: read
       security-events: write
 
-    env:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
@@ -157,6 +154,8 @@ jobs:
       # Exclude mutable action tag rule because Semgrep does not support the modern
       # actions.lockfile mechanism yet.
       - name: Run Semgrep
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: |
           semgrep scan \
             --pro \
@@ -192,12 +191,6 @@ jobs:
       contents: read
       actions: read
 
-    env:
-      STRIX_LLM: ${{ github.event.inputs.ai_model }}
-      LLM_API_KEY: ${{ secrets.OPENROUTER_TOKEN_FREE_1 }}
-      LLM_TIMEOUT: ${{ github.event.inputs.llm_timeout }}
-      STRIX_LLM_MAX_RETRIES: ${{ github.event.inputs.max_retries }}
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
@@ -218,6 +211,10 @@ jobs:
 
       - name: Run Code Analysis via ${{ env.STRIX_LLM }}
         env:
+          LLM_API_KEY: ${{ secrets.OPENROUTER_TOKEN_FREE_1 }}
+          STRIX_LLM: ${{ github.event.inputs.ai_model }}
+          LLM_TIMEOUT: ${{ github.event.inputs.llm_timeout }}
+          STRIX_LLM_MAX_RETRIES: ${{ github.event.inputs.max_retries }}
           STRIX_SCAN_MODE: ${{ github.event.inputs.scan_mode }}
           STRIX_SCOPE_MODE: ${{ github.event.inputs.scope_mode }}
         run: |

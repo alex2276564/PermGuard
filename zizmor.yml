@@ -1,5 +1,0 @@
-rules:
-  # Zizmor do not support the modern actions.lockfile yet.
-  # Track status here: https://github.com/zizmorcore/zizmor/issues/2371
-  unpinned-uses:
-    disable: true

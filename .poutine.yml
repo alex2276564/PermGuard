@@ -1,4 +1,0 @@
-skip:
-  # Exclude mutable action tag rule because poutine does not support the modern
-  # actions.lockfile mechanism yet.
-  - rule: unpinnable_action

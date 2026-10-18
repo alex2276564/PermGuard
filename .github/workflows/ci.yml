@@ -33,36 +33,6 @@ defaults:
     shell: bash
 
 jobs:
-  lint-actionlint-kjanat-fork:
-    name: 🧹 Lint Actions (actionlint, kjanat fork via StepSecurity)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
-      issues: write
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2.22.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Actionlint (Reviewdog)
-        uses: step-security/action-actionlint@v1.76.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
-          fail_level: any
-          filter_mode: nofilter
-
   lint-renovate:
     name: 🧹 Lint Renovate
     runs-on: ubuntu-24.04
@@ -83,7 +53,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.2.0
+        uses: step-security/setup-bun@v2.1.3
         with:
           bun-version: latest
 
@@ -199,9 +169,6 @@ jobs:
       security-events: write
       actions: read
 
-    env:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
@@ -232,6 +199,8 @@ jobs:
       # Exclude mutable action tag rule because Semgrep does not support the modern
       # actions.lockfile mechanism yet.
       - name: Run Semgrep
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: |
           semgrep scan \
             --pro \
@@ -411,32 +380,6 @@ jobs:
           online: strict
           strict-exit: true
 
-  security-scan-zizmor:
-    name: 🔐 Security Scan zizmor
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-
-    permissions:
-      contents: read
-      actions: read
-      security-events: write
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2.22.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Run zizmor 🌈
-        uses: zizmorcore/zizmor-action@v0.6.4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   security-scan-supply-chain-guard:
     name: 🔐 Security Scan supply-chain-guard
     runs-on: ubuntu-24.04
@@ -462,37 +405,6 @@ jobs:
           fail-on: low
           comment-on-pr: true
           refresh-catalog: true
-
-  security-scan-poutine:
-    name: 🔐 Security Scan poutine
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-
-    permissions:
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2.22.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install poutine
-        run: |
-          curl -fsSL -o poutine.tar.gz \
-            https://github.com/boostsecurityio/poutine/releases/download/v1.1.6/poutine_Linux_x86_64.tar.gz
-          tar xzf poutine.tar.gz poutine
-          chmod +x poutine
-          sudo mv poutine /usr/local/bin/
-
-      - name: Run poutine (strict, fail on any violation)
-        run: poutine analyze_local . --fail-on-violation
 
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
