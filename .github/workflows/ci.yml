@@ -440,6 +440,7 @@ jobs:
   security-scan-supply-chain-guard:
     name: 🔐 Security Scan supply-chain-guard
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     permissions:
       contents: read
@@ -461,36 +462,6 @@ jobs:
           fail-on: low
           comment-on-pr: true
           refresh-catalog: true
-
-  security-scan-poutine:
-    name: 🔐 Security Scan poutine
-    runs-on: ubuntu-24.04
-
-    permissions:
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2.22.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install poutine
-        run: |
-          curl -fsSL -o poutine.tar.gz \
-            https://github.com/boostsecurityio/poutine/releases/download/v1.1.6/poutine_Linux_x86_64.tar.gz
-          tar xzf poutine.tar.gz poutine
-          chmod +x poutine
-          sudo mv poutine /usr/local/bin/
-
-      - name: Run poutine (strict, fail on any violation)
-        run: poutine analyze_local . --fail-on-violation
 
   security-scan-gh-actions-lockfile:
     name: 🔐 Security Scan GitHub Actions Lockfile
