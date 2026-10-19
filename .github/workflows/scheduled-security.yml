@@ -360,9 +360,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
-    permissions:
-      contents: read
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2.22.1
@@ -385,9 +382,6 @@ jobs:
     name: 🔐 Security Scan GitHub Actions Lockfile
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-
-    permissions:
-      contents: read
 
     steps:
       - name: Harden Runner
