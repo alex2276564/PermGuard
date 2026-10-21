@@ -4,11 +4,11 @@
 [![Java Version](https://img.shields.io/badge/java-17+-orange)](https://adoptium.net/installation/linux/)
 [![GitHub Release](https://img.shields.io/github/v/release/alex2276564/PermGuard?color=blue)](https://github.com/alex2276564/PermGuard/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![ISO/IEC 27001](https://img.shields.io/badge/ISO/IEC%2027001-Compliant-brightgreen)](https://www.iso.org/standard/27001)
 [![Zero Trust Architecture](https://img.shields.io/badge/Zero%20Trust-Architecture-blue)](https://www.nist.gov/publications/zero-trust-architecture)
-[![CIS Controls](https://img.shields.io/badge/CIS%20Controls-Compliant-brightgreen)](https://www.cisecurity.org/)
 [![Least Privilege Principle](https://img.shields.io/badge/Least%20Privilege%20Principle-Implemented-brightgreen)](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
-[![Audit Logging](https://img.shields.io/badge/Audit%20Logging-Enabled-yellow)](https://en.wikipedia.org/wiki/Information_security)
+[![Zero Standing Privileges](https://img.shields.io/badge/Zero%20Standing%20Privileges-Implemented-brightgreen)](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-planning#zero-standing-privileges)
+[![Just-in-Time Elevation](https://img.shields.io/badge/Just--In--Time%20Elevation-Implemented-brightgreen)](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-deployment#just-in-time-administration)
+[![ISO/IEC 27001 & Audit Logging](https://img.shields.io/badge/ISO%2FIEC%2027001%20%26%20Audit%20Logging-Aligned-brightgreen)](https://www.iso.org/standard/27001)
 [![Telegram Notifications](https://img.shields.io/badge/Telegram-Notifications-blue)](https://core.telegram.org/bots/api)
 [![Text Formatting](https://img.shields.io/badge/Text%20Formatting-🌈%20MiniMessage-ff69b4)](https://docs.advntr.dev/minimessage/)
 [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
@@ -105,14 +105,13 @@ This makes PermGuard effective against:
 
 ### Compliance with Security Standards
 
-**Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall security compliance depends on your complete infrastructure setup, proper configuration of all components, and following security best practices across your entire system.
+**Note:** The following compliance features are implemented within the PermGuard plugin itself. Your server's overall security posture still depends on your complete infrastructure, proper configuration of all components, and following security best practices across your entire system.
 
-* **Least Privilege Principle (ISO/IEC 15408):** Ensures that users have only the minimum permissions necessary to perform their tasks, reducing the risk of privilege abuse.
-* **Audit Logging (ISO/IEC 27001):** Provides detailed logs of all permission-related activities, facilitating compliance audits and forensic analysis.
-* **ISO/IEC 27001 Compliance:** PermGuard helps servers adhere to information security management best practices by enforcing strict permission controls and audit logging.
-* **CIS Controls:** Aligns with the Center for Internet Security (CIS) Controls for effective cyber defense by implementing strong access control measures.
-* **Secure Access Control:** By requiring manual permission restoration via the console, PermGuard ensures that only authorized personnel can grant elevated privileges.
-* **Zero Trust Architecture (NIST SP 800-207):** Applies a deny-by-default philosophy to administrative privileges. Elevated access is never implicitly trusted and must be explicitly restored via the console after join.
+* **Zero Trust Architecture (NIST SP 800‑207):** Applies a deny‑by‑default philosophy to administrative access. Even if upstream authentication or network layers are bypassed, elevated permissions are not trusted and are proactively revoked, so an attacker cannot rely on standing admin privileges.
+* **Least Privilege Principle (ISO/IEC 15408):** Ensures that users keep only the minimum set of permissions needed to perform their tasks. PermGuard enforces this by stripping broad or high‑risk permissions (such as `*` or admin groups) on every login.
+* **Zero Standing Privileges (ZSP):** Administrators do not keep permanent elevated permissions while online. PermGuard revokes them on join, so elevated privileges only exist briefly and must be re‑granted explicitly when needed (e.g., via LuckPerms commands in the console).
+* **Just‑In‑Time (JIT) elevation:** Any elevation of privileges is performed out‑of‑band via the server console or trusted automation, only at the moment it is required. There is no in‑game “always‑on” admin mode; permissions are granted just‑in‑time and then removed again on the next login.
+* **Audit logging & ISO/IEC 27001 alignment:** All permission‑related events (detection of elevated permissions, automatic revocation, kicks) are logged both to the console and to a dedicated log file. This provides an audit trail that supports incident response and aligns with ISO/IEC 27001 requirements for logging and monitoring.
 
 ### TL;DR
 
